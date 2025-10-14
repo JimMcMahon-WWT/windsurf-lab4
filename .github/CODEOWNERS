@@ -1,0 +1,63 @@
+# CODEOWNERS - Automatically request reviews from code owners
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global owners - notified on all PRs
+* @tech-lead @senior-dev-1
+
+# Service-specific owners
+/services/user-service/ @auth-team-lead @senior-dev-2
+/services/product-service/ @catalog-team-lead @senior-dev-3
+/services/cart-service/ @catalog-team-lead @senior-dev-3
+/services/order-service/ @orders-team-lead @senior-dev-1
+/services/payment-service/ @payments-team-lead @senior-dev-4 @security-lead
+/services/inventory-service/ @inventory-team-lead @senior-dev-2
+/services/notification-service/ @platform-team-lead @senior-dev-1
+/services/search-service/ @search-team-lead @senior-dev-3
+
+# Shared packages - require broader review
+/packages/ @tech-lead @senior-dev-1 @senior-dev-2
+/packages/auth/ @auth-team-lead @security-lead
+/packages/database/ @dba-lead @senior-dev-1
+/packages/events/ @platform-team-lead @senior-dev-2
+
+# Infrastructure - DevOps team approval required
+/infrastructure/ @devops-lead @infra-team-lead
+/infrastructure/terraform/ @devops-lead @infra-team-lead
+/infrastructure/kubernetes/ @devops-lead @k8s-admin
+/infrastructure/docker/ @devops-lead
+docker-compose.yml @devops-lead
+Dockerfile @devops-lead
+**/Dockerfile @devops-lead
+
+# CI/CD - DevOps and tech lead approval
+/.github/ @tech-lead @devops-lead
+/.github/workflows/ @tech-lead @devops-lead
+.github/workflows/ci.yml @tech-lead @devops-lead @senior-dev-1
+
+# Security-sensitive files
+**/.env.example @security-lead
+**/migrations/ @dba-lead
+/.husky/ @tech-lead
+
+# Documentation - tech lead review
+/docs/ @tech-lead @tech-writer
+README.md @tech-lead
+CONTRIBUTING.md @tech-lead
+CHANGELOG.md @tech-lead
+
+# Configuration files - require careful review
+package.json @tech-lead @senior-dev-1
+package-lock.json @tech-lead
+turbo.json @tech-lead @senior-dev-1
+tsconfig.json @tech-lead @senior-dev-1
+.eslintrc.js @tech-lead
+.prettierrc @tech-lead
+
+# Database schemas and migrations - DBA review required
+**/migrations/*.sql @dba-lead @senior-dev-1
+**/seeds/*.sql @dba-lead
+
+# Test files - QA team can also review
+**/tests/ @qa-lead
+**/*.test.ts @qa-lead
+**/*.spec.ts @qa-lead
