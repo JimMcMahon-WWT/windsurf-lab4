@@ -15,7 +15,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
     }
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-    const decoded = authUtils.verifyToken(token);
+    const decoded = authUtils.verifyAccessToken(token);
 
     // Attach user info to request
     (req as any).user = decoded;

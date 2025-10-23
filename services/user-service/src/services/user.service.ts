@@ -3,6 +3,7 @@ import authUtils from '../utils/auth.utils';
 import { RegisterRequest, LoginRequest, LoginResponse, UserResponse } from '../types/user.types';
 import { validate, registerSchema, loginSchema } from '../utils/validation';
 import logger from '../config/logger';
+import crypto from 'crypto';
 
 export class UserService {
   /**
@@ -67,22 +68,25 @@ export class UserService {
     await userRepository.updateLastLogin(user.id);
 
     // Generate tokens
-    const token = authUtils.generateAccessToken({
+    const accessToken = authUtils.generateAccessToken({
       userId: user.id,
       email: user.email,
       role: user.role,
     });
 
+    const tokenId = crypto.randomUUID();
     const refreshToken = authUtils.generateRefreshToken({
       userId: user.id,
+      tokenId,
     });
 
     logger.info(`User logged in: ${user.email}`);
 
     return {
       user: this.toUserResponse(user),
-      token,
+      accessToken,
       refreshToken,
+      expiresIn: process.env.JWT_EXPIRY || '15m',
     };
   }
 
