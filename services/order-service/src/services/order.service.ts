@@ -110,7 +110,7 @@ export class OrderService {
     );
 
     return {
-      orders: result.rows.map(row => this.mapRowToOrderData(row)),
+      orders: result.rows.map((row: any) => this.mapRowToOrderData(row)),
       total: parseInt(countResult.rows[0].total),
     };
   }

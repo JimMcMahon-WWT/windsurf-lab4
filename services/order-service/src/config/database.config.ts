@@ -2,11 +2,11 @@ import { Pool, PoolConfig } from 'pg';
 import { logger } from '../utils/logger.utils';
 
 const poolConfig: PoolConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  database: process.env.DB_NAME || 'order_db',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || 'postgres',
+  host: process.env.DB_HOST || process.env.POSTGRES_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || process.env.POSTGRES_PORT || '5432'),
+  database: process.env.DB_NAME || process.env.POSTGRES_DB || 'order_db',
+  user: process.env.DB_USER || process.env.POSTGRES_USER || 'postgres',
+  password: process.env.DB_PASSWORD || process.env.POSTGRES_PASSWORD || 'postgres',
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
@@ -18,7 +18,7 @@ pool.on('connect', () => {
   logger.info('PostgreSQL client connected');
 });
 
-pool.on('error', (err) => {
+pool.on('error', (err: Error) => {
   logger.error('Unexpected PostgreSQL error:', err);
 });
 

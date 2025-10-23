@@ -131,7 +131,7 @@ export class EventStore {
       [aggregateId, fromVersion]
     );
 
-    return result.rows.map(row => ({
+    return result.rows.map((row: any) => ({
       eventId: row.id,
       aggregateId: row.aggregate_id,
       aggregateType: row.aggregate_type,
@@ -155,7 +155,7 @@ export class EventStore {
       [aggregateType, limit]
     );
 
-    return result.rows.map(row => ({
+    return result.rows.map((row: any) => ({
       eventId: row.id,
       aggregateId: row.aggregate_id,
       aggregateType: row.aggregate_type,
@@ -226,7 +226,7 @@ export class EventStore {
       [timestamp, limit]
     );
 
-    return result.rows.map(row => ({
+    return result.rows.map((row: any) => ({
       eventId: row.id,
       aggregateId: row.aggregate_id,
       aggregateType: row.aggregate_type,

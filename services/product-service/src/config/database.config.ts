@@ -2,11 +2,11 @@ import { Pool, PoolConfig } from 'pg';
 import { logger } from '../utils/logger.utils';
 
 const poolConfig: PoolConfig = {
-  host: process.env.POSTGRES_HOST || 'localhost',
-  port: parseInt(process.env.POSTGRES_PORT || '5432'),
-  user: process.env.POSTGRES_USER || 'postgres',
-  password: process.env.POSTGRES_PASSWORD || 'postgres',
-  database: process.env.POSTGRES_DB || 'product_db',
+  host: process.env.DB_HOST || process.env.POSTGRES_HOST || 'localhost',
+  port: parseInt(process.env.DB_PORT || process.env.POSTGRES_PORT || '5432'),
+  user: process.env.DB_USER || process.env.POSTGRES_USER || 'postgres',
+  password: process.env.DB_PASSWORD || process.env.POSTGRES_PASSWORD || 'postgres',
+  database: process.env.DB_NAME || process.env.POSTGRES_DB || 'product_db',
   min: parseInt(process.env.DB_POOL_MIN || '2'),
   max: parseInt(process.env.DB_POOL_MAX || '10'),
   idleTimeoutMillis: 30000,
