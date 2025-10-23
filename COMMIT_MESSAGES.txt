@@ -1,0 +1,306 @@
+# Commit Messages for Containerization Work
+
+## Recommended Commit Strategy
+
+### Option A: Single Comprehensive Commit
+Use this if you want one atomic commit with all changes.
+
+### Option B: Multiple Logical Commits
+Use this for better git history and easier rollback if needed.
+
+---
+
+## OPTION A: Single Comprehensive Commit
+
+```
+feat: containerize payment and user services with Docker
+
+Implement production-ready Docker containerization for payment-service
+and user-service in monorepo architecture.
+
+Features:
+- Multi-stage Dockerfile builds for optimized image sizes
+- Non-root user security (nodejs:1001)
+- Health check monitoring in containers
+- Monorepo build strategy with root context
+- TypeScript compilation in builder stage
+- Production-only dependencies in final images
+
+Technical changes:
+- Modified docker-compose.yml build contexts to use root directory
+- Updated all Dockerfiles to copy from services/ subdirectories
+- Changed from npm ci to npm install for workspace compatibility
+- Added tsconfig path fixing with sed for inheritance
+- Implemented proper file permissions for non-root users
+
+Code fixes:
+- Payment service: Added @types/cors, fixed encryption type casting,
+  added PayPalOrder clientSecret property, fixed validation middleware
+- User service: Fixed auth method names, added tokenId to refresh tokens,
+  corrected LoginResponse properties, added DB_* environment variable fallbacks
+
+Infrastructure:
+- All services configured to use shared PostgreSQL and Redis
+- Health checks configured for service monitoring
+- Proper dependency management with depends_on conditions
+
+Services operational:
+- Payment service (port 3004): 270MB image, healthy status
+- User service (port 3001): 230MB image, healthy status
+
+Documentation:
+- Added CONTAINERIZATION_PROGRESS.md with detailed implementation notes
+- Documented monorepo Docker strategy and lessons learned
+
+Remaining: Product service and Order service to be containerized
+```
+
+---
+
+## OPTION B: Multiple Logical Commits
+
+### Commit 1: Infrastructure and Docker Compose Updates
+
+```
+feat: update docker-compose configuration for monorepo containerization
+
+Update docker-compose.yml to support building services from monorepo
+with root build context strategy.
+
+Changes:
+- Change all service build contexts from ./services/<service> to root (.)
+- Update dockerfile paths to services/<service>/Dockerfile
+- Maintain all environment variables and dependency configurations
+- Keep existing health check configurations
+
+This change prepares the infrastructure for building services that
+share a root package-lock.json and TypeScript configuration.
+
+Files modified:
+- docker-compose.yml
+```
+
+### Commit 2: Payment Service Containerization
+
+```
+feat: containerize payment service with Docker multi-stage build
+
+Implement production-ready Dockerfile for payment service with security
+and optimization best practices.
+
+Features:
+- Multi-stage build (builder + production stages)
+- Alpine-based Node.js 18 images for minimal size
+- Non-root user (nodejs:1001) for security
+- Health check endpoint monitoring
+- Proper signal handling with dumb-init
+- Production-only dependencies in final image
+
+Build strategy:
+- Use root context with monorepo package-lock.json
+- Copy service-specific files from services/payment-service/
+- Install dependencies with npm install (workspace compatible)
+- TypeScript compilation in builder stage
+- Final image: 270MB optimized
+
+Code fixes:
+- Add @types/cors to devDependencies for TypeScript compilation
+- Add @ts-expect-error for PayPal SDK without type definitions
+- Cast cipher/decipher to CipherGCM/DecipherGCM types
+- Add clientSecret property to PayPalOrder interface
+- Fix validation middleware return statement for all code paths
+
+Files modified:
+- services/payment-service/Dockerfile (created)
+- services/payment-service/package.json
+- services/payment-service/src/middleware/validation.middleware.ts
+- services/payment-service/src/providers/paypal.provider.ts
+- services/payment-service/src/utils/encryption.utils.ts
+```
+
+### Commit 3: User Service Containerization
+
+```
+feat: containerize user service with Docker multi-stage build
+
+Implement production-ready Dockerfile for user service with monorepo
+TypeScript configuration handling.
+
+Features:
+- Multi-stage build with TypeScript compilation
+- Alpine-based Node.js 18 for minimal footprint (230MB)
+- Non-root user security with proper directory permissions
+- Log directory with write permissions for nodejs user
+- Health check monitoring configured
+- Root tsconfig inheritance resolved dynamically
+
+Build strategy:
+- Copy root tsconfig.json as tsconfig.base.json
+- Use sed to fix extends path in service tsconfig
+- npm install for workspace dependency compatibility
+- Create logs directory before USER switch
+
+Code fixes:
+- Fix auth middleware to use verifyAccessToken method
+- Add tokenId with crypto.randomUUID() for RefreshTokenPayload
+- Update LoginResponse to use accessToken instead of token
+- Add expiresIn property to LoginResponse
+- Add crypto import to user.service.ts
+- Support both DB_* and POSTGRES_* environment variable names
+  in database configuration for docker-compose compatibility
+
+Files modified:
+- services/user-service/Dockerfile (created)
+- services/user-service/src/middlewares/auth.middleware.ts
+- services/user-service/src/services/user.service.ts
+- services/user-service/src/config/database.ts
+```
+
+### Commit 4: Documentation
+
+```
+docs: add containerization progress and implementation guide
+
+Add comprehensive documentation of Docker containerization work
+including technical decisions, challenges solved, and best practices.
+
+Content includes:
+- Executive summary of completed work
+- Detailed service specifications and features
+- Monorepo Docker strategy and solutions
+- Code fixes applied with before/after examples
+- Infrastructure stack configuration
+- Build and deployment commands
+- Testing and verification procedures
+- Lessons learned and best practices
+- Performance metrics and security considerations
+- Next steps for remaining services
+
+Files added:
+- CONTAINERIZATION_PROGRESS.md
+```
+
+---
+
+## Git Commands to Execute
+
+### For Option A (Single Commit):
+
+```bash
+# Stage all changes
+git add .
+
+# Commit with comprehensive message
+git commit -F COMMIT_MESSAGES.txt --message="feat: containerize payment and user services with Docker"
+
+# Or copy the single commit message and use:
+# git commit -m "feat: containerize payment and user services with Docker" -m "Implement production-ready Docker containerization..."
+```
+
+### For Option B (Multiple Commits):
+
+```bash
+# Commit 1: Docker Compose
+git add docker-compose.yml
+git commit -m "feat: update docker-compose configuration for monorepo containerization
+
+Update docker-compose.yml to support building services from monorepo
+with root build context strategy.
+
+Changes:
+- Change all service build contexts from ./services/<service> to root (.)
+- Update dockerfile paths to services/<service>/Dockerfile
+- Maintain all environment variables and dependency configurations
+
+This change prepares the infrastructure for building services that
+share a root package-lock.json and TypeScript configuration."
+
+# Commit 2: Payment Service
+git add services/payment-service/
+git add package-lock.json
+git commit -m "feat: containerize payment service with Docker multi-stage build
+
+Implement production-ready Dockerfile for payment service with security
+and optimization best practices.
+
+Features:
+- Multi-stage build (builder + production stages)
+- Non-root user (nodejs:1001) for security
+- Health check endpoint monitoring
+- Final image: 270MB optimized
+
+Code fixes:
+- Add @types/cors to devDependencies
+- Fix TypeScript type casting for encryption
+- Fix validation middleware return paths"
+
+# Commit 3: User Service
+git add services/user-service/
+git commit -m "feat: containerize user service with Docker multi-stage build
+
+Implement production-ready Dockerfile for user service with monorepo
+TypeScript configuration handling.
+
+Features:
+- Multi-stage build with TypeScript compilation
+- Non-root user security with proper directory permissions
+- Final image: 230MB
+
+Code fixes:
+- Fix auth middleware method names
+- Add tokenId to RefreshTokenPayload
+- Support both DB_* and POSTGRES_* environment variables"
+
+# Commit 4: Documentation
+git add CONTAINERIZATION_PROGRESS.md COMMIT_MESSAGES.txt
+git commit -m "docs: add containerization progress and implementation guide
+
+Add comprehensive documentation of Docker containerization work
+including technical decisions, challenges solved, and best practices."
+```
+
+---
+
+## Additional Git Commands
+
+### View staged changes:
+```bash
+git status
+git diff --cached
+```
+
+### Create a branch for this work (recommended):
+```bash
+git checkout -b feat/containerize-services
+# Then make commits
+# Finally: git push origin feat/containerize-services
+```
+
+### Amend last commit if needed:
+```bash
+git commit --amend
+```
+
+### Push to remote:
+```bash
+git push origin main
+# or
+git push origin feat/containerize-services
+```
+
+---
+
+## Recommendation
+
+**Use Option B (Multiple Logical Commits)** for:
+- ✅ Better git history and clarity
+- ✅ Easier code review
+- ✅ Ability to cherry-pick or revert specific changes
+- ✅ Clear separation of concerns
+
+**Use Option A (Single Commit)** for:
+- ✅ Quick deployment
+- ✅ Atomic feature completion
+- ✅ Simpler git history
+
+Choose based on your team's git workflow preferences.
