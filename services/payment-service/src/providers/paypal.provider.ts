@@ -1,3 +1,4 @@
+// @ts-expect-error - PayPal SDK doesn't have TypeScript definitions
 import paypal from '@paypal/checkout-server-sdk';
 import { logger } from '../utils/logger.utils';
 
@@ -19,6 +20,7 @@ export interface PayPalOrder {
   status: string;
   amount: number;
   currency: string;
+  clientSecret?: string;
 }
 
 /**
