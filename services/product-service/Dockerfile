@@ -2,6 +2,14 @@
 # Stage 1: Builder
 FROM node:18-alpine AS builder
 
+# Install build dependencies for native modules (Sharp)
+RUN apk add --no-cache \
+    python3 \
+    make \
+    g++ \
+    vips-dev \
+    fftw-dev
+
 WORKDIR /app
 
 # Copy package files
@@ -21,8 +29,15 @@ RUN npm run build
 # Stage 2: Production
 FROM node:18-alpine
 
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
+# Install dumb-init and dependencies for Sharp (image processing)
+RUN apk add --no-cache \
+    dumb-init \
+    vips-dev \
+    fftw-dev \
+    gcc \
+    g++ \
+    make \
+    libc-dev
 
 WORKDIR /app
 
@@ -30,8 +45,9 @@ WORKDIR /app
 COPY package-lock.json ./
 COPY services/product-service/package.json ./
 
-# Install only production dependencies
+# Install only production dependencies 
 RUN npm install --only=production && \
+    npm install --cpu=x64 --os=linux --libc=musl sharp && \
     npm cache clean --force
 
 # Copy built application from builder stage

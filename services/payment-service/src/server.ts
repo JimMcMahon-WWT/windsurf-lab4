@@ -9,6 +9,7 @@ import { testConnection } from './config/database.config';
 import { connectRedis } from './config/redis.config';
 import paymentRoutes from './routes/payment.routes';
 import { logger } from './utils/logger.utils';
+import { metricsMiddleware, getMetrics } from './utils/metrics.utils';
 
 const app: Application = express();
 const PORT = process.env.PORT || 3004;
@@ -43,6 +44,19 @@ app.use('/api/', limiter);
 // Body parser
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Metrics middleware (track all requests)
+app.use(metricsMiddleware);
+
+// Metrics endpoint (Prometheus scraping)
+app.get('/metrics', async (_req: Request, res: Response) => {
+  try {
+    res.set('Content-Type', 'text/plain');
+    res.send(await getMetrics());
+  } catch (error) {
+    res.status(500).send('Error collecting metrics');
+  }
+});
 
 // Request logging
 app.use((req: Request, res: Response, next) => {

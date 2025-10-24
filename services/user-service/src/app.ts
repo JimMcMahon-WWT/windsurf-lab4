@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import routes from './routes';
 import { errorHandler, notFound } from './middlewares/error.middleware';
+import { metricsMiddleware, getMetrics } from './utils/metrics.utils';
 
 const app: Express = express();
 
@@ -19,6 +20,19 @@ app.use(cors(corsOptions));
 // Body parsing middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Metrics middleware (track all requests)
+app.use(metricsMiddleware);
+
+// Metrics endpoint (Prometheus scraping)
+app.get('/metrics', async (_req, res) => {
+  try {
+    res.set('Content-Type', 'text/plain');
+    res.send(await getMetrics());
+  } catch (error) {
+    res.status(500).send('Error collecting metrics');
+  }
+});
 
 // Health check endpoint
 app.get('/health', (_req, res) => {

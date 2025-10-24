@@ -6,6 +6,7 @@ import rateLimit from 'express-rate-limit';
 import routes from './routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 import { logger } from './utils/logger.utils';
+import { metricsMiddleware, getMetrics } from './utils/metrics.utils';
 
 // Create Express app
 const app: Application = express();
@@ -26,6 +27,19 @@ app.use(cors(corsOptions));
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Metrics middleware (track all requests)
+app.use(metricsMiddleware);
+
+// Metrics endpoint (Prometheus scraping)
+app.get('/metrics', async (_req, res) => {
+  try {
+    res.set('Content-Type', 'text/plain');
+    res.send(await getMetrics());
+  } catch (error) {
+    res.status(500).send('Error collecting metrics');
+  }
+});
 
 // HTTP request logging
 if (process.env.NODE_ENV !== 'test') {

@@ -14,13 +14,17 @@ const PORT = process.env.PORT || 3002;
 // Start server
 const startServer = async () => {
   try {
+    console.log('🚀 Starting Product Service...');
     logger.info('🚀 Starting Product Service...');
 
     // Test database connection
+    console.log('Testing database connection...');
     const dbConnected = await testConnection();
     if (!dbConnected) {
+      console.error('Failed to connect to PostgreSQL');
       throw new Error('Failed to connect to PostgreSQL');
     }
+    console.log('✅ Database connected');
 
     // Test Redis connection
     const redisConnected = await testRedisConnection();
@@ -103,6 +107,7 @@ const startServer = async () => {
       shutdown('UNCAUGHT_EXCEPTION');
     });
   } catch (error) {
+    console.error('Failed to start server:', error);
     logger.error('Failed to start server:', error);
     process.exit(1);
   }

@@ -7,6 +7,7 @@ import { getRedisClient, closeRedisConnection } from './config/redis.config';
 import { getProducer, getConsumer, createTopics, disconnectKafka } from './config/kafka.config';
 import { startOutboxProcessor } from './events/event-publisher';
 import { logger } from './utils/logger.utils';
+import { metricsMiddleware, getMetrics } from './utils/metrics.utils';
 import cartRoutes from './routes/cart.routes';
 import orderRoutes from './routes/order.routes';
 
@@ -19,10 +20,23 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Metrics middleware (track all requests)
+app.use(metricsMiddleware);
+
 // Request logging
 app.use((req: Request, res: Response, next: NextFunction) => {
   logger.info(`${req.method} ${req.path}`);
   next();
+});
+
+// Metrics endpoint (Prometheus scraping)
+app.get('/metrics', async (req: Request, res: Response) => {
+  try {
+    res.set('Content-Type', 'text/plain');
+    res.send(await getMetrics());
+  } catch (error) {
+    res.status(500).send('Error collecting metrics');
+  }
 });
 
 // Health check

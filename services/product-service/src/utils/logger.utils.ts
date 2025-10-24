@@ -17,7 +17,7 @@ const logFormat = winston.format.combine(
   })
 );
 
-// Create logger instance
+// Create logger instance  
 export const logger = winston.createLogger({
   level: logLevel,
   format: logFormat,
@@ -37,27 +37,9 @@ export const logger = winston.createLogger({
         })
       ),
     }),
-    // File transport for errors
-    new winston.transports.File({
-      filename: 'logs/error.log',
-      level: 'error',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
-    // File transport for all logs
-    new winston.transports.File({
-      filename: 'logs/combined.log',
-      maxsize: 5242880, // 5MB
-      maxFiles: 5,
-    }),
   ],
-  // Handle uncaught exceptions and rejections
-  exceptionHandlers: [
-    new winston.transports.File({ filename: 'logs/exceptions.log' }),
-  ],
-  rejectionHandlers: [
-    new winston.transports.File({ filename: 'logs/rejections.log' }),
-  ],
+  // Only log to console - no file logging in containers
+  exitOnError: false,
 });
 
 // Don't log to files in test environment
