@@ -537,6 +537,64 @@ docker stats
 
 ---
 
+## 📊 Container Monitoring Stack
+
+**Date Implemented**: October 24, 2025  
+**Status**: ✅ Operational
+
+### Monitoring Services Deployed
+
+| Service | Port | Purpose | Status |
+|---------|------|---------|--------|
+| **Prometheus** | 9090 | Metrics collection & storage | ✅ Healthy |
+| **Grafana** | 3000 | Metrics visualization | ✅ Healthy |
+| **cAdvisor** | 8080 | Container resource metrics | ✅ Healthy |
+| **Postgres Exporter** | 9187 | PostgreSQL metrics | ✅ Healthy |
+| **Redis Exporter** | 9121 | Redis metrics | ✅ Healthy |
+
+### What's Being Monitored
+
+**Infrastructure Metrics** ✅
+- PostgreSQL: Connections, query performance, cache hit ratio, database size
+- Redis: Memory usage, connected clients, cache hit/miss rates, commands/sec
+- Containers: CPU usage, memory usage, network I/O, disk I/O per container
+- Prometheus: Self-monitoring metrics
+
+**Application Metrics** ⏳ (Optional)
+- HTTP request rates, latencies, status codes (requires adding `/metrics` endpoints)
+- Business metrics: orders, payments, users (requires instrumentation)
+- Custom service KPIs (requires prom-client integration)
+
+### Quick Access
+
+- **Grafana Dashboard**: http://localhost:3000 (admin/admin)
+- **Prometheus UI**: http://localhost:9090
+- **cAdvisor UI**: http://localhost:8080
+
+### Key Features
+
+✅ **30-day metric retention** in Prometheus  
+✅ **Auto-configured datasource** in Grafana  
+✅ **Pre-built dashboard** for service overview  
+✅ **Container resource tracking** via cAdvisor  
+✅ **Database & cache metrics** via exporters  
+✅ **Health checks** for all monitoring services  
+
+### Documentation
+
+- **Complete Guide**: `monitoring/README.md`
+- **Status Report**: `MONITORING_STATUS.md`
+- **Configuration**: `monitoring/prometheus/prometheus.yml`
+
+### Next Steps (Optional)
+
+1. Add `/metrics` endpoints to services using prom-client
+2. Create custom dashboards for business metrics
+3. Configure alerting rules for critical thresholds
+4. Import community dashboards (PostgreSQL #9628, Redis #11835)
+
+---
+
 ## 🚀 Next Steps & Recommendations
 
 ### Immediate Actions
@@ -549,7 +607,8 @@ docker stats
 - [ ] Set up CI/CD pipeline with Docker builds
 - [ ] Implement automated testing in containers
 - [ ] Add development docker-compose override file
-- [ ] Set up container monitoring (Prometheus/Grafana)
+- [x] **Set up container monitoring (Prometheus/Grafana)** ✅ COMPLETED
+- [ ] Add metrics endpoints to services (optional)
 - [ ] Implement log aggregation (ELK or Loki)
 
 ### Medium-Term (1 month)
@@ -591,10 +650,10 @@ For issues or questions:
 
 ---
 
-**Status**: ✅ COMPLETE  
-**Last Updated**: October 23, 2025  
-**Version**: 1.0.0
+**Status**: ✅ COMPLETE + MONITORING OPERATIONAL  
+**Last Updated**: October 24, 2025  
+**Version**: 1.1.0
 
 ---
 
-*This document represents the successful completion of containerizing all microservices in the e-commerce platform. All services are production-ready and follow Docker best practices.*
+*This document represents the successful completion of containerizing all microservices in the e-commerce platform with comprehensive monitoring. All services are production-ready and follow Docker best practices.*
