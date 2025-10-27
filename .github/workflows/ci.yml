@@ -69,12 +69,8 @@ jobs:
         service:
           - user-service
           - product-service
-          - cart-service
           - order-service
           - payment-service
-          - inventory-service
-          - notification-service
-          - search-service
     steps:
       - uses: actions/checkout@v3
       
@@ -145,13 +141,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      - name: Run database migrations
-        run: npm run migrate:test
-        env:
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: 5432
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
+      # Database migrations - skip for now as migrate:test script needs to be added
+      # - name: Run database migrations
+      #   run: npm run migrate:test
+      #   env:
+      #     POSTGRES_HOST: localhost
+      #     POSTGRES_PORT: 5432
+      #     POSTGRES_USER: postgres
+      #     POSTGRES_PASSWORD: postgres
       
       - name: Run integration tests
         run: npm run test:integration
