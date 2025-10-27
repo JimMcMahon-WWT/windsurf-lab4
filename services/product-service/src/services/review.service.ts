@@ -1,7 +1,7 @@
-import reviewRepository from '../repositories/review.repository';
 import productRepository from '../repositories/product.repository';
-import { logger } from '../utils/logger.utils';
+import reviewRepository from '../repositories/review.repository';
 import { ProductReview, CreateReviewRequest } from '../types/product.types';
+import { logger } from '../utils/logger.utils';
 
 export class ReviewService {
   /**

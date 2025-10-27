@@ -2,12 +2,12 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import app from './app';
-import { logger } from './utils/logger.utils';
 import { testConnection, closePool } from './config/database.config';
-import { testRedisConnection, closeRedis } from './config/redis.config';
 import { testElasticsearchConnection, createProductIndex, closeElasticsearch } from './config/elasticsearch.config';
 import { createProducer, closeKafka } from './config/kafka.config';
+import { testRedisConnection, closeRedis } from './config/redis.config';
 import inventoryService from './services/inventory.service';
+import { logger } from './utils/logger.utils';
 
 const PORT = process.env.PORT || 3002;
 

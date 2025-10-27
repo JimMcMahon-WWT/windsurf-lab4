@@ -1,7 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
+
 import { orderService } from '../services/order.service';
-import { logger } from '../utils/logger.utils';
 import { CreateOrderRequest, OrderStatus } from '../types/order.types';
+import { logger } from '../utils/logger.utils';
 
 export class OrderController {
   /**

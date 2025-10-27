@@ -1,9 +1,11 @@
 import { v4 as uuidv4 } from 'uuid';
+
 import { query, getClient } from '../config/database.config';
-import { logger } from '../utils/logger.utils';
-import { generateIdempotencyKey, encrypt, decrypt } from '../utils/encryption.utils';
-import stripeProvider from '../providers/stripe.provider';
 import paypalProvider from '../providers/paypal.provider';
+import stripeProvider from '../providers/stripe.provider';
+import { generateIdempotencyKey, encrypt, decrypt } from '../utils/encryption.utils';
+import { logger } from '../utils/logger.utils';
+
 import fraudDetection from './fraud-detection.service';
 
 export interface ProcessPaymentRequest {

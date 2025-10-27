@@ -1,6 +1,7 @@
-import sharp from 'sharp';
 import { S3 } from 'aws-sdk';
+import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
+
 import { logger } from '../utils/logger.utils';
 
 const s3 = new S3({

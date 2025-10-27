@@ -1,7 +1,8 @@
 import { Router } from 'express';
+import { body, param } from 'express-validator';
+
 import paymentController from '../controllers/payment.controller';
 import webhookController from '../controllers/webhook.controller';
-import { body, param } from 'express-validator';
 import { validate } from '../middleware/validation.middleware';
 
 const router = Router();

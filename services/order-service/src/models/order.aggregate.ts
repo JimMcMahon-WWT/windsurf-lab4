@@ -1,4 +1,5 @@
-import { AggregateRoot } from './aggregate.base';
+import { v4 as uuidv4 } from 'uuid';
+
 import {
   OrderCreatedEvent,
   OrderConfirmedEvent,
@@ -24,7 +25,9 @@ import {
   CreateOrderRequest,
   OrderData,
 } from '../types/order.types';
-import { v4 as uuidv4 } from 'uuid';
+
+import { AggregateRoot } from './aggregate.base';
+
 
 /**
  * Order Aggregate Root

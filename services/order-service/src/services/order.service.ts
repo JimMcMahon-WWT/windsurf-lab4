@@ -1,8 +1,9 @@
+import { pool } from '../config/database.config';
 import { OrderAggregate } from '../models/order.aggregate';
 import { OrderSaga } from '../sagas/order-saga';
-import { pool } from '../config/database.config';
-import { logger } from '../utils/logger.utils';
 import { CreateOrderRequest, OrderData, OrderStatus } from '../types/order.types';
+import { logger } from '../utils/logger.utils';
+
 import { cartService } from './cart.service';
 
 export class OrderService {

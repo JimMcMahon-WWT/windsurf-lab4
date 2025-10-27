@@ -1,7 +1,7 @@
-import categoryRepository from '../repositories/category.repository';
 import { cacheGet, cacheSet, cacheDelete } from '../config/redis.config';
-import { logger } from '../utils/logger.utils';
+import categoryRepository from '../repositories/category.repository';
 import { Category, CategoryResponse } from '../types/product.types';
+import { logger } from '../utils/logger.utils';
 
 export class CategoryService {
   /**

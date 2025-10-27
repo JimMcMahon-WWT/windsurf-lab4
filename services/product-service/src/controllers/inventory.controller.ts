@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+
 import inventoryService from '../services/inventory.service';
 
 export class InventoryController {

@@ -1,8 +1,9 @@
 import { Router } from 'express';
+
 import productController from '../controllers/product.controller';
-import { validate, validateQuery } from '../middleware/validate.middleware';
 import { authenticate, optionalAuth, authorize } from '../middleware/auth.middleware';
 import { uploadMultiple } from '../middleware/upload.middleware';
+import { validate, validateQuery } from '../middleware/validate.middleware';
 import {
   createProductSchema,
   updateProductSchema,

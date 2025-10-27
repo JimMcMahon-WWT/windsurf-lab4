@@ -1,6 +1,8 @@
+import crypto from 'crypto';
+
 import bcrypt from 'bcryptjs';
 import jwt, { SignOptions } from 'jsonwebtoken';
-import crypto from 'crypto';
+
 import { UserRole } from '../types/user.types';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your_default_secret_change_in_production';

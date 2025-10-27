@@ -1,11 +1,8 @@
-import productRepository from '../repositories/product.repository';
+import { publishProductEvent } from '../config/kafka.config';
+import { cacheGet, cacheSet, cacheDelete, cacheDeletePattern } from '../config/redis.config';
 import categoryRepository from '../repositories/category.repository';
 import inventoryRepository from '../repositories/inventory.repository';
-import searchService from './search.service';
-import imageService from './image.service';
-import { cacheGet, cacheSet, cacheDelete, cacheDeletePattern } from '../config/redis.config';
-import { publishProductEvent } from '../config/kafka.config';
-import { logger } from '../utils/logger.utils';
+import productRepository from '../repositories/product.repository';
 import {
   CreateProductRequest,
   UpdateProductRequest,
@@ -15,6 +12,11 @@ import {
   BulkProductOperation,
   CategoryResponse,
 } from '../types/product.types';
+import { logger } from '../utils/logger.utils';
+
+import imageService from './image.service';
+import searchService from './search.service';
+
 
 export class ProductService {
   /**

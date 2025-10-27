@@ -15,8 +15,8 @@
     "test:setup": "ts-node scripts/test-setup.ts",
     "migrate": "ts-node scripts/run-migrations.ts",
     "seed": "ts-node scripts/seed-data.ts",
-    "lint": "eslint src tests --ext .ts",
-    "lint:fix": "eslint src tests --ext .ts --fix",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
     "type-check": "tsc --noEmit",
     "clean": "rimraf dist coverage"
   },

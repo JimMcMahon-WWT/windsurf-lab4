@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+
 import app from './app';
 import pool from './config/database';
 import logger from './config/logger';

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import stripeProvider from '../providers/stripe.provider';
+
 import { query } from '../config/database.config';
+import stripeProvider from '../providers/stripe.provider';
 import { logger } from '../utils/logger.utils';
 
 export class WebhookController {

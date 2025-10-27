@@ -1,7 +1,8 @@
+import { v4 as uuidv4 } from 'uuid';
+
 import { pool } from '../config/database.config';
 import { cacheSet, cacheGet, cacheDelete } from '../config/redis.config';
 import { logger } from '../utils/logger.utils';
-import { v4 as uuidv4 } from 'uuid';
 
 export interface CartItem {
   id?: string;

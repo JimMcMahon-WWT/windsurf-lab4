@@ -1,8 +1,9 @@
+import cors from 'cors';
 import express, { Express } from 'express';
 import helmet from 'helmet';
-import cors from 'cors';
-import routes from './routes';
+
 import { errorHandler, notFound } from './middlewares/error.middleware';
+import routes from './routes';
 import { metricsMiddleware, getMetrics } from './utils/metrics.utils';
 
 const app: Express = express();

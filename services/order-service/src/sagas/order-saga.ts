@@ -1,9 +1,10 @@
+import axios from 'axios';
+import { v4 as uuidv4 } from 'uuid';
+
 import { pool } from '../config/database.config';
 import { publishEvent, TOPICS } from '../config/kafka.config';
 import { OrderAggregate } from '../models/order.aggregate';
 import { logger } from '../utils/logger.utils';
-import { v4 as uuidv4 } from 'uuid';
-import axios from 'axios';
 
 /**
  * SAGA Pattern Implementation for Order Processing

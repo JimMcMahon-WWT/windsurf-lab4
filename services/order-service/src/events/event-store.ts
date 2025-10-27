@@ -1,7 +1,9 @@
-import { pool } from '../config/database.config';
-import { DomainEvent } from './base.event';
-import { logger } from '../utils/logger.utils';
 import { v4 as uuidv4 } from 'uuid';
+
+import { pool } from '../config/database.config';
+import { logger } from '../utils/logger.utils';
+
+import { DomainEvent } from './base.event';
 
 export interface EventStoreRecord {
   id: string;

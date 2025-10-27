@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
-import userService from '../services/user.service';
+
 import logger from '../config/logger';
+import userService from '../services/user.service';
 
 export class AuthController {
   /**

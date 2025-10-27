@@ -1,7 +1,8 @@
 import { Router } from 'express';
+
 import inventoryController from '../controllers/inventory.controller';
-import { validate } from '../middleware/validate.middleware';
 import { authenticate, authorize } from '../middleware/auth.middleware';
+import { validate } from '../middleware/validate.middleware';
 import {
   updateInventorySchema,
   reserveInventorySchema,

@@ -1,6 +1,6 @@
 import { DomainEvent } from '../events/base.event';
-import { eventStore } from '../events/event-store';
 import { eventPublisher } from '../events/event-publisher';
+import { eventStore } from '../events/event-store';
 import { logger } from '../utils/logger.utils';
 
 /**

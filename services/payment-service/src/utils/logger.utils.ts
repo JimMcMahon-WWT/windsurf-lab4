@@ -1,4 +1,5 @@
 import winston from 'winston';
+
 import { maskCardNumber, maskEmail } from './encryption.utils';
 
 const logFormat = winston.format.combine(

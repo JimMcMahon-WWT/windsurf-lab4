@@ -1,4 +1,5 @@
 import { Kafka, Producer, Consumer, EachMessagePayload } from 'kafkajs';
+
 import { logger } from '../utils/logger.utils';
 
 const kafkaEnabled = process.env.KAFKA_ENABLED === 'true';

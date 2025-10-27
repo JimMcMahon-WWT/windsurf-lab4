@@ -1,4 +1,5 @@
 import { Client } from '@elastic/elasticsearch';
+
 import { logger } from '../utils/logger.utils';
 
 const node = process.env.ELASTICSEARCH_NODE || 'http://localhost:9200';

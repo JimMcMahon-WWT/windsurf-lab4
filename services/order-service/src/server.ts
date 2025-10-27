@@ -1,15 +1,16 @@
 import 'dotenv/config';
-import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
+import express, { Request, Response, NextFunction } from 'express';
 import helmet from 'helmet';
+
 import { testConnection, closeConnection } from './config/database.config';
-import { getRedisClient, closeRedisConnection } from './config/redis.config';
 import { getProducer, getConsumer, createTopics, disconnectKafka } from './config/kafka.config';
+import { getRedisClient, closeRedisConnection } from './config/redis.config';
 import { startOutboxProcessor } from './events/event-publisher';
-import { logger } from './utils/logger.utils';
-import { metricsMiddleware, getMetrics } from './utils/metrics.utils';
 import cartRoutes from './routes/cart.routes';
 import orderRoutes from './routes/order.routes';
+import { logger } from './utils/logger.utils';
+import { metricsMiddleware, getMetrics } from './utils/metrics.utils';
 
 const app = express();
 const PORT = process.env.PORT || 3003;

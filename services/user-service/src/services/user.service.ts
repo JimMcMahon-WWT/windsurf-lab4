@@ -1,9 +1,10 @@
-import userRepository from '../repositories/user.repository';
-import authUtils from '../utils/auth.utils';
-import { RegisterRequest, LoginRequest, LoginResponse, UserResponse } from '../types/user.types';
-import { validate, registerSchema, loginSchema } from '../utils/validation';
-import logger from '../config/logger';
 import crypto from 'crypto';
+
+import logger from '../config/logger';
+import userRepository from '../repositories/user.repository';
+import { RegisterRequest, LoginRequest, LoginResponse, UserResponse } from '../types/user.types';
+import authUtils from '../utils/auth.utils';
+import { validate, registerSchema, loginSchema } from '../utils/validation';
 
 export class UserService {
   /**

@@ -1,4 +1,5 @@
 import { Pool, PoolConfig } from 'pg';
+
 import { logger } from '../utils/logger.utils';
 
 const poolConfig: PoolConfig = {

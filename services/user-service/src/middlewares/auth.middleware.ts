@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
-import authUtils from '../utils/auth.utils';
+
 import logger from '../config/logger';
+import authUtils from '../utils/auth.utils';
 
 export const authenticate = (req: Request, res: Response, next: NextFunction): void => {
   try {

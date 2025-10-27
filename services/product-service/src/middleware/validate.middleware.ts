@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import Joi from 'joi';
+
 import { logger } from '../utils/logger.utils';
 
 /**

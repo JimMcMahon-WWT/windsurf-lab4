@@ -2,9 +2,10 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import express, { Application, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import cors from 'cors';
-import rateLimit from 'express-rate-limit';
+
 import { testConnection } from './config/database.config';
 import { connectRedis } from './config/redis.config';
 import paymentRoutes from './routes/payment.routes';

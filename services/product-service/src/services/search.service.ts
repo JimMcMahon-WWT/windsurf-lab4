@@ -5,11 +5,11 @@ import {
   updateProduct as updateInIndex,
   searchProducts as esSearch
 } from '../config/elasticsearch.config';
-import { ProductSearchQuery, ProductSearchResult, SearchFacets } from '../types/product.types';
-import { logger } from '../utils/logger.utils';
-import productRepository from '../repositories/product.repository';
 import categoryRepository from '../repositories/category.repository';
 import inventoryRepository from '../repositories/inventory.repository';
+import productRepository from '../repositories/product.repository';
+import { ProductSearchQuery, ProductSearchResult, SearchFacets } from '../types/product.types';
+import { logger } from '../utils/logger.utils';
 
 export class SearchService {
   /**

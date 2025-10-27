@@ -1,10 +1,11 @@
-import express, { Application } from 'express';
 import cors from 'cors';
+import express, { Application } from 'express';
+import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
-import routes from './routes';
+
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
+import routes from './routes';
 import { logger } from './utils/logger.utils';
 import { metricsMiddleware, getMetrics } from './utils/metrics.utils';
 

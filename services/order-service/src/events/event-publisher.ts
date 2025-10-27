@@ -1,8 +1,10 @@
-import { publishEvent, TOPICS } from '../config/kafka.config';
-import { DomainEvent } from './base.event';
-import { logger } from '../utils/logger.utils';
-import { pool } from '../config/database.config';
 import { v4 as uuidv4 } from 'uuid';
+
+import { pool } from '../config/database.config';
+import { publishEvent, TOPICS } from '../config/kafka.config';
+import { logger } from '../utils/logger.utils';
+
+import { DomainEvent } from './base.event';
 
 /**
  * Event Publisher with Outbox Pattern

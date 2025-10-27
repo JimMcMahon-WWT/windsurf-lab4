@@ -1,7 +1,6 @@
+import { publishInventoryEvent } from '../config/kafka.config';
 import inventoryRepository from '../repositories/inventory.repository';
 import productRepository from '../repositories/product.repository';
-import { publishInventoryEvent } from '../config/kafka.config';
-import { logger } from '../utils/logger.utils';
 import {
   Inventory,
   InventoryReservation,
@@ -9,6 +8,7 @@ import {
   ReserveInventoryRequest,
   UpdateInventoryRequest,
 } from '../types/product.types';
+import { logger } from '../utils/logger.utils';
 
 export class InventoryService {
   /**
