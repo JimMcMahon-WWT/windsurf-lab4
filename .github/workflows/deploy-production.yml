@@ -540,7 +540,7 @@ jobs:
     name: Rollback to Blue
     runs-on: ubuntu-latest
     needs: [canary-deployment, switch-to-green, post-deployment-verification]
-    if: failure() && env.ROLLBACK_ON_FAILURE == 'true'
+    if: failure()
     steps:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
