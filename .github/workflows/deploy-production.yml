@@ -1,0 +1,596 @@
+name: Deploy to Production (Blue-Green)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy'
+        required: true
+        type: string
+  push:
+    branches:
+      - main
+    tags:
+      - 'v*.*.*'
+
+env:
+  NODE_VERSION: '18'
+  DEPLOYMENT_STRATEGY: 'blue-green'
+  HEALTH_CHECK_TIMEOUT: 300
+  ROLLBACK_ON_FAILURE: true
+
+jobs:
+  pre-deployment-checks:
+    name: Pre-Deployment Checks
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      canary_percentage: ${{ steps.strategy.outputs.canary_percentage }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      
+      - name: Determine version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "version=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+          else
+            echo "version=$(git describe --tags --always)" >> $GITHUB_OUTPUT
+          fi
+      
+      - name: Validate version format
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          if [[ ! $VERSION =~ ^v?[0-9]+\.[0-9]+\.[0-9]+.*$ ]]; then
+            echo "Invalid version format: $VERSION"
+            exit 1
+          fi
+      
+      - name: Check if staging tests passed
+        run: |
+          echo "Verifying staging environment health..."
+          # Add staging health check here
+      
+      - name: Determine deployment strategy
+        id: strategy
+        run: |
+          # Start with 10% canary, increase gradually
+          echo "canary_percentage=10" >> $GITHUB_OUTPUT
+      
+      - name: Notify deployment start
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "🚀 Production deployment starting",
+              attachments: [{
+                color: 'warning',
+                fields: [{
+                  title: 'Version',
+                  value: '${{ steps.version.outputs.version }}',
+                  short: true
+                }, {
+                  title: 'Strategy',
+                  value: '${{ env.DEPLOYMENT_STRATEGY }}',
+                  short: true
+                }]
+              }]
+            }
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+  build-and-push-images:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks]
+    strategy:
+      matrix:
+        service:
+          - user-service
+          - product-service
+          - order-service
+          - payment-service
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Log in to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.REGISTRY_URL }}
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ secrets.REGISTRY_URL }}/${{ matrix.service }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ needs.pre-deployment-checks.outputs.version }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ needs.pre-deployment-checks.outputs.version }}
+            type=sha,prefix=sha-
+            type=raw,value=latest
+      
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: ./services/${{ matrix.service }}/Dockerfile
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ secrets.REGISTRY_URL }}/${{ matrix.service }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.REGISTRY_URL }}/${{ matrix.service }}:buildcache,mode=max
+      
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.REGISTRY_URL }}/${{ matrix.service }}:${{ needs.pre-deployment-checks.outputs.version }}
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          severity: 'CRITICAL,HIGH'
+      
+      - name: Upload Trivy scan results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: 'trivy-results.sarif'
+
+  database-migration:
+    name: Run Database Migrations
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks, build-and-push-images]
+    environment:
+      name: production
+      url: https://api.production.example.com
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Create database backup
+        run: |
+          echo "Creating database backup before migration..."
+          node scripts/backup-database.js
+        env:
+          DB_HOST: ${{ secrets.PROD_DB_HOST }}
+          DB_PORT: ${{ secrets.PROD_DB_PORT }}
+          DB_NAME: ${{ secrets.PROD_DB_NAME }}
+          DB_USER: ${{ secrets.PROD_DB_USER }}
+          DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+          BACKUP_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
+      
+      - name: Run migrations with safety checks
+        run: |
+          echo "Running database migrations..."
+          node scripts/migrate-production.js
+        env:
+          DB_HOST: ${{ secrets.PROD_DB_HOST }}
+          DB_PORT: ${{ secrets.PROD_DB_PORT }}
+          DB_NAME: ${{ secrets.PROD_DB_NAME }}
+          DB_USER: ${{ secrets.PROD_DB_USER }}
+          DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+          DRY_RUN: false
+          BACKUP_ID: ${{ github.run_id }}
+      
+      - name: Verify migration success
+        run: |
+          echo "Verifying migration status..."
+          node scripts/verify-migration.js
+        env:
+          DB_HOST: ${{ secrets.PROD_DB_HOST }}
+          DB_PORT: ${{ secrets.PROD_DB_PORT }}
+          DB_NAME: ${{ secrets.PROD_DB_NAME }}
+          DB_USER: ${{ secrets.PROD_DB_USER }}
+          DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+
+  deploy-green-environment:
+    name: Deploy Green Environment
+    runs-on: ubuntu-latest
+    needs: [pre-deployment-checks, build-and-push-images, database-migration]
+    environment:
+      name: production
+    outputs:
+      green_url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+      
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
+          export KUBECONFIG=./kubeconfig
+      
+      - name: Deploy Green environment
+        id: deploy
+        run: |
+          VERSION="${{ needs.pre-deployment-checks.outputs.version }}"
+          
+          # Deploy to green environment
+          kubectl apply -f kubernetes/deployments/green/
+          
+          # Update image tags
+          kubectl set image deployment/user-service-green \
+            user-service=${{ secrets.REGISTRY_URL }}/user-service:$VERSION \
+            -n production
+          
+          kubectl set image deployment/product-service-green \
+            product-service=${{ secrets.REGISTRY_URL }}/product-service:$VERSION \
+            -n production
+          
+          kubectl set image deployment/order-service-green \
+            order-service=${{ secrets.REGISTRY_URL }}/order-service:$VERSION \
+            -n production
+          
+          kubectl set image deployment/payment-service-green \
+            payment-service=${{ secrets.REGISTRY_URL }}/payment-service:$VERSION \
+            -n production
+          
+          # Wait for rollout
+          kubectl rollout status deployment/user-service-green -n production --timeout=5m
+          kubectl rollout status deployment/product-service-green -n production --timeout=5m
+          kubectl rollout status deployment/order-service-green -n production --timeout=5m
+          kubectl rollout status deployment/payment-service-green -n production --timeout=5m
+          
+          # Get green environment URL
+          GREEN_URL=$(kubectl get svc green-lb -n production -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
+          echo "url=https://$GREEN_URL" >> $GITHUB_OUTPUT
+      
+      - name: Wait for pods to be ready
+        run: |
+          kubectl wait --for=condition=ready pod \
+            -l app=user-service,environment=green \
+            -n production \
+            --timeout=5m
+
+  health-check-green:
+    name: Health Check Green Environment
+    runs-on: ubuntu-latest
+    needs: [deploy-green-environment]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run health checks
+        run: |
+          node scripts/health-check.js
+        env:
+          TARGET_URL: ${{ needs.deploy-green-environment.outputs.green_url }}
+          TIMEOUT: ${{ env.HEALTH_CHECK_TIMEOUT }}
+          SERVICES: user-service,product-service,order-service,payment-service
+      
+      - name: Run smoke tests
+        run: |
+          npm run test:smoke
+        env:
+          API_URL: ${{ needs.deploy-green-environment.outputs.green_url }}
+          API_KEY: ${{ secrets.PROD_API_KEY }}
+      
+      - name: Performance baseline check
+        run: |
+          node scripts/performance-check.js
+        env:
+          TARGET_URL: ${{ needs.deploy-green-environment.outputs.green_url }}
+          BASELINE_FILE: ./performance-baselines/production.json
+
+  canary-deployment:
+    name: Canary Deployment
+    runs-on: ubuntu-latest
+    needs: [deploy-green-environment, health-check-green, pre-deployment-checks]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
+          export KUBECONFIG=./kubeconfig
+      
+      - name: Route 10% traffic to Green
+        run: |
+          kubectl patch virtualservice api-gateway \
+            -n production \
+            --type merge \
+            -p '{"spec":{"http":[{"route":[{"destination":{"host":"green-service"},"weight":10},{"destination":{"host":"blue-service"},"weight":90}]}]}}'
+      
+      - name: Monitor canary for 5 minutes
+        run: |
+          node scripts/monitor-canary.js
+        env:
+          DURATION: 300
+          ERROR_THRESHOLD: 1
+          LATENCY_THRESHOLD: 500
+      
+      - name: Gradually increase traffic
+        run: |
+          for WEIGHT in 25 50 75 100; do
+            echo "Routing ${WEIGHT}% traffic to Green environment..."
+            
+            kubectl patch virtualservice api-gateway \
+              -n production \
+              --type merge \
+              -p "{\"spec\":{\"http\":[{\"route\":[{\"destination\":{\"host\":\"green-service\"},\"weight\":${WEIGHT}},{\"destination\":{\"host\":\"blue-service\"},\"weight\":$((100-WEIGHT))}]}]}}"
+            
+            # Monitor for 3 minutes at each stage
+            node scripts/monitor-canary.js
+            
+            if [ $? -ne 0 ]; then
+              echo "Canary metrics failed at ${WEIGHT}% traffic"
+              exit 1
+            fi
+          done
+        env:
+          DURATION: 180
+          ERROR_THRESHOLD: 1
+          LATENCY_THRESHOLD: 500
+
+  switch-to-green:
+    name: Switch Traffic to Green
+    runs-on: ubuntu-latest
+    needs: [canary-deployment]
+    environment:
+      name: production-approval
+    steps:
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
+          export KUBECONFIG=./kubeconfig
+      
+      - name: Complete traffic switch
+        run: |
+          # Switch all traffic to green
+          kubectl patch virtualservice api-gateway \
+            -n production \
+            --type merge \
+            -p '{"spec":{"http":[{"route":[{"destination":{"host":"green-service"},"weight":100}]}]}}'
+          
+          echo "All traffic now routed to Green environment"
+      
+      - name: Update service labels
+        run: |
+          # Label current green as blue for next deployment
+          kubectl label deployment user-service-green environment=blue --overwrite -n production
+          kubectl label deployment product-service-green environment=blue --overwrite -n production
+          kubectl label deployment order-service-green environment=blue --overwrite -n production
+          kubectl label deployment payment-service-green environment=blue --overwrite -n production
+      
+      - name: Scale down old blue environment
+        run: |
+          kubectl scale deployment user-service-blue --replicas=1 -n production
+          kubectl scale deployment product-service-blue --replicas=1 -n production
+          kubectl scale deployment order-service-blue --replicas=1 -n production
+          kubectl scale deployment payment-service-blue --replicas=1 -n production
+
+  post-deployment-verification:
+    name: Post-Deployment Verification
+    runs-on: ubuntu-latest
+    needs: [switch-to-green, pre-deployment-checks]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run full test suite against production
+        run: |
+          npm run test:production
+        env:
+          API_URL: https://api.production.example.com
+          API_KEY: ${{ secrets.PROD_API_KEY }}
+      
+      - name: Check error rates
+        run: |
+          node scripts/check-error-rates.js
+        env:
+          PROMETHEUS_URL: ${{ secrets.PROMETHEUS_URL }}
+          DURATION: 10m
+          ERROR_THRESHOLD: 0.5
+      
+      - name: Check response times
+        run: |
+          node scripts/check-latency.js
+        env:
+          PROMETHEUS_URL: ${{ secrets.PROMETHEUS_URL }}
+          P95_THRESHOLD: 500
+          P99_THRESHOLD: 1000
+      
+      - name: Verify database integrity
+        run: |
+          node scripts/verify-database.js
+        env:
+          DB_HOST: ${{ secrets.PROD_DB_HOST }}
+          DB_PORT: ${{ secrets.PROD_DB_PORT }}
+          DB_NAME: ${{ secrets.PROD_DB_NAME }}
+          DB_USER: ${{ secrets.PROD_DB_USER }}
+          DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
+      
+      - name: Create deployment record
+        run: |
+          node scripts/record-deployment.js
+        env:
+          VERSION: ${{ needs.pre-deployment-checks.outputs.version }}
+          ENVIRONMENT: production
+          DEPLOYMENT_ID: ${{ github.run_id }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  cleanup-old-blue:
+    name: Cleanup Old Blue Environment
+    runs-on: ubuntu-latest
+    needs: [post-deployment-verification]
+    if: success()
+    steps:
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
+          export KUBECONFIG=./kubeconfig
+      
+      - name: Remove old blue deployments
+        run: |
+          # Keep old blue for 24 hours for potential rollback
+          echo "Old blue environment will be cleaned up after 24 hours"
+          kubectl annotate deployment user-service-blue \
+            cleanup-after="$(date -d '+24 hours' -u +%Y-%m-%dT%H:%M:%SZ)" \
+            -n production
+
+  notify-completion:
+    name: Notify Deployment Completion
+    runs-on: ubuntu-latest
+    needs: [post-deployment-verification, pre-deployment-checks]
+    if: always()
+    steps:
+      - name: Notify Slack - Success
+        if: needs.post-deployment-verification.result == 'success'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "✅ Production deployment successful!",
+              attachments: [{
+                color: 'good',
+                fields: [{
+                  title: 'Version',
+                  value: '${{ needs.pre-deployment-checks.outputs.version }}',
+                  short: true
+                }, {
+                  title: 'Environment',
+                  value: 'Production',
+                  short: true
+                }, {
+                  title: 'Deployment URL',
+                  value: 'https://api.production.example.com',
+                  short: false
+                }]
+              }]
+            }
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+      
+      - name: Notify Slack - Failure
+        if: needs.post-deployment-verification.result == 'failure'
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "❌ Production deployment failed!",
+              attachments: [{
+                color: 'danger',
+                fields: [{
+                  title: 'Version',
+                  value: '${{ needs.pre-deployment-checks.outputs.version }}',
+                  short: true
+                }, {
+                  title: 'Environment',
+                  value: 'Production',
+                  short: true
+                }, {
+                  title: 'Action Required',
+                  value: 'Check logs and consider rollback',
+                  short: false
+                }]
+              }]
+            }
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+  rollback:
+    name: Rollback to Blue
+    runs-on: ubuntu-latest
+    needs: [canary-deployment, switch-to-green, post-deployment-verification]
+    if: failure() && env.ROLLBACK_ON_FAILURE == 'true'
+    steps:
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+      
+      - name: Configure kubectl
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
+          export KUBECONFIG=./kubeconfig
+      
+      - name: Switch traffic back to Blue
+        run: |
+          echo "Rolling back to Blue environment..."
+          
+          kubectl patch virtualservice api-gateway \
+            -n production \
+            --type merge \
+            -p '{"spec":{"http":[{"route":[{"destination":{"host":"blue-service"},"weight":100}]}]}}'
+      
+      - name: Scale up blue environment
+        run: |
+          kubectl scale deployment user-service-blue --replicas=3 -n production
+          kubectl scale deployment product-service-blue --replicas=3 -n production
+          kubectl scale deployment order-service-blue --replicas=3 -n production
+          kubectl scale deployment payment-service-blue --replicas=3 -n production
+      
+      - name: Verify rollback
+        run: |
+          kubectl rollout status deployment/user-service-blue -n production
+          kubectl rollout status deployment/product-service-blue -n production
+          kubectl rollout status deployment/order-service-blue -n production
+          kubectl rollout status deployment/payment-service-blue -n production
+      
+      - name: Notify rollback
+        uses: 8398a7/action-slack@v3
+        with:
+          status: custom
+          custom_payload: |
+            {
+              text: "⚠️ Production deployment rolled back!",
+              attachments: [{
+                color: 'warning',
+                fields: [{
+                  title: 'Reason',
+                  value: 'Deployment validation failed',
+                  short: false
+                }, {
+                  title: 'Action Taken',
+                  value: 'Rolled back to previous stable version',
+                  short: false
+                }]
+              }]
+            }
+          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
