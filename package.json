@@ -33,7 +33,7 @@
     "migrate:up": "npm run migrate:up --workspaces --if-present",
     "migrate:down": "npm run migrate:down --workspaces --if-present",
     "seed": "npm run seed --workspaces --if-present",
-    "prepare": "husky install"
+    "prepare": "node -e \"if (process.env.CI !== 'true') { process.exit(1) }\" || husky install"
   },
   "devDependencies": {
     "@playwright/test": "^1.40.0",
