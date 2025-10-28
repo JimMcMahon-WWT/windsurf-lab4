@@ -35,7 +35,33 @@ export const authorize = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
     const user = (req as any).user;
 
-    if (!user || !roles.includes(user.role)) {
+    // ✅ SECURITY FIX: Validate user object was properly set by authenticate middleware
+    if (!user) {
+      logger.error('Authorization attempted without authentication');
+      res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+      });
+      return;
+    }
+
+    // Validate required user properties exist (prevent spoofing)
+    if (!user.id || !user.role || typeof user.id !== 'string' || typeof user.role !== 'string') {
+      logger.error('Invalid user object in request', { user });
+      res.status(401).json({
+        success: false,
+        message: 'Invalid authentication data',
+      });
+      return;
+    }
+
+    // Check role authorization
+    if (!roles.includes(user.role)) {
+      logger.warn('Unauthorized access attempt', {
+        userId: user.id,
+        userRole: user.role,
+        requiredRoles: roles,
+      });
       res.status(403).json({
         success: false,
         message: 'Forbidden: Insufficient permissions',

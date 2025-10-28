@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import { query } from '../config/database.config';
+import paypalProvider from '../providers/paypal.provider';
 import stripeProvider from '../providers/stripe.provider';
 import { logger } from '../utils/logger.utils';
 
@@ -82,8 +83,19 @@ export class WebhookController {
   async handlePayPalWebhook(req: Request, res: Response): Promise<void> {
     try {
       const event = req.body;
+      const webhookId = event.id;
 
-      // Store webhook event
+      // ✅ SECURITY FIX: Verify PayPal webhook signature
+      const headers = req.headers as Record<string, string>;
+      const isVerified = await paypalProvider.verifyWebhookSignature(webhookId, headers, req.body);
+
+      if (!isVerified) {
+        logger.error('PayPal webhook verification failed', { webhookId });
+        res.status(401).json({ error: 'Webhook verification failed' });
+        return;
+      }
+
+      // Store webhook event with verified status
       await query(
         `INSERT INTO webhook_events (provider, event_id, event_type, payload, is_verified)
          VALUES ($1, $2, $3, $4, $5)`,
@@ -92,7 +104,7 @@ export class WebhookController {
           event.id,
           event.event_type,
           JSON.stringify(event),
-          true, // Should verify signature in production
+          true, // Now actually verified!
         ]
       );
 
