@@ -18,7 +18,33 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
     const decoded = authUtils.verifyAccessToken(token);
 
-    // Attach user info to request
+    // ✅ SECURITY FIX: Validate decoded token structure before trusting it
+    // Prevent using malformed or spoofed token data for security decisions (CWE-807, CWE-290)
+    if (!decoded || typeof decoded !== 'object') {
+      logger.error('Invalid token structure');
+      res.status(401).json({
+        success: false,
+        message: 'Invalid token',
+      });
+      return;
+    }
+
+    // Validate required fields exist in token
+    if (
+      !decoded.userId ||
+      !decoded.role ||
+      typeof decoded.userId !== 'string' ||
+      typeof decoded.role !== 'string'
+    ) {
+      logger.error('Token missing required fields', { decoded });
+      res.status(401).json({
+        success: false,
+        message: 'Invalid token claims',
+      });
+      return;
+    }
+
+    // Attach validated user info to request
     (req as any).user = decoded;
 
     next();
@@ -46,7 +72,12 @@ export const authorize = (...roles: string[]) => {
     }
 
     // Validate required user properties exist (prevent spoofing)
-    if (!user.id || !user.role || typeof user.id !== 'string' || typeof user.role !== 'string') {
+    if (
+      !user.userId ||
+      !user.role ||
+      typeof user.userId !== 'string' ||
+      typeof user.role !== 'string'
+    ) {
       logger.error('Invalid user object in request', { user });
       res.status(401).json({
         success: false,
@@ -58,7 +89,7 @@ export const authorize = (...roles: string[]) => {
     // Check role authorization
     if (!roles.includes(user.role)) {
       logger.warn('Unauthorized access attempt', {
-        userId: user.id,
+        userId: user.userId,
         userRole: user.role,
         requiredRoles: roles,
       });

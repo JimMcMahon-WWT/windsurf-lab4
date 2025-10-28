@@ -11,15 +11,31 @@ export class WebhookController {
    */
   async handleStripeWebhook(req: Request, res: Response): Promise<void> {
     try {
-      const signature = req.headers['stripe-signature'] as string;
+      // ✅ SECURITY FIX: Validate webhook secret is configured
+      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+      if (!webhookSecret || webhookSecret.trim() === '') {
+        logger.error('STRIPE_WEBHOOK_SECRET not configured');
+        res.status(500).json({ error: 'Webhook configuration error' });
+        return;
+      }
 
-      if (!signature) {
+      // ✅ SECURITY FIX: Validate signature header exists
+      const signature = req.headers['stripe-signature'];
+      if (!signature || typeof signature !== 'string') {
+        logger.warn('Stripe webhook received without signature header');
         res.status(400).json({ error: 'Missing signature' });
         return;
       }
 
-      const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
+      // ✅ Verify webhook signature (throws if invalid)
       const event = stripeProvider.verifyWebhookSignature(req.body, signature, webhookSecret);
+
+      // ✅ Validate event structure after verification
+      if (!event || !event.id || !event.type) {
+        logger.error('Invalid Stripe event structure after verification');
+        res.status(400).json({ error: 'Invalid event data' });
+        return;
+      }
 
       // Store webhook event
       await query(
@@ -83,7 +99,20 @@ export class WebhookController {
   async handlePayPalWebhook(req: Request, res: Response): Promise<void> {
     try {
       const event = req.body;
+
+      // ✅ SECURITY FIX: Validate event structure before processing
+      if (!event || typeof event !== 'object') {
+        logger.error('Invalid PayPal webhook payload structure');
+        res.status(400).json({ error: 'Invalid payload' });
+        return;
+      }
+
       const webhookId = event.id;
+      if (!webhookId || typeof webhookId !== 'string') {
+        logger.error('PayPal webhook missing event ID');
+        res.status(400).json({ error: 'Missing event ID' });
+        return;
+      }
 
       // ✅ SECURITY FIX: Verify PayPal webhook signature
       const headers = req.headers as Record<string, string>;
@@ -92,6 +121,13 @@ export class WebhookController {
       if (!isVerified) {
         logger.error('PayPal webhook verification failed', { webhookId });
         res.status(401).json({ error: 'Webhook verification failed' });
+        return;
+      }
+
+      // ✅ Validate required event fields after verification
+      if (!event.event_type || typeof event.event_type !== 'string') {
+        logger.error('PayPal webhook missing event_type', { webhookId });
+        res.status(400).json({ error: 'Invalid event data' });
         return;
       }
 
