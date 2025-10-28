@@ -3,10 +3,7 @@ import { Router } from 'express';
 import inventoryController from '../controllers/inventory.controller';
 import { authenticate, authorize } from '../middleware/auth.middleware';
 import { validate } from '../middleware/validate.middleware';
-import {
-  updateInventorySchema,
-  reserveInventorySchema,
-} from '../validators/product.validator';
+import { updateInventorySchema, reserveInventorySchema } from '../validators/product.validator';
 
 const router = Router();
 
@@ -14,10 +11,20 @@ const router = Router();
 router.get('/', inventoryController.getInventory);
 
 // Get inventory history
-router.get('/history', authenticate, authorize('admin', 'merchant'), inventoryController.getInventoryHistory);
+router.get(
+  '/history',
+  authenticate,
+  authorize('admin', 'merchant'),
+  inventoryController.getInventoryHistory
+);
 
 // Get low stock items
-router.get('/low-stock', authenticate, authorize('admin', 'merchant'), inventoryController.getLowStockItems);
+router.get(
+  '/low-stock',
+  authenticate,
+  authorize('admin', 'merchant'),
+  inventoryController.getLowStockItems
+);
 
 // Update inventory
 router.put(
@@ -37,18 +44,10 @@ router.post(
 );
 
 // Complete reservation
-router.post(
-  '/reservations/:id/complete',
-  authenticate,
-  inventoryController.completeReservation
-);
+router.post('/reservations/:id/complete', authenticate, inventoryController.completeReservation);
 
 // Release/cancel reservation
-router.post(
-  '/reservations/:id/release',
-  authenticate,
-  inventoryController.releaseReservation
-);
+router.post('/reservations/:id/release', authenticate, inventoryController.releaseReservation);
 
 // Get reservations by order
 router.get(

@@ -38,7 +38,7 @@ export const testElasticsearchConnection = async (): Promise<boolean> => {
 export const createProductIndex = async (): Promise<void> => {
   try {
     const exists = await esClient.indices.exists({ index: PRODUCT_INDEX });
-    
+
     if (!exists) {
       await esClient.indices.create({
         index: PRODUCT_INDEX,
@@ -133,7 +133,7 @@ export const createProductIndex = async (): Promise<void> => {
           },
         },
       });
-      
+
       logger.info(`✅ Created Elasticsearch index: ${PRODUCT_INDEX}`);
     } else {
       logger.info(`Elasticsearch index already exists: ${PRODUCT_INDEX}`);
@@ -169,7 +169,7 @@ export const bulkIndexProducts = async (products: any[]): Promise<void> => {
     ]);
 
     const result = await esClient.bulk({ body, refresh: true });
-    
+
     if (result.errors) {
       logger.error('Bulk indexing had errors:', result.items);
     } else {
@@ -199,10 +199,7 @@ export const deleteProduct = async (productId: string): Promise<void> => {
 };
 
 // Update a product document
-export const updateProduct = async (
-  productId: string,
-  updates: any
-): Promise<void> => {
+export const updateProduct = async (productId: string, updates: any): Promise<void> => {
   try {
     await esClient.update({
       index: PRODUCT_INDEX,

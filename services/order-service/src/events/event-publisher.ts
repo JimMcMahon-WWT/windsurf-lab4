@@ -21,7 +21,7 @@ export class EventPublisher {
         ...event,
         timestamp: event.timestamp.toISOString(),
       });
-      
+
       logger.debug(`Event published: ${event.eventType}`);
     } catch (error) {
       logger.error(`Failed to publish event ${event.eventType}:`, error);
@@ -33,7 +33,7 @@ export class EventPublisher {
    * Publish multiple events
    */
   async publishBatch(events: DomainEvent[]): Promise<void> {
-    const publishPromises = events.map(event => this.publish(event));
+    const publishPromises = events.map((event) => this.publish(event));
     await Promise.all(publishPromises);
   }
 
@@ -92,12 +92,11 @@ export class EventPublisher {
           processedCount++;
         } catch (error) {
           logger.error(`Failed to process outbox event ${row.id}:`, error);
-          
+
           // Increment retry count
-          await client.query(
-            'UPDATE outbox SET retry_count = retry_count + 1 WHERE id = $1',
-            [row.id]
-          );
+          await client.query('UPDATE outbox SET retry_count = retry_count + 1 WHERE id = $1', [
+            row.id,
+          ]);
         }
       }
 
@@ -145,7 +144,7 @@ export const eventPublisher = new EventPublisher();
  */
 export const startOutboxProcessor = (): void => {
   const INTERVAL_MS = 5000;
-  
+
   setInterval(async () => {
     try {
       await eventPublisher.processOutbox();

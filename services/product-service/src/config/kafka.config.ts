@@ -14,14 +14,16 @@ export const TOPICS = {
 };
 
 // Create Kafka instance
-const kafka = kafkaEnabled ? new Kafka({
-  clientId,
-  brokers,
-  retry: {
-    initialRetryTime: 100,
-    retries: 8,
-  },
-}) : null;
+const kafka = kafkaEnabled
+  ? new Kafka({
+      clientId,
+      brokers,
+      retry: {
+        initialRetryTime: 100,
+        retries: 8,
+      },
+    })
+  : null;
 
 // Create producer
 let producer: Producer | null = null;
@@ -44,11 +46,7 @@ export const createProducer = async (): Promise<Producer | null> => {
 };
 
 // Publish event
-export const publishEvent = async (
-  topic: string,
-  key: string,
-  value: any
-): Promise<void> => {
+export const publishEvent = async (topic: string, key: string, value: any): Promise<void> => {
   if (!kafkaEnabled || !producer) {
     logger.debug('Kafka disabled, event not published:', { topic, key });
     return;
@@ -73,10 +71,7 @@ export const publishEvent = async (
 };
 
 // Publish inventory event
-export const publishInventoryEvent = async (
-  eventType: string,
-  data: any
-): Promise<void> => {
+export const publishInventoryEvent = async (eventType: string, data: any): Promise<void> => {
   await publishEvent(TOPICS.INVENTORY, data.product_id || data.variant_id, {
     event_type: eventType,
     timestamp: new Date().toISOString(),
@@ -85,10 +80,7 @@ export const publishInventoryEvent = async (
 };
 
 // Publish product event
-export const publishProductEvent = async (
-  eventType: string,
-  data: any
-): Promise<void> => {
+export const publishProductEvent = async (eventType: string, data: any): Promise<void> => {
   await publishEvent(TOPICS.PRODUCTS, data.product_id || data.id, {
     event_type: eventType,
     timestamp: new Date().toISOString(),
@@ -97,9 +89,7 @@ export const publishProductEvent = async (
 };
 
 // Create consumer (for listening to events from other services)
-export const createConsumer = async (
-  topics: string[]
-): Promise<Consumer | null> => {
+export const createConsumer = async (topics: string[]): Promise<Consumer | null> => {
   if (!kafkaEnabled || !kafka) {
     return null;
   }
@@ -107,12 +97,12 @@ export const createConsumer = async (
   try {
     const consumer = kafka.consumer({ groupId });
     await consumer.connect();
-    
+
     await consumer.subscribe({
       topics,
       fromBeginning: false,
     });
-    
+
     logger.info('✅ Kafka consumer connected and subscribed to:', topics);
     return consumer;
   } catch (error) {

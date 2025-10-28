@@ -14,11 +14,7 @@ export class ReviewService {
   ): Promise<{ reviews: ProductReview[]; total: number; page: number; limit: number }> {
     try {
       const offset = (page - 1) * limit;
-      const { reviews, total } = await reviewRepository.findByProductId(
-        productId,
-        limit,
-        offset
-      );
+      const { reviews, total } = await reviewRepository.findByProductId(productId, limit, offset);
 
       return { reviews, total, page, limit };
     } catch (error) {

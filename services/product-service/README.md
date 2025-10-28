@@ -5,6 +5,7 @@ Advanced e-commerce product management service with real-time inventory, search,
 ## 🎯 Features
 
 ### Product Catalog
+
 - ✅ Multi-level hierarchical categories
 - ✅ Product variants (size, color, etc.)
 - ✅ Multiple images per product with CDN support
@@ -14,6 +15,7 @@ Advanced e-commerce product management service with real-time inventory, search,
 - ✅ Brand management
 
 ### Inventory Management
+
 - ✅ Real-time stock tracking
 - ✅ Inventory reservations with TTL (prevent overselling)
 - ✅ Complete audit trail
@@ -22,6 +24,7 @@ Advanced e-commerce product management service with real-time inventory, search,
 - ✅ Automatic reservation expiry
 
 ### Search & Discovery
+
 - ✅ Elasticsearch full-text search
 - ✅ Fuzzy matching and autocomplete
 - ✅ Faceted search (categories, brands, prices, ratings)
@@ -30,6 +33,7 @@ Advanced e-commerce product management service with real-time inventory, search,
 - ✅ Search analytics
 
 ### Image Management
+
 - ✅ AWS S3 storage
 - ✅ 5 responsive sizes (thumbnail, small, medium, large, original)
 - ✅ Sharp image optimization
@@ -37,6 +41,7 @@ Advanced e-commerce product management service with real-time inventory, search,
 - ✅ Automatic JPEG conversion
 
 ### Reviews & Ratings
+
 - ✅ 5-star rating system
 - ✅ Review text and titles
 - ✅ Verified purchase badges
@@ -45,12 +50,14 @@ Advanced e-commerce product management service with real-time inventory, search,
 - ✅ Automatic average calculation
 
 ### Pricing & Promotions
+
 - ✅ Base price and sale price
 - ✅ Cost price tracking
 - ✅ Discount system (structure in place)
 - ✅ Price range filtering
 
 ### Event-Driven Architecture
+
 - ✅ Kafka integration for inventory events
 - ✅ Product change events
 - ✅ Order integration support
@@ -296,6 +303,7 @@ curl -X POST http://localhost:3002/api/v1/products/:id/images \
 ## 🔄 Inventory Reservation Flow
 
 1. **Reserve Inventory** (when order is created)
+
 ```bash
 POST /api/v1/inventory/reserve
 {
@@ -307,11 +315,13 @@ POST /api/v1/inventory/reserve
 ```
 
 2. **Complete Reservation** (when payment succeeds)
+
 ```bash
 POST /api/v1/inventory/reservations/:id/complete
 ```
 
 3. **Release Reservation** (when order is cancelled)
+
 ```bash
 POST /api/v1/inventory/reservations/:id/release
 ```
@@ -323,6 +333,7 @@ Reservations automatically expire after TTL (default 15 minutes).
 The service publishes events to Kafka:
 
 ### Inventory Events
+
 - `inventory.updated` - Stock quantity changed
 - `inventory.low_stock` - Stock below threshold
 - `inventory.reserved` - Inventory reserved for order
@@ -331,6 +342,7 @@ The service publishes events to Kafka:
 - `inventory.reservations_expired` - Reservations auto-expired
 
 ### Product Events
+
 - `product.created` - New product added
 - `product.updated` - Product modified
 - `product.deleted` - Product removed

@@ -3,6 +3,7 @@
 ## Database Per Service Pattern
 
 Each microservice owns its database, ensuring:
+
 - **Autonomy**: Services can evolve independently
 - **Isolation**: Failures don't cascade across databases
 - **Technology Choice**: Each service can use the optimal database type
@@ -76,6 +77,7 @@ CREATE INDEX idx_password_reset_tokens_token ON password_reset_tokens(token);
 ```
 
 ### Key Design Decisions
+
 - **UUID for IDs**: Prevents ID enumeration attacks, allows distributed ID generation
 - **Separate Address Table**: Users can have multiple shipping/billing addresses
 - **Token Tables**: Secure refresh token and password reset management
@@ -178,6 +180,7 @@ CREATE INDEX idx_product_reviews_user_id ON product_reviews(user_id);
 ```
 
 ### Key Design Decisions
+
 - **Product Variants**: Support products with multiple options (size, color, etc.)
 - **JSONB for Attributes**: Flexible schema for variant attributes
 - **Currency Rates Cache**: Avoid external API calls on every price conversion
@@ -197,7 +200,7 @@ CREATE INDEX idx_product_reviews_user_id ON product_reviews(user_id);
 # Key: cart:{user_id} or cart:session:{session_id}
 # TTL: 7 days
 
-HSET cart:{user_id} 
+HSET cart:{user_id}
     created_at {timestamp}
     updated_at {timestamp}
     currency {currency_code}
@@ -235,6 +238,7 @@ ZADD abandoned_carts {timestamp_24h_ago} {user_id}
 ```
 
 ### Key Design Decisions
+
 - **Redis for Speed**: Fast read/write for frequent cart operations
 - **TTL for Auto-Cleanup**: Carts expire after 7 days of inactivity
 - **Price Snapshot**: Store price at time of adding to cart
@@ -332,6 +336,7 @@ CREATE INDEX idx_order_events_order_id ON order_events(order_id);
 ```
 
 ### Key Design Decisions
+
 - **Order Number**: Human-readable unique identifier (e.g., ORD-2024-00001)
 - **Data Snapshot**: Store product names, prices at time of order
 - **Status History**: Complete audit trail of status changes
@@ -420,6 +425,7 @@ CREATE INDEX idx_refunds_payment_id ON refunds(payment_id);
 ```
 
 ### Key Design Decisions
+
 - **NO RAW CARD DATA**: Only store provider tokens (PCI compliance)
 - **Idempotency Keys**: Prevent duplicate charges
 - **Comprehensive Audit Log**: Track all payment activities
@@ -508,6 +514,7 @@ CREATE INDEX idx_transactions_created_at ON inventory_transactions(created_at DE
 ```
 
 ### Key Design Decisions
+
 - **Reservation System**: Reserve inventory during checkout, release on timeout
 - **Multi-Warehouse Support**: Track inventory across multiple locations
 - **Transaction Log**: Complete audit trail of all inventory changes
@@ -577,6 +584,7 @@ CREATE INDEX idx_notification_templates_name ON notification_templates(name);
 ```
 
 ### Key Design Decisions
+
 - **Template-Based**: Reusable templates with variable substitution
 - **Multi-Channel**: Support email, SMS, and push notifications
 - **User Preferences**: Respect user notification preferences
@@ -652,6 +660,7 @@ CREATE INDEX idx_notification_templates_name ON notification_templates(name);
 ```
 
 ### Key Design Decisions
+
 - **Multi-Field Mapping**: Support both full-text and exact matching
 - **Autocomplete Analyzer**: Edge n-grams for search suggestions
 - **Nested Attributes**: Support faceted search
@@ -664,16 +673,16 @@ CREATE INDEX idx_notification_templates_name ON notification_templates(name);
 
 ### Read/Write Patterns
 
-| Service | Pattern | Read:Write Ratio | Scaling Strategy |
-|---------|---------|------------------|------------------|
-| User | Read-Heavy | 80:20 | Read replicas |
-| Product | Read-Heavy | 95:5 | Multiple read replicas + caching |
-| Cart | Balanced | 60:40 | Redis Cluster |
-| Order | Write-Heavy | 40:60 | Write-optimized, partitioning |
-| Payment | Write-Heavy | 30:70 | Connection pooling, retry logic |
-| Inventory | Write-Heavy | 45:55 | Optimistic locking, partitioning |
-| Notification | Write-Heavy | 20:80 | Queue-based writes, archival |
-| Search | Read-Heavy | 99:1 | Elasticsearch cluster |
+| Service      | Pattern     | Read:Write Ratio | Scaling Strategy                 |
+| ------------ | ----------- | ---------------- | -------------------------------- |
+| User         | Read-Heavy  | 80:20            | Read replicas                    |
+| Product      | Read-Heavy  | 95:5             | Multiple read replicas + caching |
+| Cart         | Balanced    | 60:40            | Redis Cluster                    |
+| Order        | Write-Heavy | 40:60            | Write-optimized, partitioning    |
+| Payment      | Write-Heavy | 30:70            | Connection pooling, retry logic  |
+| Inventory    | Write-Heavy | 45:55            | Optimistic locking, partitioning |
+| Notification | Write-Heavy | 20:80            | Queue-based writes, archival     |
+| Search       | Read-Heavy  | 99:1             | Elasticsearch cluster            |
 
 ### Backup and Disaster Recovery
 

@@ -31,7 +31,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
+
       - name: Determine version
         id: version
         run: |
@@ -42,7 +42,7 @@ jobs:
           else
             echo "version=$(git describe --tags --always)" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Validate version format
         run: |
           VERSION="${{ steps.version.outputs.version }}"
@@ -50,18 +50,18 @@ jobs:
             echo "Invalid version format: $VERSION"
             exit 1
           fi
-      
+
       - name: Check if staging tests passed
         run: |
           echo "Verifying staging environment health..."
           # Add staging health check here
-      
+
       - name: Determine deployment strategy
         id: strategy
         run: |
           # Start with 10% canary, increase gradually
           echo "canary_percentage=10" >> $GITHUB_OUTPUT
-      
+
       - name: Notify deployment start
         uses: 8398a7/action-slack@v3
         with:
@@ -98,17 +98,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
-      
+
       - name: Log in to Container Registry
         uses: docker/login-action@v2
         with:
           registry: ${{ secrets.REGISTRY_URL }}
           username: ${{ secrets.REGISTRY_USERNAME }}
           password: ${{ secrets.REGISTRY_PASSWORD }}
-      
+
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v4
@@ -119,7 +119,7 @@ jobs:
             type=semver,pattern={{major}}.{{minor}},value=${{ needs.pre-deployment-checks.outputs.version }}
             type=sha,prefix=sha-
             type=raw,value=latest
-      
+
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
         with:
@@ -130,7 +130,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=registry,ref=${{ secrets.REGISTRY_URL }}/${{ matrix.service }}:buildcache
           cache-to: type=registry,ref=${{ secrets.REGISTRY_URL }}/${{ matrix.service }}:buildcache,mode=max
-      
+
       - name: Scan image for vulnerabilities
         uses: aquasecurity/trivy-action@master
         with:
@@ -138,7 +138,7 @@ jobs:
           format: 'sarif'
           output: 'trivy-results.sarif'
           severity: 'CRITICAL,HIGH'
-      
+
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v2
         if: always()
@@ -155,15 +155,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Create database backup
         run: |
           echo "Creating database backup before migration..."
@@ -175,7 +175,7 @@ jobs:
           DB_USER: ${{ secrets.PROD_DB_USER }}
           DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
           BACKUP_BUCKET: ${{ secrets.BACKUP_S3_BUCKET }}
-      
+
       - name: Run migrations with safety checks
         run: |
           echo "Running database migrations..."
@@ -188,7 +188,7 @@ jobs:
           DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
           DRY_RUN: false
           BACKUP_ID: ${{ github.run_id }}
-      
+
       - name: Verify migration success
         run: |
           echo "Verifying migration status..."
@@ -211,52 +211,52 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
-      
+
       - name: Configure kubectl
         run: |
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
           export KUBECONFIG=./kubeconfig
-      
+
       - name: Deploy Green environment
         id: deploy
         run: |
           VERSION="${{ needs.pre-deployment-checks.outputs.version }}"
-          
+
           # Deploy to green environment
           kubectl apply -f kubernetes/deployments/green/
-          
+
           # Update image tags
           kubectl set image deployment/user-service-green \
             user-service=${{ secrets.REGISTRY_URL }}/user-service:$VERSION \
             -n production
-          
+
           kubectl set image deployment/product-service-green \
             product-service=${{ secrets.REGISTRY_URL }}/product-service:$VERSION \
             -n production
-          
+
           kubectl set image deployment/order-service-green \
             order-service=${{ secrets.REGISTRY_URL }}/order-service:$VERSION \
             -n production
-          
+
           kubectl set image deployment/payment-service-green \
             payment-service=${{ secrets.REGISTRY_URL }}/payment-service:$VERSION \
             -n production
-          
+
           # Wait for rollout
           kubectl rollout status deployment/user-service-green -n production --timeout=5m
           kubectl rollout status deployment/product-service-green -n production --timeout=5m
           kubectl rollout status deployment/order-service-green -n production --timeout=5m
           kubectl rollout status deployment/payment-service-green -n production --timeout=5m
-          
+
           # Get green environment URL
           GREEN_URL=$(kubectl get svc green-lb -n production -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
           echo "url=https://$GREEN_URL" >> $GITHUB_OUTPUT
-      
+
       - name: Wait for pods to be ready
         run: |
           kubectl wait --for=condition=ready pod \
@@ -271,15 +271,15 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run health checks
         run: |
           node scripts/health-check.js
@@ -287,14 +287,14 @@ jobs:
           TARGET_URL: ${{ needs.deploy-green-environment.outputs.green_url }}
           TIMEOUT: ${{ env.HEALTH_CHECK_TIMEOUT }}
           SERVICES: user-service,product-service,order-service,payment-service
-      
+
       - name: Run smoke tests
         run: |
           npm run test:smoke
         env:
           API_URL: ${{ needs.deploy-green-environment.outputs.green_url }}
           API_KEY: ${{ secrets.PROD_API_KEY }}
-      
+
       - name: Performance baseline check
         run: |
           node scripts/performance-check.js
@@ -309,22 +309,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
-      
+
       - name: Configure kubectl
         run: |
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
           export KUBECONFIG=./kubeconfig
-      
+
       - name: Route 10% traffic to Green
         run: |
           kubectl patch virtualservice api-gateway \
             -n production \
             --type merge \
             -p '{"spec":{"http":[{"route":[{"destination":{"host":"green-service"},"weight":10},{"destination":{"host":"blue-service"},"weight":90}]}]}}'
-      
+
       - name: Monitor canary for 5 minutes
         run: |
           node scripts/monitor-canary.js
@@ -332,7 +332,7 @@ jobs:
           DURATION: 300
           ERROR_THRESHOLD: 1
           LATENCY_THRESHOLD: 500
-      
+
       - name: Gradually increase traffic
         run: |
           for WEIGHT in 25 50 75 100; do
@@ -365,12 +365,12 @@ jobs:
     steps:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
-      
+
       - name: Configure kubectl
         run: |
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
           export KUBECONFIG=./kubeconfig
-      
+
       - name: Complete traffic switch
         run: |
           # Switch all traffic to green
@@ -378,9 +378,9 @@ jobs:
             -n production \
             --type merge \
             -p '{"spec":{"http":[{"route":[{"destination":{"host":"green-service"},"weight":100}]}]}}'
-          
+
           echo "All traffic now routed to Green environment"
-      
+
       - name: Update service labels
         run: |
           # Label current green as blue for next deployment
@@ -388,7 +388,7 @@ jobs:
           kubectl label deployment product-service-green environment=blue --overwrite -n production
           kubectl label deployment order-service-green environment=blue --overwrite -n production
           kubectl label deployment payment-service-green environment=blue --overwrite -n production
-      
+
       - name: Scale down old blue environment
         run: |
           kubectl scale deployment user-service-blue --replicas=1 -n production
@@ -403,22 +403,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run full test suite against production
         run: |
           npm run test:production
         env:
           API_URL: https://api.production.example.com
           API_KEY: ${{ secrets.PROD_API_KEY }}
-      
+
       - name: Check error rates
         run: |
           node scripts/check-error-rates.js
@@ -426,7 +426,7 @@ jobs:
           PROMETHEUS_URL: ${{ secrets.PROMETHEUS_URL }}
           DURATION: 10m
           ERROR_THRESHOLD: 0.5
-      
+
       - name: Check response times
         run: |
           node scripts/check-latency.js
@@ -434,7 +434,7 @@ jobs:
           PROMETHEUS_URL: ${{ secrets.PROMETHEUS_URL }}
           P95_THRESHOLD: 500
           P99_THRESHOLD: 1000
-      
+
       - name: Verify database integrity
         run: |
           node scripts/verify-database.js
@@ -444,7 +444,7 @@ jobs:
           DB_NAME: ${{ secrets.PROD_DB_NAME }}
           DB_USER: ${{ secrets.PROD_DB_USER }}
           DB_PASSWORD: ${{ secrets.PROD_DB_PASSWORD }}
-      
+
       - name: Create deployment record
         run: |
           node scripts/record-deployment.js
@@ -462,12 +462,12 @@ jobs:
     steps:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
-      
+
       - name: Configure kubectl
         run: |
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
           export KUBECONFIG=./kubeconfig
-      
+
       - name: Remove old blue deployments
         run: |
           # Keep old blue for 24 hours for potential rollback
@@ -508,7 +508,7 @@ jobs:
               }]
             }
           webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-      
+
       - name: Notify Slack - Failure
         if: needs.post-deployment-verification.result == 'failure'
         uses: 8398a7/action-slack@v3
@@ -544,35 +544,35 @@ jobs:
     steps:
       - name: Setup kubectl
         uses: azure/setup-kubectl@v3
-      
+
       - name: Configure kubectl
         run: |
           echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > kubeconfig
           export KUBECONFIG=./kubeconfig
-      
+
       - name: Switch traffic back to Blue
         run: |
           echo "Rolling back to Blue environment..."
-          
+
           kubectl patch virtualservice api-gateway \
             -n production \
             --type merge \
             -p '{"spec":{"http":[{"route":[{"destination":{"host":"blue-service"},"weight":100}]}]}}'
-      
+
       - name: Scale up blue environment
         run: |
           kubectl scale deployment user-service-blue --replicas=3 -n production
           kubectl scale deployment product-service-blue --replicas=3 -n production
           kubectl scale deployment order-service-blue --replicas=3 -n production
           kubectl scale deployment payment-service-blue --replicas=3 -n production
-      
+
       - name: Verify rollback
         run: |
           kubectl rollout status deployment/user-service-blue -n production
           kubectl rollout status deployment/product-service-blue -n production
           kubectl rollout status deployment/order-service-blue -n production
           kubectl rollout status deployment/payment-service-blue -n production
-      
+
       - name: Notify rollback
         uses: 8398a7/action-slack@v3
         with:

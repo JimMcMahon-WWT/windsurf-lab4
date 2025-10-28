@@ -15,15 +15,18 @@ Successfully containerized 2 microservices (Payment Service and User Service) in
 ## Completed Services
 
 ### ✅ Payment Service (Port 3004)
+
 **Status**: Fully operational and healthy
 
 **Image Details**:
+
 - Base: `node:18-alpine`
 - Size: 270MB
 - Architecture: Multi-stage build
 - User: Non-root (nodejs:1001)
 
 **Features Implemented**:
+
 - Multi-stage Dockerfile (builder + production)
 - TypeScript compilation in builder stage
 - Production-only dependencies in final image
@@ -32,12 +35,14 @@ Successfully containerized 2 microservices (Payment Service and User Service) in
 - Proper signal handling with dumb-init
 
 **Dependencies**:
+
 - PostgreSQL (database)
 - Redis (cache)
 - Stripe SDK (payment processing)
 - PayPal SDK (payment processing)
 
 **Technical Challenges Solved**:
+
 1. Missing TypeScript type definitions for `cors` - Added `@types/cors`
 2. PayPal SDK lacking types - Suppressed with `@ts-expect-error`
 3. Cipher/Decipher type mismatches - Cast to `CipherGCM`/`DecipherGCM`
@@ -45,15 +50,18 @@ Successfully containerized 2 microservices (Payment Service and User Service) in
 5. Validation middleware return types - Fixed control flow
 
 ### ✅ User Service (Port 3001)
+
 **Status**: Fully operational and healthy
 
 **Image Details**:
+
 - Base: `node:18-alpine`
 - Size: 230MB
 - Architecture: Multi-stage build
 - User: Non-root (nodejs:1001)
 
 **Features Implemented**:
+
 - Multi-stage Dockerfile with TypeScript compilation
 - Monorepo tsconfig inheritance handling
 - Log directory with proper permissions
@@ -62,12 +70,14 @@ Successfully containerized 2 microservices (Payment Service and User Service) in
 - Security middleware (helmet, CORS, rate limiting)
 
 **Dependencies**:
+
 - PostgreSQL (user data storage)
 - Redis (session management, token blacklist)
 - bcryptjs (password hashing)
 - jsonwebtoken (JWT authentication)
 
 **Technical Challenges Solved**:
+
 1. TypeScript config inheritance - Copied root tsconfig and fixed paths with sed
 2. Method naming mismatch - Changed `verifyToken` to `verifyAccessToken`
 3. RefreshTokenPayload missing tokenId - Added crypto UUID generation
@@ -80,15 +90,17 @@ Successfully containerized 2 microservices (Payment Service and User Service) in
 ## Infrastructure Stack
 
 ### Running Containers
-| Service | Port | Status | Purpose |
-|---------|------|--------|---------|
-| PostgreSQL | 5432 | Healthy | Primary database for all services |
-| Redis | 6379 | Healthy | Cache, sessions, token blacklist |
-| Elasticsearch | 9200, 9300 | Healthy | Product search and analytics |
-| Kafka | 9092, 9093 | Healthy | Event streaming between services |
-| Zookeeper | 2181 | Healthy | Kafka cluster coordination |
+
+| Service       | Port       | Status  | Purpose                           |
+| ------------- | ---------- | ------- | --------------------------------- |
+| PostgreSQL    | 5432       | Healthy | Primary database for all services |
+| Redis         | 6379       | Healthy | Cache, sessions, token blacklist  |
+| Elasticsearch | 9200, 9300 | Healthy | Product search and analytics      |
+| Kafka         | 9092, 9093 | Healthy | Event streaming between services  |
+| Zookeeper     | 2181       | Healthy | Kafka cluster coordination        |
 
 ### Docker Compose Configuration
+
 - Network: `ecommerce-network`
 - Volumes: Persistent data for all infrastructure services
 - Health checks: All infrastructure services have health monitoring
@@ -99,7 +111,9 @@ Successfully containerized 2 microservices (Payment Service and User Service) in
 ## Monorepo Docker Strategy
 
 ### Challenge
+
 Traditional Docker practices assume each service is isolated, but our monorepo has:
+
 - Shared root `package-lock.json`
 - Workspace dependencies managed at root level
 - TypeScript configs that extend root configuration
@@ -108,22 +122,27 @@ Traditional Docker practices assume each service is isolated, but our monorepo h
 ### Solution Implemented
 
 #### 1. Build Context Strategy
+
 **Before**: Service directory as context (doesn't work with monorepo)
+
 ```yaml
 context: ./services/payment-service
 dockerfile: Dockerfile
 ```
 
 **After**: Root as context, service-specific dockerfile
+
 ```yaml
 context: .
 dockerfile: services/payment-service/Dockerfile
 ```
 
 #### 2. Dependency Management
+
 **Challenge**: `npm ci` requires exact lockfile match, but monorepo lockfile has workspace-specific versions
 
 **Solution**: Changed from `npm ci` to `npm install`
+
 ```dockerfile
 # Instead of:
 RUN npm ci
@@ -133,7 +152,9 @@ RUN npm install
 ```
 
 #### 3. File Copying Strategy
+
 **Pattern**: Copy from root context with service paths
+
 ```dockerfile
 # Root lockfile (shared)
 COPY package-lock.json ./
@@ -145,9 +166,11 @@ COPY services/payment-service/src ./src
 ```
 
 #### 4. TypeScript Configuration
+
 **Challenge**: Service tsconfig extends `../../tsconfig.json` which doesn't exist in Docker
 
 **Solution**: Copy root config and dynamically fix path
+
 ```dockerfile
 COPY tsconfig.json ./tsconfig.base.json
 COPY services/payment-service/tsconfig.json ./tsconfig.json
@@ -159,6 +182,7 @@ RUN sed -i 's|../../tsconfig.json|./tsconfig.base.json|g' tsconfig.json
 ## Docker Best Practices Implemented
 
 ### Multi-Stage Builds
+
 ```dockerfile
 # Stage 1: Builder (includes devDependencies)
 FROM node:18-alpine AS builder
@@ -172,6 +196,7 @@ COPY --from=builder /app/dist ./dist
 ```
 
 **Benefits**:
+
 - Smaller final images (excludes build tools)
 - Faster deployments
 - Reduced attack surface
@@ -179,6 +204,7 @@ COPY --from=builder /app/dist ./dist
 ### Security Hardening
 
 #### Non-Root User
+
 ```dockerfile
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 && \
@@ -188,6 +214,7 @@ USER nodejs
 ```
 
 #### Signal Handling
+
 ```dockerfile
 # Payment service uses dumb-init for proper signal forwarding
 RUN apk add --no-cache dumb-init
@@ -196,6 +223,7 @@ CMD ["node", "dist/server.js"]
 ```
 
 #### Permission Management
+
 ```dockerfile
 # Create writable directories before switching users
 RUN mkdir -p logs && \
@@ -205,15 +233,23 @@ RUN mkdir -p logs && \
 ### Health Checks
 
 **In Dockerfile**:
+
 ```dockerfile
 HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
     CMD node -e "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 ```
 
 **In docker-compose.yml**:
+
 ```yaml
 healthcheck:
-  test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+  test:
+    [
+      'CMD',
+      'node',
+      '-e',
+      "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+    ]
   interval: 30s
   timeout: 10s
   retries: 3
@@ -226,7 +262,9 @@ healthcheck:
 ### Payment Service
 
 #### 1. Validation Middleware Return Type
+
 **Issue**: TypeScript error "Not all code paths return a value"
+
 ```typescript
 // Before:
 export const validate = (req: Request, res: Response, next: NextFunction): void => {
@@ -246,12 +284,14 @@ export const validate = (req: Request, res: Response, next: NextFunction) => {
 ```
 
 #### 2. Type Definitions
+
 ```typescript
 // Added to package.json devDependencies:
 "@types/cors": "^2.8.17"
 ```
 
 #### 3. PayPal SDK Types
+
 ```typescript
 // Added suppression for untyped module:
 // @ts-expect-error - PayPal SDK doesn't have TypeScript definitions
@@ -259,6 +299,7 @@ import paypal from '@paypal/checkout-server-sdk';
 ```
 
 #### 4. Encryption Utils Type Casting
+
 ```typescript
 // Before:
 const cipher = crypto.createCipheriv(ALGORITHM, ENCRYPTION_KEY, iv);
@@ -268,6 +309,7 @@ const cipher = crypto.createCipheriv(ALGORITHM, ENCRYPTION_KEY, iv) as crypto.Ci
 ```
 
 #### 5. PayPalOrder Interface
+
 ```typescript
 export interface PayPalOrder {
   id: string;
@@ -281,6 +323,7 @@ export interface PayPalOrder {
 ### User Service
 
 #### 1. Auth Utils Method Name
+
 ```typescript
 // Before:
 const decoded = authUtils.verifyToken(token);
@@ -290,6 +333,7 @@ const decoded = authUtils.verifyAccessToken(token);
 ```
 
 #### 2. RefreshTokenPayload with tokenId
+
 ```typescript
 // Before:
 const refreshToken = authUtils.generateRefreshToken({
@@ -307,6 +351,7 @@ const refreshToken = authUtils.generateRefreshToken({
 ```
 
 #### 3. LoginResponse Properties
+
 ```typescript
 // Before:
 return {
@@ -325,6 +370,7 @@ return {
 ```
 
 #### 4. Database Configuration Environment Variables
+
 ```typescript
 // Before:
 const pool = new Pool({
@@ -349,6 +395,7 @@ const pool = new Pool({
 ## Testing & Verification
 
 ### Health Check Tests
+
 ```powershell
 # Payment Service
 curl http://localhost:3004/health
@@ -360,12 +407,14 @@ curl http://localhost:3001/health
 ```
 
 ### Container Status
+
 ```powershell
 docker ps
 # Both services showing as "healthy" status
 ```
 
 ### Log Verification
+
 ```powershell
 docker-compose logs payment-service
 docker-compose logs user-service
@@ -379,20 +428,25 @@ docker-compose logs user-service
 ### Pending Services
 
 #### Product Service (Port 3002)
+
 **Complexity**: Medium
+
 - Dependencies: PostgreSQL, Redis, Elasticsearch, Kafka
 - Requires Elasticsearch indexing setup
 - Kafka event producers/consumers
 - Similar Docker strategy should apply
 
 #### Order Service (Port 3003)
+
 **Complexity**: Medium-High
+
 - Dependencies: PostgreSQL, Redis, Kafka, Product Service, Payment Service
 - Service-to-service HTTP communication
 - Kafka event streaming
 - Transaction management across services
 
 ### Estimated Effort
+
 - Product Service: ~1-2 hours (similar patterns to completed services)
 - Order Service: ~1-2 hours (additional service communication testing)
 - Integration testing: ~30 minutes
@@ -405,6 +459,7 @@ docker-compose logs user-service
 ## Build & Deployment Commands
 
 ### Build Services
+
 ```powershell
 # Individual services
 docker-compose build payment-service
@@ -415,6 +470,7 @@ docker-compose build
 ```
 
 ### Start Services
+
 ```powershell
 # Individual services (with dependencies)
 docker-compose up -d payment-service
@@ -425,6 +481,7 @@ docker-compose up -d
 ```
 
 ### Monitoring
+
 ```powershell
 # View logs
 docker-compose logs -f payment-service
@@ -438,6 +495,7 @@ docker stats
 ```
 
 ### Cleanup
+
 ```powershell
 # Stop services
 docker-compose down
@@ -454,6 +512,7 @@ docker rmi module4-payment-service module4-user-service
 ## Lessons Learned
 
 ### What Worked Well
+
 1. **Multi-stage builds** significantly reduced final image sizes
 2. **Root build context** strategy solved monorepo challenges elegantly
 3. **npm install** instead of `npm ci` handles workspace dependencies better
@@ -461,6 +520,7 @@ docker rmi module4-payment-service module4-user-service
 5. **Non-root users** work seamlessly with proper directory permissions
 
 ### Challenges & Solutions
+
 1. **Monorepo lockfile complexity** → Used root lockfile with npm install
 2. **TypeScript type mismatches** → Added missing types and proper casting
 3. **File permissions** → Created directories before USER switch
@@ -468,6 +528,7 @@ docker rmi module4-payment-service module4-user-service
 5. **Build caching** → Ordered COPY commands for optimal cache hits
 
 ### Best Practices Established
+
 1. Always copy lockfile before package.json for better caching
 2. Create all writable directories before switching to non-root user
 3. Use explicit type casting for crypto operations
@@ -479,16 +540,19 @@ docker rmi module4-payment-service module4-user-service
 ## Performance Metrics
 
 ### Build Times (Cold Build)
+
 - Payment Service: ~30 seconds
 - User Service: ~25 seconds
 - Total infrastructure startup: ~15 seconds
 
 ### Image Sizes
+
 - Payment Service: 270MB (optimized with Alpine + multi-stage)
 - User Service: 230MB (optimized with Alpine + multi-stage)
 - Base node:18-alpine: ~180MB
 
 ### Memory Usage (Runtime)
+
 - Payment Service: ~150MB
 - User Service: ~120MB
 - PostgreSQL: ~50MB
@@ -499,6 +563,7 @@ docker rmi module4-payment-service module4-user-service
 ## Security Considerations
 
 ### Implemented
+
 - ✅ Non-root users (UID 1001)
 - ✅ Minimal Alpine base images
 - ✅ No hardcoded secrets
@@ -507,6 +572,7 @@ docker rmi module4-payment-service module4-user-service
 - ✅ Production-only dependencies in final images
 
 ### Future Enhancements
+
 - Container scanning (Trivy, Snyk)
 - Secret management (Docker secrets, Vault)
 - Network policies and segmentation

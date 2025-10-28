@@ -5,6 +5,7 @@ A production-ready, scalable e-commerce microservices architecture designed for 
 ## 📋 Documentation Index
 
 ### Core Architecture
+
 - **[Architecture Overview](./ARCHITECTURE_OVERVIEW.md)** - High-level system design and principles
 - **[Service Definitions](./SERVICE_DEFINITIONS.md)** - Detailed service boundaries and responsibilities
 - **[Database Schemas](./DATABASE_SCHEMAS.md)** - Complete database designs for each service
@@ -14,6 +15,7 @@ A production-ready, scalable e-commerce microservices architecture designed for 
 - **[Deployment Guide](./DEPLOYMENT_GUIDE.md)** - Deployment strategies and scaling
 
 ### Monorepo Setup
+
 - **[Monorepo Structure](./MONOREPO_STRUCTURE.md)** - Complete folder organization
 - **[Workspace Examples](./WORKSPACE_EXAMPLES.md)** - Package.json templates and configurations
 - **[Development Workflow](./DEVELOPMENT_WORKFLOW.md)** - Daily development tasks and commands
@@ -21,6 +23,7 @@ A production-ready, scalable e-commerce microservices architecture designed for 
 ## 🎯 Key Features
 
 ### Business Capabilities
+
 - ✅ User authentication and authorization
 - ✅ Product catalog with search
 - ✅ Shopping cart management
@@ -32,6 +35,7 @@ A production-ready, scalable e-commerce microservices architecture designed for 
 - ✅ Admin dashboard
 
 ### Technical Features
+
 - ✅ Microservices architecture (8 core services)
 - ✅ Event-driven communication (Apache Kafka)
 - ✅ Database per service pattern
@@ -84,6 +88,7 @@ A production-ready, scalable e-commerce microservices architecture designed for 
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Docker & Docker Compose
 - Node.js 18+
 - kubectl (for Kubernetes)
@@ -121,20 +126,21 @@ docker-compose -f infrastructure/docker/docker-compose.yml down
 
 ## 📊 Service Overview
 
-| Service | Port | Database | Purpose |
-|---------|------|----------|---------|
-| **User Service** | 3001 | PostgreSQL | Authentication, user management |
-| **Product Service** | 3002 | PostgreSQL | Product catalog, pricing |
-| **Cart Service** | 3003 | Redis | Shopping cart management |
-| **Order Service** | 3004 | PostgreSQL | Order lifecycle management |
-| **Payment Service** | 3005 | PostgreSQL | Payment processing (Stripe) |
-| **Inventory Service** | 3006 | PostgreSQL | Real-time stock management |
-| **Notification Service** | 3007 | PostgreSQL | Multi-channel notifications |
-| **Search Service** | 3008 | Elasticsearch | Product search & recommendations |
+| Service                  | Port | Database      | Purpose                          |
+| ------------------------ | ---- | ------------- | -------------------------------- |
+| **User Service**         | 3001 | PostgreSQL    | Authentication, user management  |
+| **Product Service**      | 3002 | PostgreSQL    | Product catalog, pricing         |
+| **Cart Service**         | 3003 | Redis         | Shopping cart management         |
+| **Order Service**        | 3004 | PostgreSQL    | Order lifecycle management       |
+| **Payment Service**      | 3005 | PostgreSQL    | Payment processing (Stripe)      |
+| **Inventory Service**    | 3006 | PostgreSQL    | Real-time stock management       |
+| **Notification Service** | 3007 | PostgreSQL    | Multi-channel notifications      |
+| **Search Service**       | 3008 | Elasticsearch | Product search & recommendations |
 
 ## 🔄 Key User Flows
 
 ### 1. User Registration & Login
+
 ```
 User → API Gateway → User Service → PostgreSQL
                         ↓
@@ -144,6 +150,7 @@ User → API Gateway → User Service → PostgreSQL
 ```
 
 ### 2. Product Search
+
 ```
 User → API Gateway → Search Service → Elasticsearch
                           ↓
@@ -151,6 +158,7 @@ User → API Gateway → Search Service → Elasticsearch
 ```
 
 ### 3. Add to Cart
+
 ```
 User → API Gateway → Cart Service → Redis
                         ↓
@@ -159,6 +167,7 @@ User → API Gateway → Cart Service → Redis
 ```
 
 ### 4. Checkout & Payment (Saga Pattern)
+
 ```
 User → Order Service → Reserve Inventory (sync)
            ↓
@@ -178,49 +187,56 @@ User → Order Service → Reserve Inventory (sync)
 ## 🛠️ Technology Stack
 
 ### Backend
+
 - **Language**: Node.js 18+ with TypeScript
 - **Framework**: Express.js or NestJS
 - **API Gateway**: Kong
 - **Authentication**: JWT + bcrypt
 
 ### Databases
+
 - **Primary**: PostgreSQL 15
 - **Cache**: Redis 7
 - **Search**: Elasticsearch 8
 
 ### Messaging
+
 - **Event Bus**: Apache Kafka
 - **Alternative**: RabbitMQ
 
 ### Infrastructure
+
 - **Containers**: Docker
 - **Orchestration**: Kubernetes
 - **Service Mesh**: Istio (optional)
 
 ### Monitoring
+
 - **Metrics**: Prometheus + Grafana
 - **Logging**: Loki + Grafana
 - **Tracing**: Jaeger (OpenTelemetry)
 
 ### CI/CD
+
 - **Pipeline**: GitHub Actions
 - **Registry**: Docker Hub / GHCR
 - **Testing**: Jest, Playwright
 
 ## 📈 Performance Targets
 
-| Metric | Target | Strategy |
-|--------|--------|----------|
-| **Concurrent Users** | 10,000+ | Horizontal auto-scaling |
-| **API Response Time** | <200ms (p95) | Redis caching, optimized queries |
-| **Order Processing** | 1,000/min | Async event-driven |
-| **Payment Processing** | <3 seconds | Dedicated service with retry |
-| **Inventory Updates** | Real-time | Event-driven updates |
-| **System Availability** | 99.9% | Multi-zone deployment, auto-recovery |
+| Metric                  | Target       | Strategy                             |
+| ----------------------- | ------------ | ------------------------------------ |
+| **Concurrent Users**    | 10,000+      | Horizontal auto-scaling              |
+| **API Response Time**   | <200ms (p95) | Redis caching, optimized queries     |
+| **Order Processing**    | 1,000/min    | Async event-driven                   |
+| **Payment Processing**  | <3 seconds   | Dedicated service with retry         |
+| **Inventory Updates**   | Real-time    | Event-driven updates                 |
+| **System Availability** | 99.9%        | Multi-zone deployment, auto-recovery |
 
 ## 💰 Cost Estimation
 
 ### AWS (10K concurrent users, monthly)
+
 - **Compute** (EKS + nodes): ~$450
 - **Databases** (RDS PostgreSQL): ~$270
 - **Cache** (ElastiCache Redis): ~$135
@@ -232,6 +248,7 @@ User → Order Service → Reserve Inventory (sync)
 **Total: ~$1,475/month**
 
 ### Cost Optimization
+
 - Reserved instances: 40% savings
 - Spot instances: 50% savings
 - Auto-scale to minimum off-peak: 30% savings
@@ -251,16 +268,19 @@ User → Order Service → Reserve Inventory (sync)
 ## 📦 Deployment Strategies
 
 ### Development
+
 - **Docker Compose** for local development
 - Hot reload for rapid iteration
 - Mock external services
 
 ### Staging
+
 - **Kubernetes** (smaller cluster)
 - Automated deployment on merge to `develop`
 - Integration testing
 
 ### Production
+
 - **Kubernetes** with auto-scaling
 - Blue-green or canary deployments
 - Automated rollback on failure
@@ -269,22 +289,26 @@ User → Order Service → Reserve Inventory (sync)
 ## 🧪 Testing Strategy
 
 ### Unit Tests
+
 ```bash
 npm test                    # Run all unit tests
 npm run test:coverage       # Generate coverage report
 ```
 
 ### Integration Tests
+
 ```bash
 npm run test:integration    # Test service interactions
 ```
 
 ### E2E Tests
+
 ```bash
 npm run test:e2e            # Full user journey tests (Playwright)
 ```
 
 ### Load Tests
+
 ```bash
 npm run test:load           # K6 load testing
 ```
@@ -299,6 +323,7 @@ npm run test:load           # K6 load testing
 ## 📚 Learning Resources
 
 ### Microservices Patterns
+
 - Service boundaries and domain-driven design
 - Event-driven architecture
 - Saga pattern for distributed transactions
@@ -306,6 +331,7 @@ npm run test:load           # K6 load testing
 - API Gateway pattern
 
 ### Scaling Patterns
+
 - Horizontal pod autoscaling
 - Database read replicas
 - Redis clustering
@@ -315,11 +341,13 @@ npm run test:load           # K6 load testing
 ## 🔧 Development Workflow
 
 ### 1. Create Feature Branch
+
 ```bash
 git checkout -b feature/new-payment-method
 ```
 
 ### 2. Develop and Test
+
 ```bash
 # Start dependencies
 docker-compose up -d postgres redis kafka
@@ -333,6 +361,7 @@ npm test
 ```
 
 ### 3. Commit and Push
+
 ```bash
 git add .
 git commit -m "feat: add PayPal payment method"
@@ -340,6 +369,7 @@ git push origin feature/new-payment-method
 ```
 
 ### 4. Create Pull Request
+
 - Automated CI runs tests
 - Code review by team
 - Merge to `develop` → auto-deploy to staging
@@ -350,6 +380,7 @@ git push origin feature/new-payment-method
 ### Common Issues
 
 **Services not starting:**
+
 ```bash
 # Check logs
 docker-compose logs service-name
@@ -363,6 +394,7 @@ docker-compose up -d --build
 ```
 
 **Database connection errors:**
+
 ```bash
 # Wait for PostgreSQL to be ready
 docker-compose up -d postgres
@@ -371,6 +403,7 @@ docker-compose up -d user-service
 ```
 
 **Kafka connectivity:**
+
 ```bash
 # Verify Kafka is running
 docker-compose exec kafka kafka-topics --list --bootstrap-server localhost:9092

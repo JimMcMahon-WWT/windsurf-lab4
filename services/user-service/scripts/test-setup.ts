@@ -1,6 +1,11 @@
 import * as dotenv from 'dotenv';
 import { testConnection, closePool, pool } from '../src/config/database.config';
-import { testRedisConnection, closeRedis, setSession, getSession } from '../src/config/redis.config';
+import {
+  testRedisConnection,
+  closeRedis,
+  setSession,
+  getSession,
+} from '../src/config/redis.config';
 import authUtils from '../src/utils/auth.utils';
 import { UserRole } from '../src/types/user.types';
 
@@ -96,7 +101,7 @@ async function testSetup() {
       const payload = {
         userId: 'test-123',
         email: 'test@example.com',
-        role: UserRole.CUSTOMER
+        role: UserRole.CUSTOMER,
       };
 
       const accessToken = authUtils.generateAccessToken(payload);
@@ -161,7 +166,7 @@ async function testSetup() {
           'user_preferences',
           'sessions',
           'audit_logs',
-          'addresses'
+          'addresses',
         ];
 
         for (const table of tables) {
@@ -172,7 +177,7 @@ async function testSetup() {
             )`,
             [table]
           );
-          
+
           if (result.rows[0].exists) {
             console.log(`✅ Table '${table}' exists`);
           } else {
@@ -200,7 +205,6 @@ async function testSetup() {
       console.log('   4. .env file is configured correctly');
     }
     console.log('═'.repeat(60) + '\n');
-
   } catch (error) {
     console.error('\n❌ Test suite error:', error);
     allTestsPassed = false;

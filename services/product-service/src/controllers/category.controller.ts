@@ -10,9 +10,7 @@ export class CategoryController {
     try {
       const { include_inactive = false } = req.query;
 
-      const categories = await categoryService.getAllCategories(
-        include_inactive === 'true'
-      );
+      const categories = await categoryService.getAllCategories(include_inactive === 'true');
 
       res.json(categories);
     } catch (error) {
@@ -126,9 +124,7 @@ export class CategoryController {
     try {
       const { parent_id } = req.query;
 
-      const subcategories = await categoryService.getSubcategories(
-        parent_id as string || null
-      );
+      const subcategories = await categoryService.getSubcategories((parent_id as string) || null);
 
       res.json(subcategories);
     } catch (error) {

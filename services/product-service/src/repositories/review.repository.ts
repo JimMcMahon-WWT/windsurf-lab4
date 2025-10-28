@@ -40,7 +40,9 @@ export class ReviewRepository {
     return result.rows;
   }
 
-  async create(data: Omit<ProductReview, 'id' | 'created_at' | 'updated_at'>): Promise<ProductReview> {
+  async create(
+    data: Omit<ProductReview, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<ProductReview> {
     const result = await pool.query(
       `INSERT INTO product_reviews (
         product_id, user_id, rating, title, comment,
@@ -66,7 +68,13 @@ export class ReviewRepository {
     let paramCount = 1;
 
     Object.entries(data).forEach(([key, value]) => {
-      if (value !== undefined && key !== 'id' && key !== 'product_id' && key !== 'user_id' && key !== 'created_at') {
+      if (
+        value !== undefined &&
+        key !== 'id' &&
+        key !== 'product_id' &&
+        key !== 'user_id' &&
+        key !== 'created_at'
+      ) {
         fields.push(`${key} = $${paramCount}`);
         values.push(value);
         paramCount++;
@@ -96,10 +104,9 @@ export class ReviewRepository {
 
   async markHelpful(reviewId: string, helpful: boolean): Promise<void> {
     const field = helpful ? 'helpful_count' : 'not_helpful_count';
-    await pool.query(
-      `UPDATE product_reviews SET ${field} = ${field} + 1 WHERE id = $1`,
-      [reviewId]
-    );
+    await pool.query(`UPDATE product_reviews SET ${field} = ${field} + 1 WHERE id = $1`, [
+      reviewId,
+    ]);
   }
 
   async addMerchantResponse(reviewId: string, response: string): Promise<ProductReview> {

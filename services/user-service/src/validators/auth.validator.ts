@@ -7,7 +7,8 @@ const passwordSchema = Joi.string()
   .required()
   .messages({
     'string.min': 'Password must be at least 8 characters long',
-    'string.pattern.base': 'Password must contain at least one uppercase letter, one lowercase letter, and one number',
+    'string.pattern.base':
+      'Password must contain at least one uppercase letter, one lowercase letter, and one number',
     'any.required': 'Password is required',
   });
 
@@ -25,9 +26,12 @@ export const registerSchema = Joi.object({
     'string.min': 'Last name must be at least 1 character',
     'string.max': 'Last name must not exceed 100 characters',
   }),
-  phone: Joi.string().pattern(/^\+?[1-9]\d{1,14}$/).optional().messages({
-    'string.pattern.base': 'Phone number must be in E.164 format',
-  }),
+  phone: Joi.string()
+    .pattern(/^\+?[1-9]\d{1,14}$/)
+    .optional()
+    .messages({
+      'string.pattern.base': 'Phone number must be in E.164 format',
+    }),
 });
 
 export const loginSchema = Joi.object({
@@ -76,9 +80,13 @@ export const updateProfileSchema = Joi.object({
     'string.min': 'Last name must be at least 1 character',
     'string.max': 'Last name must not exceed 100 characters',
   }),
-  phone: Joi.string().pattern(/^\+?[1-9]\d{1,14}$/).optional().allow('', null).messages({
-    'string.pattern.base': 'Phone number must be in E.164 format',
-  }),
+  phone: Joi.string()
+    .pattern(/^\+?[1-9]\d{1,14}$/)
+    .optional()
+    .allow('', null)
+    .messages({
+      'string.pattern.base': 'Phone number must be in E.164 format',
+    }),
 });
 
 export const updatePreferencesSchema = Joi.object({

@@ -10,11 +10,11 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: ecommerce
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -24,12 +24,12 @@ services:
     image: redis:7-alpine
     container_name: ecommerce-redis
     ports:
-      - "6379:6379"
+      - '6379:6379'
     volumes:
       - redis_data:/data
     command: redis-server --appendonly yes
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
       timeout: 5s
       retries: 5
@@ -41,16 +41,16 @@ services:
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
       - cluster.name=ecommerce-cluster
       - node.name=ecommerce-node
     ports:
-      - "9200:9200"
-      - "9300:9300"
+      - '9200:9200'
+      - '9300:9300'
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -f http://localhost:9200/_cluster/health || exit 1']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -62,11 +62,11 @@ services:
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     ports:
-      - "5601:5601"
+      - '5601:5601'
     depends_on:
       - elasticsearch
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
+      test: ['CMD-SHELL', 'curl -f http://localhost:5601/api/status || exit 1']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -79,7 +79,7 @@ services:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
     ports:
-      - "2181:2181"
+      - '2181:2181'
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
       - zookeeper_logs:/var/lib/zookeeper/log
@@ -91,8 +91,8 @@ services:
     depends_on:
       - zookeeper
     ports:
-      - "9092:9092"
-      - "9093:9093"
+      - '9092:9092'
+      - '9093:9093'
     environment:
       KAFKA_BROKER_ID: 1
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -102,11 +102,11 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
     volumes:
       - kafka_data:/var/lib/kafka/data
     healthcheck:
-      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
+      test: ['CMD', 'kafka-topics', '--bootstrap-server', 'localhost:9092', '--list']
       interval: 30s
       timeout: 10s
       retries: 5
@@ -118,7 +118,7 @@ services:
       dockerfile: services/user-service/Dockerfile
     container_name: ecommerce-user-service
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       NODE_ENV: development
       PORT: 3001
@@ -138,7 +138,13 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3001/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -158,7 +164,7 @@ services:
       dockerfile: services/product-service/Dockerfile
     container_name: ecommerce-product-service
     ports:
-      - "3002:3002"
+      - '3002:3002'
     environment:
       NODE_ENV: development
       PORT: 3002
@@ -182,7 +188,13 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3002/api/v1/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3002/api/v1/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -202,7 +214,7 @@ services:
       dockerfile: services/order-service/Dockerfile
     container_name: ecommerce-order-service
     ports:
-      - "3003:3003"
+      - '3003:3003'
     environment:
       NODE_ENV: development
       PORT: 3003
@@ -229,7 +241,13 @@ services:
         condition: service_started
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3003/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3003/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -249,7 +267,7 @@ services:
       dockerfile: services/payment-service/Dockerfile
     container_name: ecommerce-payment-service
     ports:
-      - "3004:3004"
+      - '3004:3004'
     environment:
       NODE_ENV: development
       PORT: 3004
@@ -274,7 +292,13 @@ services:
         condition: service_healthy
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3004/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://localhost:3004/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})",
+        ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -299,13 +323,14 @@ services:
       - '--web.enable-lifecycle'
       - '--storage.tsdb.retention.time=30d'
     ports:
-      - "9090:9090"
+      - '9090:9090'
     volumes:
       - ./monitoring/prometheus:/etc/prometheus
       - prometheus_data:/prometheus
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:9090/-/healthy"]
+      test:
+        ['CMD', 'wget', '--no-verbose', '--tries=1', '--spider', 'http://localhost:9090/-/healthy']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -323,7 +348,7 @@ services:
     image: grafana/grafana:10.2.2
     container_name: ecommerce-grafana
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=admin
@@ -337,7 +362,7 @@ services:
       - prometheus
     restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      test: ['CMD-SHELL', 'curl -f http://localhost:3000/api/health || exit 1']
       interval: 30s
       timeout: 10s
       retries: 3
@@ -355,7 +380,7 @@ services:
     image: gcr.io/cadvisor/cadvisor:v0.47.2
     container_name: ecommerce-cadvisor
     ports:
-      - "8080:8080"
+      - '8080:8080'
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
@@ -380,7 +405,7 @@ services:
     command:
       - '--path.rootfs=/host'
     ports:
-      - "9100:9100"
+      - '9100:9100'
     volumes:
       - /:/host:ro,rslave
     restart: unless-stopped
@@ -398,9 +423,9 @@ services:
     image: prometheuscommunity/postgres-exporter:v0.15.0
     container_name: ecommerce-postgres-exporter
     environment:
-      DATA_SOURCE_NAME: "postgresql://postgres:postgres@postgres:5432/ecommerce?sslmode=disable"
+      DATA_SOURCE_NAME: 'postgresql://postgres:postgres@postgres:5432/ecommerce?sslmode=disable'
     ports:
-      - "9187:9187"
+      - '9187:9187'
     depends_on:
       postgres:
         condition: service_healthy
@@ -419,9 +444,9 @@ services:
     image: oliver006/redis_exporter:v1.55.0
     container_name: ecommerce-redis-exporter
     environment:
-      REDIS_ADDR: "redis:6379"
+      REDIS_ADDR: 'redis:6379'
     ports:
-      - "9121:9121"
+      - '9121:9121'
     depends_on:
       redis:
         condition: service_healthy

@@ -126,15 +126,12 @@ export const capturePayment = async (
 ): Promise<PaymentIntent> => {
   try {
     const params: Stripe.PaymentIntentCaptureParams = {};
-    
+
     if (amountToCapture) {
       params.amount_to_capture = Math.round(amountToCapture * 100);
     }
 
-    const paymentIntent = await stripe.paymentIntents.capture(
-      paymentIntentId,
-      params
-    );
+    const paymentIntent = await stripe.paymentIntents.capture(paymentIntentId, params);
 
     logger.info('Payment captured', {
       paymentIntentId: paymentIntent.id,
@@ -234,12 +231,14 @@ export const attachPaymentMethod = async (
     return {
       id: paymentMethod.id,
       type: paymentMethod.type,
-      card: paymentMethod.card ? {
-        brand: paymentMethod.card.brand,
-        last4: paymentMethod.card.last4,
-        expMonth: paymentMethod.card.exp_month,
-        expYear: paymentMethod.card.exp_year,
-      } : undefined,
+      card: paymentMethod.card
+        ? {
+            brand: paymentMethod.card.brand,
+            last4: paymentMethod.card.last4,
+            expMonth: paymentMethod.card.exp_month,
+            expYear: paymentMethod.card.exp_year,
+          }
+        : undefined,
     };
   } catch (error: any) {
     logger.error('Failed to attach payment method:', error);

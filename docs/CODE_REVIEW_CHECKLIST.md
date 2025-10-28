@@ -3,6 +3,7 @@
 ## For Authors (Before Creating PR)
 
 ### Code Quality
+
 - [ ] Code follows ESLint rules (no errors or warnings)
 - [ ] No `console.log` or debug statements left in code
 - [ ] No commented-out code blocks
@@ -15,6 +16,7 @@
 - [ ] Code is DRY (Don't Repeat Yourself)
 
 ### Testing
+
 - [ ] Unit tests added for new functionality
 - [ ] Unit tests updated for modified functionality
 - [ ] Code coverage is ≥ 80%
@@ -25,6 +27,7 @@
 - [ ] Edge cases tested
 
 ### Documentation
+
 - [ ] README updated if public API changed
 - [ ] API documentation updated (Swagger/OpenAPI)
 - [ ] Inline comments for complex logic
@@ -33,6 +36,7 @@
 - [ ] Migration guides for breaking changes
 
 ### Security
+
 - [ ] No secrets, API keys, or passwords in code
 - [ ] No secrets in commit history
 - [ ] Input validation implemented
@@ -45,6 +49,7 @@
 - [ ] Sensitive data encrypted
 
 ### Performance
+
 - [ ] No N+1 query problems
 - [ ] Database indexes added where needed
 - [ ] Caching strategy considered
@@ -54,6 +59,7 @@
 - [ ] API response times acceptable
 
 ### Dependencies
+
 - [ ] Only necessary dependencies added
 - [ ] Package versions specified (no wildcards)
 - [ ] `npm audit` shows no high/critical vulnerabilities
@@ -61,6 +67,7 @@
 - [ ] License compatibility checked
 
 ### Database
+
 - [ ] Migration scripts provided
 - [ ] Rollback scripts provided
 - [ ] Migrations tested locally
@@ -74,6 +81,7 @@
 ### First Pass (5 minutes)
 
 #### Administrative
+
 - [ ] PR title is clear and descriptive
 - [ ] PR description explains the "why"
 - [ ] Linked to ticket/issue
@@ -85,6 +93,7 @@
 ### Deep Review (15-30 minutes)
 
 #### Functionality
+
 - [ ] Code does what the PR claims
 - [ ] Logic is correct
 - [ ] No obvious bugs
@@ -93,6 +102,7 @@
 - [ ] User experience is good
 
 #### Code Quality
+
 - [ ] Easy to read and understand
 - [ ] Well-organized and structured
 - [ ] Follows SOLID principles
@@ -103,6 +113,7 @@
 - [ ] No over-engineering
 
 #### Architecture
+
 - [ ] Follows established patterns
 - [ ] Doesn't introduce tight coupling
 - [ ] Service boundaries respected
@@ -112,6 +123,7 @@
 - [ ] Maintainability considered
 
 #### Testing
+
 - [ ] Tests cover new functionality
 - [ ] Tests cover edge cases
 - [ ] Tests are clear and maintainable
@@ -121,6 +133,7 @@
 - [ ] Test data is realistic
 
 #### Security
+
 - [ ] No security vulnerabilities
 - [ ] Sensitive data is protected
 - [ ] Input validation is present
@@ -130,6 +143,7 @@
 - [ ] Proper error handling (no info leakage)
 
 #### Performance
+
 - [ ] No obvious performance issues
 - [ ] Database queries are optimized
 - [ ] Indexes used appropriately
@@ -139,6 +153,7 @@
 - [ ] Resource cleanup (connections, files)
 
 #### Documentation
+
 - [ ] Code is self-documenting
 - [ ] Complex logic is explained
 - [ ] API changes are documented
@@ -152,30 +167,35 @@
 ### Giving Good Feedback
 
 **Be Specific:**
+
 ```
 ❌ "This is confusing"
 ✅ "The variable name `x` doesn't convey what it represents. Consider `userId` instead."
 ```
 
 **Be Constructive:**
+
 ```
 ❌ "This code is terrible"
 ✅ "Consider extracting this 100-line function into smaller, focused functions for better testability."
 ```
 
 **Explain the Why:**
+
 ```
 ❌ "Don't use callbacks here"
 ✅ "Using Promises instead of callbacks would make this code easier to test and handle errors better."
 ```
 
 **Offer Alternatives:**
+
 ```
 ❌ "This won't scale"
 ✅ "This approach loads all records into memory. Consider pagination or streaming for large datasets."
 ```
 
 **Ask Questions:**
+
 ```
 ❌ "This is wrong"
 ✅ "Have you considered what happens when the user ID is undefined here?"
@@ -192,6 +212,7 @@
 - `praise:` - Highlight good work
 
 **Examples:**
+
 ```
 nit: Consider adding a blank line here for readability
 
@@ -211,18 +232,21 @@ praise: Great use of the repository pattern here! Much cleaner than before.
 ## Common Code Smells to Watch For
 
 ### Functions
+
 - [ ] Functions longer than 50 lines
 - [ ] Functions with more than 3-4 parameters
 - [ ] Functions doing multiple things
 - [ ] Deeply nested conditionals (> 3 levels)
 
 ### Variables
+
 - [ ] Single-letter variable names (except `i`, `j` in loops)
 - [ ] Variables declared far from usage
 - [ ] Mutable variables when const would work
 - [ ] Magic numbers (use named constants)
 
 ### Structure
+
 - [ ] Duplicate code (violation of DRY)
 - [ ] God objects (classes doing too much)
 - [ ] Tight coupling between modules
@@ -230,6 +254,7 @@ praise: Great use of the repository pattern here! Much cleaner than before.
 - [ ] Swallowing exceptions silently
 
 ### TypeScript Specific
+
 - [ ] Using `any` type
 - [ ] Type assertions without justification
 - [ ] Non-null assertions (`!`) without checks
@@ -241,6 +266,7 @@ praise: Great use of the repository pattern here! Much cleaner than before.
 ## When to Approve
 
 **Approve when:**
+
 - All blocking issues are resolved
 - Code meets quality standards
 - Tests are adequate
@@ -248,6 +274,7 @@ praise: Great use of the repository pattern here! Much cleaner than before.
 - You're confident it won't break production
 
 **Request changes when:**
+
 - Security vulnerabilities exist
 - Major bugs are present
 - Tests are missing or inadequate
@@ -255,6 +282,7 @@ praise: Great use of the repository pattern here! Much cleaner than before.
 - Performance issues are critical
 
 **Comment (no approval) when:**
+
 - You have questions
 - You want to suggest improvements
 - You're not qualified to fully review
@@ -289,12 +317,14 @@ These should pass before requesting human review:
 ## Post-Review
 
 ### After Approval
+
 - [ ] Author addresses non-blocking feedback (optional)
 - [ ] Author merges PR
 - [ ] Author deletes feature branch
 - [ ] PR is linked to ticket (auto-close)
 
 ### After Merge
+
 - [ ] Monitor deployment
 - [ ] Watch for errors in logs
 - [ ] Be available for quick fixes
@@ -305,17 +335,20 @@ These should pass before requesting human review:
 ## Special Cases
 
 ### Urgent Hotfixes
+
 - Streamlined review process
 - Focus on correctness, not style
 - 1 approval from senior developer
 - Deploy to staging first
 
 ### Documentation-Only PRs
+
 - Lighter review process
 - Check for accuracy and clarity
 - 1 approval required
 
 ### Dependency Updates
+
 - Check changelog for breaking changes
 - Run full test suite
 - Verify no vulnerabilities introduced
@@ -326,12 +359,14 @@ These should pass before requesting human review:
 ## Review Rotation
 
 To ensure fair distribution:
+
 - Use GitHub's "Load Balance" assignment
 - Senior developers review complex changes
 - Junior developers review simpler changes
 - Everyone reviews documentation
 
 **Weekly rotation:**
+
 - Week 1: Dev A (primary), Dev B (secondary)
 - Week 2: Dev C (primary), Dev D (secondary)
 - Continue rotation...
@@ -341,6 +376,7 @@ To ensure fair distribution:
 ## Tips for Effective Reviews
 
 ### For Reviewers
+
 - Review code, not the person
 - Be respectful and professional
 - Focus on objective improvements
@@ -351,6 +387,7 @@ To ensure fair distribution:
 - Respond in a timely manner
 
 ### For Authors
+
 - Accept criticism gracefully
 - Ask questions if feedback is unclear
 - Explain your reasoning

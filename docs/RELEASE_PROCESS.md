@@ -13,17 +13,20 @@
 ## Release Types
 
 ### Major Release (X.0.0)
+
 - Breaking changes
 - Major new features
 - Architecture changes
 - Requires migration guide
 
 ### Minor Release (1.X.0)
+
 - New features
 - Non-breaking changes
 - Backward compatible
 
 ### Patch Release (1.2.X)
+
 - Bug fixes only
 - Security patches
 - Performance improvements
@@ -35,6 +38,7 @@
 ### Phase 1: Preparation (Day 1)
 
 #### 1.1 Code Freeze
+
 ```bash
 # Announce code freeze in Slack
 # No new features merged to develop after this point
@@ -42,6 +46,7 @@
 ```
 
 #### 1.2 Create Release Branch
+
 ```bash
 # Pull latest develop
 git checkout develop
@@ -53,6 +58,7 @@ git push -u origin release/1.2.0
 ```
 
 #### 1.3 Version Bump
+
 ```bash
 # Update root package.json
 npm version 1.2.0 --no-git-tag-version
@@ -68,11 +74,13 @@ npm run version:bump 1.2.0
 ```
 
 **Update version in:**
+
 - Root `package.json`
 - All service `package.json` files
 - `package-lock.json` (run `npm install`)
 
 #### 1.4 Generate Changelog
+
 ```bash
 # Auto-generate from commits
 npm run changelog
@@ -81,33 +89,40 @@ npm run changelog
 ```
 
 **CHANGELOG.md format:**
+
 ```markdown
 # Changelog
 
 ## [1.2.0] - 2025-01-15
 
 ### Added
+
 - User Service: Password reset functionality (#123)
 - Product Service: Advanced search filters (#456)
 - Cart Service: Guest checkout support (#789)
 
 ### Changed
+
 - Order Service: Improved payment timeout handling (#234)
 - Upgraded PostgreSQL to v15
 
 ### Fixed
+
 - Inventory Service: Fixed stock sync issues (#567)
 - Notification Service: Fixed email template rendering (#890)
 
 ### Security
+
 - Updated jsonwebtoken to fix CVE-2024-XXXX
 
 ### Breaking Changes
+
 - User API: `/api/users/profile` now requires `phone_verified` field
   - **Migration**: Run `npm run migrate:user-service`
 ```
 
 #### 1.5 Update Documentation
+
 ```bash
 # Update README.md
 # Update API documentation
@@ -123,6 +138,7 @@ git push origin release/1.2.0
 ### Phase 2: Staging Deployment (Day 1-2)
 
 #### 2.1 Merge to Staging Branch
+
 ```bash
 git checkout staging
 git pull origin staging
@@ -131,6 +147,7 @@ git push origin staging
 ```
 
 #### 2.2 Run Database Migrations
+
 ```bash
 # Backup staging database first
 npm run db:backup:staging
@@ -143,6 +160,7 @@ npm run migrate:verify:staging
 ```
 
 #### 2.3 Deploy to Staging
+
 ```bash
 # CI/CD automatically deploys staging branch
 # Or trigger manually:
@@ -153,6 +171,7 @@ npm run health-check:staging
 ```
 
 #### 2.4 Smoke Tests
+
 ```bash
 # Run automated smoke tests
 npm run test:smoke:staging
@@ -170,7 +189,9 @@ npm run test:smoke:staging
 ### Phase 3: QA Testing (Day 2-4)
 
 #### 3.1 QA Test Plan
+
 **Test Categories:**
+
 - [ ] Functional testing (new features)
 - [ ] Regression testing (existing features)
 - [ ] Integration testing (service interactions)
@@ -179,6 +200,7 @@ npm run test:smoke:staging
 - [ ] User acceptance testing (UAT)
 
 #### 3.2 Bug Tracking
+
 **If bugs found:**
 
 ```bash
@@ -205,6 +227,7 @@ git push origin staging
 ```
 
 #### 3.3 Performance Testing
+
 ```bash
 # Run load tests
 npm run test:load
@@ -218,7 +241,9 @@ npm run test:load
 ```
 
 #### 3.4 QA Sign-Off
+
 **Required approvals:**
+
 - [ ] QA team lead
 - [ ] Product owner
 - [ ] Tech lead
@@ -229,6 +254,7 @@ npm run test:load
 ### Phase 4: Production Deployment (Day 5)
 
 #### 4.1 Pre-Deployment Checklist
+
 - [ ] All staging tests passed
 - [ ] QA sign-off received
 - [ ] Product owner approval
@@ -240,9 +266,11 @@ npm run test:load
 - [ ] Customer communication prepared (if needed)
 
 #### 4.2 Deployment Window
+
 **Recommended:** Tuesday-Thursday, 10 AM - 2 PM (low traffic)
 
 **Avoid:**
+
 - Mondays (weekend issues)
 - Fridays (limited support)
 - Weekends (limited staff)
@@ -252,6 +280,7 @@ npm run test:load
 #### 4.3 Production Deployment Steps
 
 **Step 1: Backup Production Database**
+
 ```bash
 npm run db:backup:production
 
@@ -260,6 +289,7 @@ npm run db:verify-backup
 ```
 
 **Step 2: Run Database Migrations**
+
 ```bash
 # Test migrations in production-like environment first
 npm run migrate:production-test
@@ -272,6 +302,7 @@ npm run migrate:verify:production
 ```
 
 **Step 3: Merge to Main**
+
 ```bash
 git checkout main
 git pull origin main
@@ -293,6 +324,7 @@ git push origin main --tags
 ```
 
 **Step 4: Deploy Services**
+
 ```bash
 # Deploy in dependency order
 npm run deploy:production:user-service
@@ -305,6 +337,7 @@ npm run deploy:production
 ```
 
 **Step 5: Health Checks**
+
 ```bash
 # Verify all services are healthy
 npm run health-check:production
@@ -317,6 +350,7 @@ curl https://api.example.com/order-service/health
 ```
 
 **Step 6: Smoke Tests**
+
 ```bash
 # Run automated smoke tests
 npm run test:smoke:production
@@ -330,6 +364,7 @@ npm run test:smoke:production
 ```
 
 **Step 7: Monitor**
+
 ```bash
 # Watch logs for errors
 npm run logs:production --follow
@@ -343,13 +378,16 @@ npm run logs:production --follow
 ```
 
 #### 4.4 Post-Deployment
+
 **First Hour:**
+
 - Monitor error rates closely
 - Watch for spikes in response times
 - Check customer support tickets
 - Review application logs
 
 **First 24 Hours:**
+
 - Daily metrics review
 - Performance comparison (before/after)
 - Customer feedback monitoring
@@ -359,6 +397,7 @@ npm run logs:production --follow
 ### Phase 5: Post-Release (Day 5-6)
 
 #### 5.1 Merge Back to Develop
+
 ```bash
 # Merge release changes back to develop
 git checkout develop
@@ -367,6 +406,7 @@ git push origin develop
 ```
 
 #### 5.2 Clean Up
+
 ```bash
 # Delete release branch
 git branch -d release/1.2.0
@@ -378,13 +418,16 @@ git push origin --delete bugfix/ECOM-999-fix-staging-issue
 ```
 
 #### 5.3 Release Communication
+
 **Announce in:**
+
 - Company Slack (#announcements)
 - Engineering Slack (#engineering)
 - Customer-facing release notes
 - Status page update
 
 **Template:**
+
 ```
 🚀 Release v1.2.0 deployed to production!
 
@@ -404,7 +447,9 @@ Status: ✅ All systems operational
 ```
 
 #### 5.4 Retrospective (within 1 week)
+
 **Discuss:**
+
 - What went well?
 - What could be improved?
 - Were there any surprises?
@@ -416,6 +461,7 @@ Status: ✅ All systems operational
 ## Rollback Procedure
 
 ### When to Rollback
+
 - Critical bugs affecting users
 - Major performance degradation
 - Data integrity issues
@@ -424,6 +470,7 @@ Status: ✅ All systems operational
 ### Rollback Steps
 
 **Option 1: Git Revert (Preferred)**
+
 ```bash
 # Revert to previous tag
 git checkout main
@@ -438,6 +485,7 @@ git push --tags
 ```
 
 **Option 2: Redeploy Previous Version**
+
 ```bash
 # Checkout previous version
 git checkout v1.1.0
@@ -447,6 +495,7 @@ npm run deploy:production
 ```
 
 **Option 3: Kubernetes Rollback**
+
 ```bash
 # Rollback deployment
 kubectl rollout undo deployment/user-service
@@ -457,6 +506,7 @@ kubectl rollout status deployment/user-service
 ```
 
 **Database Rollback:**
+
 ```bash
 # If migrations were run, rollback database
 npm run migrate:down:production
@@ -473,6 +523,7 @@ npm run db:restore:production --backup-id=<backup-id>
 # Release 1.2.0 Checklist
 
 ## Pre-Release
+
 - [ ] Code freeze announced
 - [ ] Release branch created
 - [ ] Version bumped
@@ -481,6 +532,7 @@ npm run db:restore:production --backup-id=<backup-id>
 - [ ] Migrations tested
 
 ## Staging
+
 - [ ] Deployed to staging
 - [ ] Smoke tests passed
 - [ ] QA testing completed
@@ -488,12 +540,14 @@ npm run db:restore:production --backup-id=<backup-id>
 - [ ] Security scan completed
 
 ## Approvals
+
 - [ ] QA sign-off
 - [ ] Product owner approval
 - [ ] Tech lead approval
 - [ ] Security approval (if needed)
 
 ## Production
+
 - [ ] Database backed up
 - [ ] Migrations run successfully
 - [ ] Services deployed
@@ -503,6 +557,7 @@ npm run db:restore:production --backup-id=<backup-id>
 - [ ] On-call notified
 
 ## Post-Release
+
 - [ ] Merged back to develop
 - [ ] Branches cleaned up
 - [ ] Release announced
@@ -514,6 +569,7 @@ npm run db:restore:production --backup-id=<backup-id>
 ## Tools & Automation
 
 ### Release Scripts
+
 ```json
 {
   "scripts": {
@@ -530,6 +586,7 @@ npm run db:restore:production --backup-id=<backup-id>
 ```
 
 ### CI/CD Integration
+
 - GitHub Actions for automated deployments
 - Slack notifications for deployment status
 - Automated rollback on failed health checks
@@ -547,6 +604,7 @@ npm run db:restore:production --backup-id=<backup-id>
 - **Rollback Frequency:** How often we rollback
 
 **Target Metrics:**
+
 - Deployment frequency: 2+ per week
 - Lead time: < 1 week
 - Change failure rate: < 5%

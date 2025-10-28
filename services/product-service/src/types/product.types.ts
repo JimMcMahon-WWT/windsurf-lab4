@@ -60,23 +60,23 @@ export interface Product {
   sku: string;
   category_id: string | null;
   brand: string | null;
-  
+
   // Pricing
   base_price: number;
   sale_price: number | null;
   cost_price: number | null;
   currency: string;
-  
+
   // Status
   status: ProductStatus;
   is_featured: boolean;
   is_available: boolean;
-  
+
   // SEO
   meta_title: string | null;
   meta_description: string | null;
   meta_keywords: string | null;
-  
+
   // Physical attributes
   weight: number | null;
   weight_unit: string;
@@ -84,16 +84,16 @@ export interface Product {
   dimensions_width: number | null;
   dimensions_height: number | null;
   dimensions_unit: string;
-  
+
   // Tracking
   view_count: number;
   purchase_count: number;
   average_rating: number;
   review_count: number;
-  
+
   // Merchant
   merchant_id: string | null;
-  
+
   created_at: Date;
   updated_at: Date;
   published_at: Date | null;

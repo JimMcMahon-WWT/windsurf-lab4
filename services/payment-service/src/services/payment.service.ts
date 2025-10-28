@@ -23,7 +23,7 @@ export interface ProcessPaymentRequest {
 export class PaymentService {
   async processPayment(request: ProcessPaymentRequest): Promise<any> {
     const client = await getClient();
-    
+
     try {
       await client.query('BEGIN');
 
@@ -91,15 +91,16 @@ export class PaymentService {
         `UPDATE payment_transactions
          SET provider_transaction_id = $1, status = $2, provider_response = $3, updated_at = NOW()
          WHERE id = $4`,
-        [
-          paymentResult.id,
-          paymentResult.status,
-          JSON.stringify(paymentResult),
-          transactionId,
-        ]
+        [paymentResult.id, paymentResult.status, JSON.stringify(paymentResult), transactionId]
       );
 
-      await this.logAudit(client, 'transaction', transactionId, 'payment_initiated', request.userId);
+      await this.logAudit(
+        client,
+        'transaction',
+        transactionId,
+        'payment_initiated',
+        request.userId
+      );
 
       await client.query('COMMIT');
 
@@ -126,14 +127,13 @@ export class PaymentService {
 
   async capturePayment(transactionId: string, amountToCapture?: number): Promise<any> {
     const client = await getClient();
-    
+
     try {
       await client.query('BEGIN');
 
-      const result = await client.query(
-        'SELECT * FROM payment_transactions WHERE id = $1',
-        [transactionId]
-      );
+      const result = await client.query('SELECT * FROM payment_transactions WHERE id = $1', [
+        transactionId,
+      ]);
 
       if (result.rows.length === 0) {
         throw new Error('Transaction not found');
@@ -176,14 +176,13 @@ export class PaymentService {
     initiatedBy: string
   ): Promise<any> {
     const client = await getClient();
-    
+
     try {
       await client.query('BEGIN');
 
-      const result = await client.query(
-        'SELECT * FROM payment_transactions WHERE id = $1',
-        [transactionId]
-      );
+      const result = await client.query('SELECT * FROM payment_transactions WHERE id = $1', [
+        transactionId,
+      ]);
 
       if (result.rows.length === 0) {
         throw new Error('Transaction not found');
@@ -229,10 +228,7 @@ export class PaymentService {
   }
 
   async getTransaction(transactionId: string): Promise<any> {
-    const result = await query(
-      'SELECT * FROM payment_transactions WHERE id = $1',
-      [transactionId]
-    );
+    const result = await query('SELECT * FROM payment_transactions WHERE id = $1', [transactionId]);
 
     if (result.rows.length === 0) {
       throw new Error('Transaction not found');

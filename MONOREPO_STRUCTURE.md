@@ -98,6 +98,7 @@ service-name/
 ## Shared Packages
 
 ### @ecommerce/common
+
 ```
 packages/common/
 ├── src/
@@ -109,6 +110,7 @@ packages/common/
 ```
 
 ### @ecommerce/database
+
 ```
 packages/database/
 ├── src/
@@ -119,6 +121,7 @@ packages/database/
 ```
 
 ### @ecommerce/events
+
 ```
 packages/events/
 ├── src/
@@ -129,6 +132,7 @@ packages/events/
 ```
 
 ### @ecommerce/types
+
 ```
 packages/types/
 ├── src/
@@ -144,6 +148,7 @@ packages/types/
 ## Infrastructure Organization
 
 ### Docker
+
 ```
 infrastructure/docker/
 ├── docker-compose.yml           # Local development
@@ -152,6 +157,7 @@ infrastructure/docker/
 ```
 
 ### Kubernetes
+
 ```
 infrastructure/kubernetes/
 ├── base/
@@ -171,6 +177,7 @@ infrastructure/kubernetes/
 ```
 
 ### Terraform
+
 ```
 infrastructure/terraform/
 ├── aws/
@@ -186,15 +193,12 @@ infrastructure/terraform/
 ## Root Configuration Files
 
 ### package.json
+
 ```json
 {
   "name": "ecommerce-monorepo",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "services/*",
-    "packages/*"
-  ],
+  "workspaces": ["apps/*", "services/*", "packages/*"],
   "scripts": {
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
@@ -205,6 +209,7 @@ infrastructure/terraform/
 ```
 
 ### turbo.json
+
 ```json
 {
   "pipeline": {
@@ -237,6 +242,7 @@ infrastructure/terraform/
 ---
 
 See detailed examples in:
+
 - [Folder Structure Details](./FOLDER_STRUCTURE_DETAILS.md)
 - [Workspace Configuration](./WORKSPACE_CONFIGURATION.md)
 - [Development Workflow](./DEVELOPMENT_WORKFLOW.md)

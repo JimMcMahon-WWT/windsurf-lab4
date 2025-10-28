@@ -116,7 +116,7 @@ export class OrderSaga {
         } catch (error) {
           logger.error(`SAGA step ${step.name} failed:`, error);
           await this.updateSagaStep(step.name, SagaStepStatus.FAILED, error as Error);
-          
+
           // Trigger compensation
           await this.compensate();
           throw error;
@@ -144,7 +144,7 @@ export class OrderSaga {
     // Execute compensation in reverse order
     for (let i = this.completedSteps.length - 1; i >= 0; i--) {
       const stepName = this.completedSteps[i];
-      const step = this.steps.find(s => s.name === stepName);
+      const step = this.steps.find((s) => s.name === stepName);
 
       if (step) {
         try {
@@ -173,7 +173,7 @@ export class OrderSaga {
 
     // Validate items are available (call Product Service)
     const productServiceUrl = process.env.PRODUCT_SERVICE_URL || 'http://localhost:3002';
-    
+
     for (const item of orderData.items) {
       try {
         const response = await axios.get(`${productServiceUrl}/api/v1/products/${item.productId}`);
@@ -269,10 +269,10 @@ export class OrderSaga {
    */
   private async processPayment(): Promise<void> {
     const orderData = this.order.getOrderData();
-    
+
     // Simulate payment processing (replace with actual Stripe integration)
     const paymentIntentId = `pi_${uuidv4().replace(/-/g, '')}`;
-    
+
     // In real implementation, call Stripe API
     const paymentSucceeded = true; // Always succeed for testing
 
@@ -447,12 +447,7 @@ export class OrderSaga {
       `UPDATE saga_steps 
        SET status = $1, error_data = $2
        WHERE saga_id = $3 AND step_name = $4`,
-      [
-        status,
-        error ? { message: error.message, stack: error.stack } : null,
-        this.sagaId,
-        stepName,
-      ]
+      [status, error ? { message: error.message, stack: error.stack } : null, this.sagaId, stepName]
     );
   }
 

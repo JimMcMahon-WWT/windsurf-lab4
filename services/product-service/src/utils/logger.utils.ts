@@ -17,7 +17,7 @@ const logFormat = winston.format.combine(
   })
 );
 
-// Create logger instance  
+// Create logger instance
 export const logger = winston.createLogger({
   level: logLevel,
   format: logFormat,

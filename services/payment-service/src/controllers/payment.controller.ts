@@ -9,14 +9,7 @@ export class PaymentController {
    */
   async processPayment(req: Request, res: Response): Promise<void> {
     try {
-      const {
-        orderId,
-        amount,
-        currency,
-        paymentMethodId,
-        provider,
-        metadata,
-      } = req.body;
+      const { orderId, amount, currency, paymentMethodId, provider, metadata } = req.body;
 
       const userId = req.headers['x-user-id'] as string;
       if (!userId) {
@@ -95,12 +88,7 @@ export class PaymentController {
         return;
       }
 
-      const result = await paymentService.refundPayment(
-        transactionId,
-        amount,
-        reason,
-        userId
-      );
+      const result = await paymentService.refundPayment(transactionId, amount, reason, userId);
 
       logger.info(`POST /api/v1/payments/${transactionId}/refund`);
 

@@ -98,14 +98,14 @@ graph TB
 
 ### Target Performance Metrics
 
-| Metric | Target | Strategy |
-|--------|--------|----------|
-| Concurrent Users | 10,000+ | Horizontal pod autoscaling |
-| API Response Time | <200ms (p95) | Caching, optimized queries |
-| Order Processing | 1000 orders/min | Async processing with queue |
-| Payment Processing | <3 seconds | Dedicated payment service |
-| Inventory Updates | Real-time | Event-driven updates |
-| Availability | 99.9% | Multi-zone deployment |
+| Metric             | Target          | Strategy                    |
+| ------------------ | --------------- | --------------------------- |
+| Concurrent Users   | 10,000+         | Horizontal pod autoscaling  |
+| API Response Time  | <200ms (p95)    | Caching, optimized queries  |
+| Order Processing   | 1000 orders/min | Async processing with queue |
+| Payment Processing | <3 seconds      | Dedicated payment service   |
+| Inventory Updates  | Real-time       | Event-driven updates        |
+| Availability       | 99.9%           | Multi-zone deployment       |
 
 ### Scaling Strategy
 
@@ -134,6 +134,7 @@ For 5-8 developers:
 ---
 
 See detailed documentation:
+
 - [Service Definitions](./SERVICE_DEFINITIONS.md)
 - [Database Schemas](./DATABASE_SCHEMAS.md)
 - [Communication Patterns](./COMMUNICATION_PATTERNS.md)

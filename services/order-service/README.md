@@ -5,6 +5,7 @@ Event-driven order management service with **Event Sourcing**, **SAGA Pattern**,
 ## 🎯 Features
 
 ### Order Management
+
 - ✅ Create orders from cart
 - ✅ Order validation and processing
 - ✅ Order status tracking
@@ -12,12 +13,14 @@ Event-driven order management service with **Event Sourcing**, **SAGA Pattern**,
 - ✅ Order history and audit trail
 
 ### Cart Management
+
 - ✅ Shopping cart persistence
 - ✅ Cart item management (add/update/remove)
 - ✅ Redis caching for performance
 - ✅ Auto-expiration of abandoned carts
 
 ### Event-Driven Architecture
+
 - ✅ **Event Sourcing** - Complete audit trail
 - ✅ **SAGA Pattern** - Distributed transaction coordination
 - ✅ **CQRS** - Separate read and write models
@@ -26,6 +29,7 @@ Event-driven order management service with **Event Sourcing**, **SAGA Pattern**,
 - ✅ **Dead Letter Queue** - Failed message handling
 
 ### Payment & Fulfillment
+
 - ✅ Payment processing integration (Stripe)
 - ✅ Inventory reservation with rollback
 - ✅ Shipping scheduling
@@ -34,6 +38,7 @@ Event-driven order management service with **Event Sourcing**, **SAGA Pattern**,
 ## 🏗️ Architecture
 
 ### Event Sourcing
+
 All state changes are stored as events in the event store. The current state is derived by replaying events.
 
 ```
@@ -41,6 +46,7 @@ Event Store → [OrderCreated, PaymentProcessed, OrderShipped] → Current Order
 ```
 
 ### SAGA Orchestration
+
 Order processing follows a SAGA pattern with compensating actions:
 
 ```
@@ -54,6 +60,7 @@ Order processing follows a SAGA pattern with compensating actions:
 If any step fails, compensating actions are executed in reverse order.
 
 ### CQRS Pattern
+
 - **Write Model**: Event-sourced aggregates
 - **Read Model**: Optimized projections in PostgreSQL
 
@@ -121,11 +128,13 @@ INVENTORY_SERVICE_URL=http://localhost:3002
 ### Database Setup
 
 1. Create database:
+
 ```bash
 docker exec -it ecommerce-postgres psql -U postgres -c "CREATE DATABASE order_db;"
 ```
 
 2. Run schema:
+
 ```bash
 docker exec -i ecommerce-postgres psql -U postgres -d order_db < schema.sql
 ```
@@ -231,6 +240,7 @@ GET /api/v1/orders/stats
 ## 📊 Event Types
 
 ### Order Events
+
 - `order.created` - Order created
 - `order.confirmed` - Order confirmed after validation
 - `order.cancelled` - Order cancelled
@@ -238,17 +248,20 @@ GET /api/v1/orders/stats
 - `order.failed` - Order processing failed
 
 ### Payment Events
+
 - `payment.requested` - Payment requested
 - `payment.succeeded` - Payment successful
 - `payment.failed` - Payment failed
 - `payment.refunded` - Payment refunded
 
 ### Inventory Events
+
 - `inventory.reserved` - Inventory reserved
 - `inventory.released` - Inventory released (compensation)
 - `inventory.failed` - Inventory reservation failed
 
 ### Shipping Events
+
 - `shipping.confirmed` - Shipping scheduled
 - `shipping.dispatched` - Order shipped
 - `shipping.delivered` - Order delivered
@@ -283,7 +296,7 @@ saga_instances:
   - status: started/in_progress/completed/failed/compensating
   - current_step: Current step name
   - state_data: SAGA state (reservations, payment info, etc.)
-  
+
 saga_steps:
   - saga_id: Reference to saga instance
   - step_name: "ReserveInventory", "ProcessPayment", etc.

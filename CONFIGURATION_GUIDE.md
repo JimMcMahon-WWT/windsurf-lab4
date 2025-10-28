@@ -38,9 +38,9 @@ ecommerce-monorepo/
   "name": "ecommerce-monorepo",
   "private": true,
   "workspaces": [
-    "apps/*",        // Frontend applications
-    "services/*",    // Backend microservices
-    "packages/*"     // Shared libraries
+    "apps/*", // Frontend applications
+    "services/*", // Backend microservices
+    "packages/*" // Shared libraries
   ],
   "scripts": {
     "dev": "turbo run dev --parallel",
@@ -51,6 +51,7 @@ ecommerce-monorepo/
 ```
 
 **What it does:**
+
 - Defines workspace locations (apps, services, packages)
 - Lists common scripts that run across all workspaces
 - Manages root-level dependencies (turbo, prettier, eslint)
@@ -67,18 +68,19 @@ ecommerce-monorepo/
 {
   "tasks": {
     "build": {
-      "dependsOn": ["^build"],      // Build dependencies first
-      "outputs": ["dist/**"]         // Cache these outputs
+      "dependsOn": ["^build"], // Build dependencies first
+      "outputs": ["dist/**"] // Cache these outputs
     },
     "dev": {
-      "cache": false,                // Don't cache dev mode
-      "persistent": true             // Keep running
+      "cache": false, // Don't cache dev mode
+      "persistent": true // Keep running
     }
   }
 }
 ```
 
 **What it does:**
+
 - Defines build pipeline and dependencies
 - Configures caching for faster rebuilds
 - Specifies which tasks can run in parallel
@@ -94,18 +96,19 @@ ecommerce-monorepo/
 ```json
 {
   "compilerOptions": {
-    "target": "ES2022",              // JavaScript version to compile to
-    "module": "commonjs",            // Module system
-    "strict": true,                  // Enable all strict type checks
-    "declaration": true,             // Generate .d.ts files
-    "composite": true,               // Enable project references
-    "esModuleInterop": true,         // Better CommonJS interop
-    "skipLibCheck": true             // Skip type checking of .d.ts files
+    "target": "ES2022", // JavaScript version to compile to
+    "module": "commonjs", // Module system
+    "strict": true, // Enable all strict type checks
+    "declaration": true, // Generate .d.ts files
+    "composite": true, // Enable project references
+    "esModuleInterop": true, // Better CommonJS interop
+    "skipLibCheck": true // Skip type checking of .d.ts files
   }
 }
 ```
 
 **What it does:**
+
 - Sets strict TypeScript defaults
 - Enables project references for monorepo
 - Provides base config for all services/packages
@@ -123,16 +126,17 @@ module.exports = {
   extends: [
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
-    'prettier'  // Must be last to override other formatting rules
+    'prettier', // Must be last to override other formatting rules
   ],
   rules: {
     '@typescript-eslint/no-unused-vars': 'error',
-    'import/order': 'error'  // Enforce import ordering
-  }
-}
+    'import/order': 'error', // Enforce import ordering
+  },
+};
 ```
 
 **What it does:**
+
 - Catches common JavaScript/TypeScript errors
 - Enforces consistent code style
 - Auto-fixable with `npm run lint:fix`
@@ -147,15 +151,16 @@ module.exports = {
 
 ```json
 {
-  "semi": true,                // Semicolons at end of statements
-  "singleQuote": true,         // Use single quotes
-  "printWidth": 100,           // Max line length
-  "tabWidth": 2,               // 2-space indentation
-  "trailingComma": "es5"       // Trailing commas where valid in ES5
+  "semi": true, // Semicolons at end of statements
+  "singleQuote": true, // Use single quotes
+  "printWidth": 100, // Max line length
+  "tabWidth": 2, // 2-space indentation
+  "trailingComma": "es5" // Trailing commas where valid in ES5
 }
 ```
 
 **What it does:**
+
 - Automatically formats code on save (with editor plugin)
 - Ensures consistent formatting across team
 - Reduces formatting debates in code reviews
@@ -177,6 +182,7 @@ dist/              # Build outputs
 ```
 
 **What it does:**
+
 - Prevents committing large node_modules folders
 - Keeps secrets (.env files) out of version control
 - Excludes build artifacts and cache
@@ -200,6 +206,7 @@ cp .env.example .env
 ```
 
 **What it does:**
+
 - Documents all required environment variables
 - Provides safe defaults for development
 - Shows which secrets need to be configured
@@ -220,6 +227,7 @@ charset = utf-8
 ```
 
 **What it does:**
+
 - Works with most editors (VS Code, IntelliJ, Vim)
 - Ensures consistent indentation
 - Prevents line ending issues (Windows vs Unix)
@@ -241,6 +249,7 @@ package-lock.json
 ```
 
 **What it does:**
+
 - Excludes generated files
 - Avoids formatting minified code
 - Skips lock files
@@ -257,6 +266,7 @@ ls -la | grep -E "\.(json|js|gitignore|prettierrc|editorconfig|env\.example)"
 ```
 
 You should see:
+
 ```
 ✅ .editorconfig
 ✅ .env.example
@@ -277,6 +287,7 @@ npm install
 ```
 
 This installs:
+
 - `turbo` - Build orchestration
 - `prettier` - Code formatting
 - `eslint` - Code linting
@@ -300,6 +311,7 @@ code .env
 ```
 
 **Minimum required for local development:**
+
 ```bash
 NODE_ENV=development
 POSTGRES_HOST=localhost
@@ -438,9 +450,9 @@ Edit `.prettierrc`:
 
 ```json
 {
-  "semi": false,          // No semicolons
-  "singleQuote": false,   // Double quotes
-  "printWidth": 120       // Longer lines
+  "semi": false, // No semicolons
+  "singleQuote": false, // Double quotes
+  "printWidth": 120 // Longer lines
 }
 ```
 
@@ -453,10 +465,10 @@ module.exports = {
   // ... existing config
   rules: {
     // Add your custom rules
-    'no-console': 'error',        // Disallow console.log
-    'prefer-const': 'error'       // Prefer const over let
-  }
-}
+    'no-console': 'error', // Disallow console.log
+    'prefer-const': 'error', // Prefer const over let
+  },
+};
 ```
 
 ### Adjust TypeScript Strictness
@@ -466,9 +478,9 @@ Edit `tsconfig.json`:
 ```json
 {
   "compilerOptions": {
-    "strict": true,              // Keep strict
-    "noUnusedLocals": false,     // Allow unused variables
-    "noUnusedParameters": false  // Allow unused params
+    "strict": true, // Keep strict
+    "noUnusedLocals": false, // Allow unused variables
+    "noUnusedParameters": false // Allow unused params
   }
 }
 ```

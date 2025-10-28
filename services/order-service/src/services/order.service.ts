@@ -172,21 +172,14 @@ export class OrderService {
   /**
    * Update order status
    */
-  async updateOrderStatus(
-    orderId: string,
-    newStatus: OrderStatus,
-    userId?: string
-  ): Promise<void> {
+  async updateOrderStatus(orderId: string, newStatus: OrderStatus, userId?: string): Promise<void> {
     const client = await pool.connect();
 
     try {
       await client.query('BEGIN');
 
       // Get current status
-      const result = await client.query(
-        'SELECT status FROM orders WHERE id = $1',
-        [orderId]
-      );
+      const result = await client.query('SELECT status FROM orders WHERE id = $1', [orderId]);
 
       if (result.rows.length === 0) {
         throw new Error('Order not found');
@@ -195,10 +188,10 @@ export class OrderService {
       const oldStatus = result.rows[0].status;
 
       // Update status
-      await client.query(
-        'UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2',
-        [newStatus, orderId]
-      );
+      await client.query('UPDATE orders SET status = $1, updated_at = NOW() WHERE id = $2', [
+        newStatus,
+        orderId,
+      ]);
 
       // Record status change
       await client.query(
@@ -321,12 +314,7 @@ export class OrderService {
            fulfillment_status = $3,
            updated_at = NOW()
        WHERE id = $4`,
-      [
-        orderData.status,
-        orderData.paymentStatus,
-        orderData.fulfillmentStatus,
-        orderData.orderId,
-      ]
+      [orderData.status, orderData.paymentStatus, orderData.fulfillmentStatus, orderData.orderId]
     );
   }
 

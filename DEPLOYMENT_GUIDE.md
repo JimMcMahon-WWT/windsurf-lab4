@@ -26,6 +26,7 @@ docker-compose down
 ### Key Services Configuration
 
 **Infrastructure Stack:**
+
 - PostgreSQL (port 5432) - Primary database
 - Redis (port 6379) - Cache and cart storage
 - Kafka (port 9092) - Event bus
@@ -34,6 +35,7 @@ docker-compose down
 - Grafana (port 3000) - Dashboards
 
 **Microservices:**
+
 - API Gateway (port 8000)
 - User Service (port 3001)
 - Product Service (port 3002)
@@ -92,29 +94,29 @@ spec:
         app: user-service
     spec:
       containers:
-      - name: user-service
-        image: registry/user-service:latest
-        ports:
-        - containerPort: 3001
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /health
-            port: 3001
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /health
-            port: 3001
-          initialDelaySeconds: 10
-          periodSeconds: 5
+        - name: user-service
+          image: registry/user-service:latest
+          ports:
+            - containerPort: 3001
+          resources:
+            requests:
+              memory: '256Mi'
+              cpu: '250m'
+            limits:
+              memory: '512Mi'
+              cpu: '500m'
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 3001
+            initialDelaySeconds: 10
+            periodSeconds: 5
 ---
 apiVersion: v1
 kind: Service
@@ -124,7 +126,7 @@ spec:
   selector:
     app: user-service
   ports:
-  - port: 3001
+    - port: 3001
   type: ClusterIP
 ```
 
@@ -147,32 +149,32 @@ spec:
   minReplicas: 2
   maxReplicas: 10
   metrics:
-  - type: Resource
-    resource:
-      name: cpu
-      target:
-        type: Utilization
-        averageUtilization: 70
-  - type: Resource
-    resource:
-      name: memory
-      target:
-        type: Utilization
-        averageUtilization: 80
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80
 ```
 
 ### Scaling Targets by Service
 
-| Service | Min | Max | CPU Target | Memory Target |
-|---------|-----|-----|------------|---------------|
-| User | 2 | 5 | 70% | 80% |
-| Product | 3 | 10 | 70% | 80% |
-| Cart | 2 | 8 | 60% | 75% |
-| Order | 2 | 5 | 70% | 80% |
-| Payment | 2 | 4 | 75% | 85% |
-| Inventory | 2 | 5 | 70% | 80% |
-| Notification | 2 | 5 | 60% | 70% |
-| Search | 2 | 5 | 60% | 80% |
+| Service      | Min | Max | CPU Target | Memory Target |
+| ------------ | --- | --- | ---------- | ------------- |
+| User         | 2   | 5   | 70%        | 80%           |
+| Product      | 3   | 10  | 70%        | 80%           |
+| Cart         | 2   | 8   | 60%        | 75%           |
+| Order        | 2   | 5   | 70%        | 80%           |
+| Payment      | 2   | 4   | 75%        | 85%           |
+| Inventory    | 2   | 5   | 70%        | 80%           |
+| Notification | 2   | 5   | 60%        | 70%           |
+| Search       | 2   | 5   | 60%        | 80%           |
 
 ---
 
@@ -194,16 +196,16 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '18'
-      
+
       - name: Run tests
         run: npm test
-      
+
       - name: Build Docker image
         run: docker build -t registry/service:${{ github.sha }} .
-      
+
       - name: Push image
         run: docker push registry/service:${{ github.sha }}
-  
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -226,30 +228,30 @@ metadata:
   name: api-ingress
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt
-    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit: '100'
 spec:
   tls:
-  - hosts:
-    - api.yourcompany.com
-    secretName: tls-secret
+    - hosts:
+        - api.yourcompany.com
+      secretName: tls-secret
   rules:
-  - host: api.yourcompany.com
-    http:
-      paths:
-      - path: /api/users
-        pathType: Prefix
-        backend:
-          service:
-            name: user-service
-            port:
-              number: 3001
-      - path: /api/products
-        pathType: Prefix
-        backend:
-          service:
-            name: product-service
-            port:
-              number: 3002
+    - host: api.yourcompany.com
+      http:
+        paths:
+          - path: /api/users
+            pathType: Prefix
+            backend:
+              service:
+                name: user-service
+                port:
+                  number: 3001
+          - path: /api/products
+            pathType: Prefix
+            backend:
+              service:
+                name: product-service
+                port:
+                  number: 3002
 ```
 
 ---
@@ -260,28 +262,28 @@ spec:
 
 ```yaml
 groups:
-- name: microservices
-  rules:
-  - alert: HighErrorRate
-    expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
-    for: 5m
-    labels:
-      severity: critical
-    annotations:
-      summary: "Error rate > 5%"
-  
-  - alert: HighLatency
-    expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
-    for: 5m
-    labels:
-      severity: warning
-    annotations:
-      summary: "P95 latency > 1s"
-  
-  - alert: PodCrashLooping
-    expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
-    labels:
-      severity: critical
+  - name: microservices
+    rules:
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: 'Error rate > 5%'
+
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: 'P95 latency > 1s'
+
+      - alert: PodCrashLooping
+        expr: rate(kube_pod_container_status_restarts_total[15m]) > 0
+        labels:
+          severity: critical
 ```
 
 ---
@@ -300,11 +302,11 @@ spec:
   template:
     spec:
       containers:
-      - name: postgres
-        image: postgres:15-alpine
-        env:
-        - name: POSTGRES_REPLICATION_MODE
-          value: "replica"
+        - name: postgres
+          image: postgres:15-alpine
+          env:
+            - name: POSTGRES_REPLICATION_MODE
+              value: 'replica'
 ```
 
 ### Redis Cluster
@@ -320,9 +322,9 @@ spec:
   template:
     spec:
       containers:
-      - name: redis
-        image: redis:7-alpine
-        command: ["redis-server", "/conf/redis.conf"]
+        - name: redis
+          image: redis:7-alpine
+          command: ['redis-server', '/conf/redis.conf']
 ```
 
 ---
@@ -345,15 +347,15 @@ metadata:
   name: user-service
 spec:
   http:
-  - route:
-    - destination:
-        host: user-service
-        subset: v1
-      weight: 90
-    - destination:
-        host: user-service
-        subset: v2
-      weight: 10  # 10% traffic to new version
+    - route:
+        - destination:
+            host: user-service
+            subset: v1
+          weight: 90
+        - destination:
+            host: user-service
+            subset: v2
+          weight: 10 # 10% traffic to new version
 ```
 
 ---
@@ -382,6 +384,7 @@ psql -h localhost -U postgres -d user_db < user_db_20241015.sql
 ```
 
 **Retention:**
+
 - Daily backups: 30 days
 - Weekly backups: 1 year
 - Monthly backups: 7 years
@@ -391,6 +394,7 @@ psql -h localhost -U postgres -d user_db < user_db_20241015.sql
 ## 10. Deployment Checklist
 
 ### Pre-Deployment
+
 - [ ] All tests passing
 - [ ] Database migrations ready
 - [ ] Secrets configured
@@ -398,12 +402,14 @@ psql -h localhost -U postgres -d user_db < user_db_20241015.sql
 - [ ] Rollback plan ready
 
 ### During Deployment
+
 - [ ] Health checks passing
 - [ ] Gradual traffic shift
 - [ ] Monitor errors/latency
 - [ ] Check resource usage
 
 ### Post-Deployment
+
 - [ ] All services healthy
 - [ ] E2E tests passing
 - [ ] Metrics within SLA
@@ -417,6 +423,7 @@ psql -h localhost -U postgres -d user_db < user_db_20241015.sql
 ### Cluster Sizing
 
 **10K Concurrent Users:**
+
 - Worker Nodes: 6x (4 CPU, 16GB RAM)
 - Total: 24 CPU, 96GB RAM
 
@@ -445,8 +452,8 @@ psql -h localhost -U postgres -d user_db < user_db_20241015.sql
 
 ```javascript
 const pool = new Pool({
-  max: 20,              // Max connections
-  min: 5,               // Min connections
+  max: 20, // Max connections
+  min: 5, // Min connections
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
   statement_timeout: 10000,
@@ -478,20 +485,21 @@ const producer = kafka.producer({
 
 ## Cost Estimation (AWS, Monthly)
 
-| Component | Configuration | Cost |
-|-----------|---------------|------|
-| EKS Cluster | 6 t3.xlarge nodes | $450 |
-| RDS PostgreSQL | db.t3.large (3) | $270 |
-| ElastiCache Redis | cache.t3.medium (3) | $135 |
-| Elasticsearch | t3.large (3) | $300 |
-| MSK (Kafka) | kafka.t3.small (3) | $150 |
-| Load Balancer | ALB | $25 |
-| S3 | 200GB storage | $5 |
-| CloudWatch | Logs/monitoring | $50 |
-| Data Transfer | 1TB/month | $90 |
-| **Total** | | **~$1,475/month** |
+| Component         | Configuration       | Cost              |
+| ----------------- | ------------------- | ----------------- |
+| EKS Cluster       | 6 t3.xlarge nodes   | $450              |
+| RDS PostgreSQL    | db.t3.large (3)     | $270              |
+| ElastiCache Redis | cache.t3.medium (3) | $135              |
+| Elasticsearch     | t3.large (3)        | $300              |
+| MSK (Kafka)       | kafka.t3.small (3)  | $150              |
+| Load Balancer     | ALB                 | $25               |
+| S3                | 200GB storage       | $5                |
+| CloudWatch        | Logs/monitoring     | $50               |
+| Data Transfer     | 1TB/month           | $90               |
+| **Total**         |                     | **~$1,475/month** |
 
 **Cost Optimization:**
+
 - Use spot instances (50% savings)
 - Reserved instances (40% savings)
 - Auto-scale to minimum off-peak
@@ -513,6 +521,7 @@ const producer = kafka.producer({
 ---
 
 For more details, see:
+
 - [Architecture Overview](./ARCHITECTURE_OVERVIEW.md)
 - [Service Definitions](./SERVICE_DEFINITIONS.md)
 - [Technology Stack](./TECHNOLOGY_STACK.md)

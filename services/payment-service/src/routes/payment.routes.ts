@@ -15,7 +15,10 @@ router.post(
   [
     body('orderId').isUUID().withMessage('Valid order ID required'),
     body('amount').isFloat({ min: 0.01 }).withMessage('Valid amount required'),
-    body('currency').optional().isLength({ min: 3, max: 3 }).withMessage('Valid currency code required'),
+    body('currency')
+      .optional()
+      .isLength({ min: 3, max: 3 })
+      .withMessage('Valid currency code required'),
     body('paymentMethodId').notEmpty().withMessage('Payment method ID required'),
     body('provider').isIn(['stripe', 'paypal']).withMessage('Valid provider required'),
     validate,
@@ -46,24 +49,15 @@ router.post(
 
 router.get(
   '/payments/:transactionId',
-  [
-    param('transactionId').isUUID().withMessage('Valid transaction ID required'),
-    validate,
-  ],
+  [param('transactionId').isUUID().withMessage('Valid transaction ID required'), validate],
   paymentController.getTransaction.bind(paymentController)
 );
 
 /**
  * Webhook routes (no authentication/validation on webhooks)
  */
-router.post(
-  '/webhooks/stripe',
-  webhookController.handleStripeWebhook.bind(webhookController)
-);
+router.post('/webhooks/stripe', webhookController.handleStripeWebhook.bind(webhookController));
 
-router.post(
-  '/webhooks/paypal',
-  webhookController.handlePayPalWebhook.bind(webhookController)
-);
+router.post('/webhooks/paypal', webhookController.handlePayPalWebhook.bind(webhookController));
 
 export default router;

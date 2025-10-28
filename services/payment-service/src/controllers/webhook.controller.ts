@@ -11,31 +11,20 @@ export class WebhookController {
   async handleStripeWebhook(req: Request, res: Response): Promise<void> {
     try {
       const signature = req.headers['stripe-signature'] as string;
-      
+
       if (!signature) {
         res.status(400).json({ error: 'Missing signature' });
         return;
       }
 
       const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET || '';
-      const event = stripeProvider.verifyWebhookSignature(
-        req.body,
-        signature,
-        webhookSecret
-      );
+      const event = stripeProvider.verifyWebhookSignature(req.body, signature, webhookSecret);
 
       // Store webhook event
       await query(
         `INSERT INTO webhook_events (provider, event_id, event_type, payload, signature, is_verified)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          'stripe',
-          event.id,
-          event.type,
-          JSON.stringify(event.data.object),
-          signature,
-          true,
-        ]
+        ['stripe', event.id, event.type, JSON.stringify(event.data.object), signature, true]
       );
 
       // Process webhook based on event type
@@ -72,7 +61,7 @@ export class WebhookController {
       res.status(200).json({ received: true });
     } catch (error: any) {
       logger.error('Stripe webhook error:', error);
-      
+
       // Log failed webhook
       await query(
         `INSERT INTO webhook_events (provider, event_type, payload, is_verified, last_error)

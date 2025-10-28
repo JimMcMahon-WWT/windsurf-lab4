@@ -26,6 +26,7 @@ npm run dev
 ```
 
 Access points:
+
 - **Customer Web**: http://localhost:5173
 - **Admin Dashboard**: http://localhost:5174
 - **API Gateway**: http://localhost:8000
@@ -79,12 +80,14 @@ npm run dev
 ### Adding a New Dependency
 
 **Service-specific dependency:**
+
 ```bash
 cd services/user-service
 npm install express-rate-limit
 ```
 
 **Shared package dependency:**
+
 ```bash
 cd packages/common
 npm install lodash
@@ -92,6 +95,7 @@ npm install -D @types/lodash
 ```
 
 **Update all workspaces:**
+
 ```bash
 # At root
 npm install
@@ -486,6 +490,7 @@ curl http://localhost:9200/_cat/indices?v
 ### Local Monitoring
 
 Access dashboards:
+
 - **Prometheus**: http://localhost:9090
 - **Grafana**: http://localhost:3000 (admin/admin)
 - **Jaeger**: http://localhost:16686
@@ -507,6 +512,7 @@ done
 ### Common Issues
 
 **Port already in use:**
+
 ```bash
 # Find and kill process
 lsof -i :3001
@@ -514,6 +520,7 @@ kill -9 <PID>
 ```
 
 **Docker containers not starting:**
+
 ```bash
 # Check container status
 docker-compose ps
@@ -530,6 +537,7 @@ docker-compose up -d
 ```
 
 **Dependency conflicts:**
+
 ```bash
 # Clear and reinstall
 rm -rf node_modules package-lock.json
@@ -537,6 +545,7 @@ npm install
 ```
 
 **TypeScript errors:**
+
 ```bash
 # Clean and rebuild
 npm run clean
@@ -544,6 +553,7 @@ npm run build
 ```
 
 **Database connection errors:**
+
 ```bash
 # Check if PostgreSQL is running
 docker ps | grep postgres

@@ -3,7 +3,11 @@ dotenv.config();
 
 import { testConnection, closePool } from '../src/config/database.config';
 import { testRedisConnection, closeRedis } from '../src/config/redis.config';
-import { testElasticsearchConnection, createProductIndex, closeElasticsearch } from '../src/config/elasticsearch.config';
+import {
+  testElasticsearchConnection,
+  createProductIndex,
+  closeElasticsearch,
+} from '../src/config/elasticsearch.config';
 import { Pool } from 'pg';
 
 const pool = new Pool({

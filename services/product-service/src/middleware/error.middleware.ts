@@ -5,12 +5,7 @@ import { logger } from '../utils/logger.utils';
 /**
  * Global error handler middleware
  */
-export const errorHandler = (
-  err: any,
-  req: Request,
-  res: Response,
-  _next: NextFunction
-): void => {
+export const errorHandler = (err: any, req: Request, res: Response, _next: NextFunction): void => {
   logger.error('Error:', {
     message: err.message,
     stack: err.stack,

@@ -15,10 +15,11 @@ Successfully containerized all four microservices in the e-commerce monorepo pla
 ## 📊 Services Containerized
 
 ### 1. **User Service** ✅
+
 - **Port**: 3001
 - **Image**: `module4-user-service`
 - **Base**: `node:18-alpine`
-- **Features**: 
+- **Features**:
   - User authentication & JWT management
   - PostgreSQL database integration
   - Redis caching
@@ -27,6 +28,7 @@ Successfully containerized all four microservices in the e-commerce monorepo pla
 - **Status**: Healthy
 
 ### 2. **Product Service** ✅
+
 - **Port**: 3002
 - **Image**: `module4-product-service`
 - **Base**: `node:18-alpine`
@@ -40,6 +42,7 @@ Successfully containerized all four microservices in the e-commerce monorepo pla
 - **Status**: Healthy
 
 ### 3. **Order Service** ✅
+
 - **Port**: 3003
 - **Image**: `module4-order-service`
 - **Base**: `node:18-alpine`
@@ -53,6 +56,7 @@ Successfully containerized all four microservices in the e-commerce monorepo pla
 - **Status**: Healthy
 
 ### 4. **Payment Service** ✅
+
 - **Port**: 3004
 - **Image**: `module4-payment-service`
 - **Base**: `node:18-alpine`
@@ -71,13 +75,13 @@ Successfully containerized all four microservices in the e-commerce monorepo pla
 
 All supporting infrastructure services are containerized and healthy:
 
-| Service | Port(s) | Image | Status |
-|---------|---------|-------|--------|
-| PostgreSQL | 5432 | `postgres:15-alpine` | ✅ Healthy |
-| Redis | 6379 | `redis:7-alpine` | ✅ Healthy |
-| Elasticsearch | 9200, 9300 | `elasticsearch:8.11.0` | ✅ Healthy |
-| Kafka | 9092, 9093 | `confluentinc/cp-kafka:7.5.0` | ✅ Healthy |
-| Zookeeper | 2181 | `confluentinc/cp-zookeeper:7.5.0` | ✅ Running |
+| Service       | Port(s)    | Image                             | Status     |
+| ------------- | ---------- | --------------------------------- | ---------- |
+| PostgreSQL    | 5432       | `postgres:15-alpine`              | ✅ Healthy |
+| Redis         | 6379       | `redis:7-alpine`                  | ✅ Healthy |
+| Elasticsearch | 9200, 9300 | `elasticsearch:8.11.0`            | ✅ Healthy |
+| Kafka         | 9092, 9093 | `confluentinc/cp-kafka:7.5.0`     | ✅ Healthy |
+| Zookeeper     | 2181       | `confluentinc/cp-zookeeper:7.5.0` | ✅ Running |
 
 ---
 
@@ -119,6 +123,7 @@ CMD ["node", "dist/server.js"]
 ```
 
 ### Key Benefits:
+
 - **Smaller Images**: Production images exclude dev dependencies (~40% size reduction)
 - **Security**: Non-root user execution
 - **Signal Handling**: dumb-init ensures proper SIGTERM/SIGINT handling
@@ -130,6 +135,7 @@ CMD ["node", "dist/server.js"]
 ## 🎨 Docker Best Practices Implemented
 
 ### 1. **Security Hardening**
+
 - ✅ Non-root user (`nodejs:1001`) for all services
 - ✅ Minimal attack surface with Alpine Linux
 - ✅ No hardcoded secrets (environment variables)
@@ -137,6 +143,7 @@ CMD ["node", "dist/server.js"]
 - ✅ Security scanning with minimal CVEs
 
 ### 2. **Build Optimization**
+
 - ✅ Multi-stage builds reduce image size
 - ✅ Layer caching for faster rebuilds
 - ✅ `.dockerignore` to exclude unnecessary files
@@ -144,6 +151,7 @@ CMD ["node", "dist/server.js"]
 - ✅ Efficient COPY ordering (dependencies before source)
 
 ### 3. **Observability**
+
 - ✅ Health checks at container level
 - ✅ Health checks in docker-compose
 - ✅ Structured logging with Winston
@@ -151,6 +159,7 @@ CMD ["node", "dist/server.js"]
 - ✅ Error tracking and monitoring hooks
 
 ### 4. **Resource Management**
+
 - ✅ CPU limits (0.5 CPUs per service)
 - ✅ Memory limits (512MB limit, 256MB reservation)
 - ✅ Restart policies (`unless-stopped`)
@@ -162,12 +171,15 @@ CMD ["node", "dist/server.js"]
 ## 🧩 Monorepo Challenges Solved
 
 ### Challenge 1: Shared `package-lock.json`
+
 **Problem**: npm ci fails with workspace-scoped dependencies in monorepo  
 **Solution**: Use `npm install` instead of `npm ci` in Dockerfiles
 
 ### Challenge 2: Build Context Paths
+
 **Problem**: Service-specific contexts can't access root files  
 **Solution**: Use root build context with service-specific Dockerfile paths:
+
 ```yaml
 build:
   context: .
@@ -175,22 +187,28 @@ build:
 ```
 
 ### Challenge 3: TypeScript Compilation
+
 **Problem**: Missing type definitions and implicit 'any' errors  
-**Solution**: 
+**Solution**:
+
 - Added missing `@types/pg` package
 - Explicit type annotations for callback parameters
 - Fixed database config type issues
 
 ### Challenge 4: Environment Variable Naming
-**Problem**: Services use different env var conventions (DB_* vs POSTGRES_*)  
+
+**Problem**: Services use different env var conventions (DB*\* vs POSTGRES*\*)  
 **Solution**: Add fallback logic:
+
 ```typescript
-host: process.env.DB_HOST || process.env.POSTGRES_HOST || 'localhost'
+host: process.env.DB_HOST || process.env.POSTGRES_HOST || 'localhost';
 ```
 
 ### Challenge 5: File Permissions
+
 **Problem**: Winston logger needs write access to `logs/` directory  
 **Solution**: Create and chown logs directory before switching to non-root user:
+
 ```dockerfile
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nodejs -u 1001 && \
@@ -199,8 +217,10 @@ RUN addgroup -g 1001 -S nodejs && \
 ```
 
 ### Challenge 6: Health Check Paths
+
 **Problem**: Inconsistent route mounting (some under `/api/v1`, others at root)  
 **Solution**: Match healthcheck paths to actual route configuration:
+
 - User Service: `/health`
 - Product Service: `/api/v1/health`
 - Order Service: `/health`
@@ -211,6 +231,7 @@ RUN addgroup -g 1001 -S nodejs && \
 ## 🚀 Quick Start Guide
 
 ### Prerequisites
+
 - Docker Desktop 4.0+ installed
 - Docker Compose 2.0+ installed
 - 8GB+ RAM available
@@ -276,30 +297,35 @@ curl http://localhost:3004/health
 ## 📈 Performance Metrics
 
 ### Image Sizes
+
 - User Service: ~230 MB
 - Product Service: ~250 MB
 - Order Service: ~240 MB
 - Payment Service: ~270 MB
 
 ### Build Times (First Build)
+
 - User Service: ~2m 30s
 - Product Service: ~3m 00s
 - Order Service: ~2m 45s
 - Payment Service: ~2m 50s
 
 ### Build Times (Cached)
+
 - User Service: ~15s
 - Product Service: ~20s
 - Order Service: ~18s
 - Payment Service: ~17s
 
 ### Startup Times
+
 - User Service: ~3-5s
 - Product Service: ~4-6s (Elasticsearch connection)
 - Order Service: ~4-7s (Kafka connection)
 - Payment Service: ~3-5s
 
 ### Memory Usage (Steady State)
+
 - User Service: ~150-200 MB
 - Product Service: ~180-250 MB
 - Order Service: ~170-230 MB
@@ -314,6 +340,7 @@ curl http://localhost:3004/health
 All services support the following environment variables:
 
 #### Common Variables
+
 ```bash
 NODE_ENV=development          # development | production | test
 PORT=<service-port>          # Service port number
@@ -321,6 +348,7 @@ LOG_LEVEL=info               # debug | info | warn | error
 ```
 
 #### Database Variables (with fallbacks)
+
 ```bash
 # Primary convention
 DB_HOST=postgres
@@ -338,6 +366,7 @@ POSTGRES_PASSWORD=postgres
 ```
 
 #### Redis Variables
+
 ```bash
 REDIS_HOST=redis
 REDIS_PORT=6379
@@ -346,6 +375,7 @@ REDIS_PORT=6379
 #### Service-Specific Variables
 
 **Product Service:**
+
 ```bash
 ELASTICSEARCH_NODE=http://elasticsearch:9200
 KAFKA_BROKERS=kafka:9093
@@ -356,6 +386,7 @@ S3_BUCKET=<your-bucket>
 ```
 
 **Order Service:**
+
 ```bash
 KAFKA_BROKERS=kafka:9093
 PRODUCT_SERVICE_URL=http://product-service:3002
@@ -363,6 +394,7 @@ PAYMENT_SERVICE_URL=http://payment-service:3004
 ```
 
 **Payment Service:**
+
 ```bash
 STRIPE_SECRET_KEY=<your-stripe-key>
 STRIPE_PUBLISHABLE_KEY=<your-stripe-pub-key>
@@ -374,6 +406,7 @@ ENCRYPTION_KEY=<32-byte-hex-key>
 ```
 
 **User Service:**
+
 ```bash
 JWT_SECRET=<your-jwt-secret>
 JWT_EXPIRES_IN=7d
@@ -467,6 +500,7 @@ docker stats
 - [ ] Regular security updates and patching
 
 ### Recommended Tools
+
 - **Scanning**: Trivy, Snyk, Aqua Security
 - **Secrets**: HashiCorp Vault, AWS Secrets Manager
 - **Monitoring**: Prometheus, Grafana, DataDog
@@ -486,6 +520,7 @@ docker stats
 ## 🎓 Lessons Learned
 
 ### What Worked Well
+
 1. **Multi-stage builds** dramatically reduced image sizes
 2. **npm install over npm ci** solved monorepo lockfile issues
 3. **Root build context** simplified path management
@@ -493,6 +528,7 @@ docker stats
 5. **Non-root users** improved security with minimal effort
 
 ### What Was Challenging
+
 1. Monorepo workspace dependencies with Docker
 2. TypeScript compilation errors in containerized builds
 3. Inconsistent environment variable naming across services
@@ -500,6 +536,7 @@ docker stats
 5. File permission issues with logging directories
 
 ### Recommendations for Future Projects
+
 1. Standardize environment variable naming from the start
 2. Include Docker configuration in initial service templates
 3. Set up health endpoints consistently (e.g., always `/health`)
@@ -512,6 +549,7 @@ docker stats
 ## 📊 Project Statistics
 
 ### Development Timeline
+
 - **Planning & Setup**: 1 hour
 - **First Service (Payment)**: 2 hours
 - **Second Service (User)**: 1.5 hours
@@ -522,6 +560,7 @@ docker stats
 - **Total**: ~8-9 hours
 
 ### Code Changes
+
 - **Files Modified**: 6
 - **Files Created**: 17
 - **Dockerfiles**: 4
@@ -530,6 +569,7 @@ docker stats
 - **Services Containerized**: 4
 
 ### Team Efficiency Gains
+
 - **Local Setup Time**: Reduced from ~2 hours to ~5 minutes
 - **Environment Consistency**: 100% (vs. ~60% with manual setup)
 - **Onboarding Time**: Reduced by ~75%
@@ -544,23 +584,25 @@ docker stats
 
 ### Monitoring Services Deployed
 
-| Service | Port | Purpose | Status |
-|---------|------|---------|--------|
-| **Prometheus** | 9090 | Metrics collection & storage | ✅ Healthy |
-| **Grafana** | 3000 | Metrics visualization | ✅ Healthy |
-| **cAdvisor** | 8080 | Container resource metrics | ✅ Healthy |
-| **Postgres Exporter** | 9187 | PostgreSQL metrics | ✅ Healthy |
-| **Redis Exporter** | 9121 | Redis metrics | ✅ Healthy |
+| Service               | Port | Purpose                      | Status     |
+| --------------------- | ---- | ---------------------------- | ---------- |
+| **Prometheus**        | 9090 | Metrics collection & storage | ✅ Healthy |
+| **Grafana**           | 3000 | Metrics visualization        | ✅ Healthy |
+| **cAdvisor**          | 8080 | Container resource metrics   | ✅ Healthy |
+| **Postgres Exporter** | 9187 | PostgreSQL metrics           | ✅ Healthy |
+| **Redis Exporter**    | 9121 | Redis metrics                | ✅ Healthy |
 
 ### What's Being Monitored
 
 **Infrastructure Metrics** ✅
+
 - PostgreSQL: Connections, query performance, cache hit ratio, database size
 - Redis: Memory usage, connected clients, cache hit/miss rates, commands/sec
 - Containers: CPU usage, memory usage, network I/O, disk I/O per container
 - Prometheus: Self-monitoring metrics
 
 **Application Metrics** ⏳ (Optional)
+
 - HTTP request rates, latencies, status codes (requires adding `/metrics` endpoints)
 - Business metrics: orders, payments, users (requires instrumentation)
 - Custom service KPIs (requires prom-client integration)
@@ -578,7 +620,7 @@ docker stats
 ✅ **Pre-built dashboard** for service overview  
 ✅ **Container resource tracking** via cAdvisor  
 ✅ **Database & cache metrics** via exporters  
-✅ **Health checks** for all monitoring services  
+✅ **Health checks** for all monitoring services
 
 ### Documentation
 
@@ -598,12 +640,14 @@ docker stats
 ## 🚀 Next Steps & Recommendations
 
 ### Immediate Actions
+
 1. ✅ All services containerized and healthy
 2. ✅ Docker Compose orchestration complete
 3. ✅ Health checks implemented and verified
 4. ✅ Documentation created
 
 ### Short-Term (1-2 weeks)
+
 - [ ] Set up CI/CD pipeline with Docker builds
 - [ ] Implement automated testing in containers
 - [ ] Add development docker-compose override file
@@ -612,6 +656,7 @@ docker stats
 - [ ] Implement log aggregation (ELK or Loki)
 
 ### Medium-Term (1 month)
+
 - [ ] Deploy to Kubernetes cluster
 - [ ] Implement horizontal pod autoscaling
 - [ ] Set up service mesh (Istio/Linkerd)
@@ -619,6 +664,7 @@ docker stats
 - [ ] Implement blue-green deployment strategy
 
 ### Long-Term (3+ months)
+
 - [ ] Multi-region deployment
 - [ ] Chaos engineering implementation
 - [ ] Advanced security scanning
@@ -644,6 +690,7 @@ MIT License - See LICENSE file for details
 ## 📞 Support
 
 For issues or questions:
+
 - Create an issue in the GitHub repository
 - Contact the platform team
 - Refer to Docker and Node.js documentation
@@ -656,4 +703,4 @@ For issues or questions:
 
 ---
 
-*This document represents the successful completion of containerizing all microservices in the e-commerce platform with comprehensive monitoring. All services are production-ready and follow Docker best practices.*
+_This document represents the successful completion of containerizing all microservices in the e-commerce platform with comprehensive monitoring. All services are production-ready and follow Docker best practices._

@@ -6,6 +6,7 @@
 **Responsibility**: User authentication, authorization, profile management
 
 ### Boundaries
+
 - User registration and login
 - JWT token generation and validation
 - User profile CRUD operations
@@ -14,6 +15,7 @@
 - Multi-factor authentication (optional)
 
 ### API Endpoints
+
 ```
 POST   /api/users/register
 POST   /api/users/login
@@ -26,12 +28,14 @@ GET    /api/users/:id (Admin only)
 ```
 
 ### Events Published
+
 - `user.registered`
 - `user.updated`
 - `user.deleted`
 - `user.email.verified`
 
 ### Dependencies
+
 - None (independent service)
 
 ---
@@ -42,6 +46,7 @@ GET    /api/users/:id (Admin only)
 **Responsibility**: Product catalog management
 
 ### Boundaries
+
 - Product CRUD operations
 - Category management
 - Product search and filtering
@@ -51,6 +56,7 @@ GET    /api/users/:id (Admin only)
 - Product reviews and ratings
 
 ### API Endpoints
+
 ```
 GET    /api/products
 GET    /api/products/:id
@@ -64,6 +70,7 @@ GET    /api/products/search?q=...
 ```
 
 ### Events Published
+
 - `product.created`
 - `product.updated`
 - `product.deleted`
@@ -71,9 +78,11 @@ GET    /api/products/search?q=...
 - `product.review.added`
 
 ### Events Consumed
+
 - `inventory.updated` (to reflect availability)
 
 ### Dependencies
+
 - Search Service (async via events)
 
 ---
@@ -84,6 +93,7 @@ GET    /api/products/search?q=...
 **Responsibility**: Shopping cart management
 
 ### Boundaries
+
 - Add/remove items from cart
 - Update item quantities
 - Cart persistence (session-based or user-based)
@@ -92,6 +102,7 @@ GET    /api/products/search?q=...
 - Cart total calculation with currency conversion
 
 ### API Endpoints
+
 ```
 GET    /api/cart
 POST   /api/cart/items
@@ -103,16 +114,19 @@ GET    /api/cart/total
 ```
 
 ### Events Published
+
 - `cart.item.added`
 - `cart.item.removed`
 - `cart.abandoned` (after 24 hours)
 
 ### Events Consumed
+
 - `product.price.changed`
 - `product.deleted`
 - `inventory.out.of.stock`
 
 ### Dependencies
+
 - Product Service (sync REST calls for product info)
 - Inventory Service (sync REST calls for availability)
 
@@ -124,6 +138,7 @@ GET    /api/cart/total
 **Responsibility**: Order lifecycle management
 
 ### Boundaries
+
 - Create orders from cart
 - Order status tracking
 - Order history
@@ -133,6 +148,7 @@ GET    /api/cart/total
 - Idempotency handling
 
 ### API Endpoints
+
 ```
 POST   /api/orders
 GET    /api/orders
@@ -145,6 +161,7 @@ PUT    /api/admin/orders/:id/status (Admin)
 ```
 
 ### Events Published
+
 - `order.created`
 - `order.confirmed`
 - `order.cancelled`
@@ -153,12 +170,14 @@ PUT    /api/admin/orders/:id/status (Admin)
 - `order.returned`
 
 ### Events Consumed
+
 - `payment.success`
 - `payment.failed`
 - `inventory.reserved`
 - `inventory.reservation.failed`
 
 ### Dependencies
+
 - Cart Service (sync)
 - Inventory Service (sync + events)
 - Payment Service (events)
@@ -171,6 +190,7 @@ PUT    /api/admin/orders/:id/status (Admin)
 **Responsibility**: Payment processing and transaction management
 
 ### Boundaries
+
 - Process payments via external gateways
 - Multi-currency payment support
 - Payment method management
@@ -181,6 +201,7 @@ PUT    /api/admin/orders/:id/status (Admin)
 - Fraud detection integration
 
 ### API Endpoints
+
 ```
 POST   /api/payments/process
 GET    /api/payments/:id
@@ -192,16 +213,19 @@ GET    /api/payments/transactions
 ```
 
 ### Events Published
+
 - `payment.initiated`
 - `payment.success`
 - `payment.failed`
 - `payment.refunded`
 
 ### Events Consumed
+
 - `order.created`
 - `order.cancelled`
 
 ### Dependencies
+
 - External Payment Gateway (Stripe, PayPal)
 
 ---
@@ -212,6 +236,7 @@ GET    /api/payments/transactions
 **Responsibility**: Real-time inventory management
 
 ### Boundaries
+
 - Track stock levels
 - Reserve inventory for orders
 - Release reservations on cancellation
@@ -221,6 +246,7 @@ GET    /api/payments/transactions
 - Stock reconciliation
 
 ### API Endpoints
+
 ```
 GET    /api/inventory/:productId
 PUT    /api/inventory/:productId (Admin - manual adjustment)
@@ -231,6 +257,7 @@ POST   /api/inventory/bulk-update (Admin)
 ```
 
 ### Events Published
+
 - `inventory.reserved`
 - `inventory.reservation.failed`
 - `inventory.released`
@@ -239,12 +266,14 @@ POST   /api/inventory/bulk-update (Admin)
 - `inventory.out.of.stock`
 
 ### Events Consumed
+
 - `order.created` (reserve inventory)
 - `order.cancelled` (release inventory)
 - `order.completed` (finalize inventory)
 - `payment.failed` (release inventory)
 
 ### Dependencies
+
 - None (event-driven coordination)
 
 ---
@@ -255,6 +284,7 @@ POST   /api/inventory/bulk-update (Admin)
 **Responsibility**: Multi-channel notification delivery
 
 ### Boundaries
+
 - Email notifications
 - SMS notifications (optional)
 - Push notifications (optional)
@@ -264,6 +294,7 @@ POST   /api/inventory/bulk-update (Admin)
 - User notification preferences
 
 ### API Endpoints
+
 ```
 POST   /api/notifications/send
 GET    /api/notifications/history
@@ -272,10 +303,12 @@ GET    /api/notifications/preferences
 ```
 
 ### Events Published
+
 - `notification.sent`
 - `notification.failed`
 
 ### Events Consumed
+
 - `user.registered` (welcome email)
 - `order.created` (order confirmation)
 - `order.completed` (shipment notification)
@@ -285,6 +318,7 @@ GET    /api/notifications/preferences
 - `user.password.reset` (reset email)
 
 ### Dependencies
+
 - External Email Service (SendGrid, AWS SES)
 - External SMS Service (Twilio)
 
@@ -296,6 +330,7 @@ GET    /api/notifications/preferences
 **Responsibility**: Fast product search and recommendations
 
 ### Boundaries
+
 - Full-text product search
 - Faceted search (filters)
 - Search suggestions/autocomplete
@@ -304,6 +339,7 @@ GET    /api/notifications/preferences
 - Search result ranking
 
 ### API Endpoints
+
 ```
 GET    /api/search?q=...&filters=...
 GET    /api/search/suggestions?q=...
@@ -312,33 +348,37 @@ POST   /api/search/reindex (Admin)
 ```
 
 ### Events Published
+
 - `search.query.executed` (analytics)
 
 ### Events Consumed
+
 - `product.created`
 - `product.updated`
 - `product.deleted`
 - `inventory.updated`
 
 ### Dependencies
+
 - Elasticsearch for indexing
 
 ---
 
 ## Service Interaction Matrix
 
-| Service | User | Product | Cart | Order | Payment | Inventory | Notification | Search |
-|---------|------|---------|------|-------|---------|-----------|--------------|--------|
-| **User** | - | | | | | | ✓ Event | |
-| **Product** | | - | | | | ✓ Event | | ✓ Event |
-| **Cart** | | ✓ REST | - | ✓ REST | | ✓ REST | | ✓ REST |
-| **Order** | | | ✓ REST | - | ✓ Event | ✓ REST + Event | ✓ Event | |
-| **Payment** | | | | ✓ Event | - | | ✓ Event | |
-| **Inventory** | | | | ✓ Event | | - | ✓ Event | ✓ Event |
-| **Notification** | | | | | | | - | |
-| **Search** | | ✓ Event | | | | ✓ Event | | - |
+| Service          | User | Product | Cart   | Order   | Payment | Inventory      | Notification | Search  |
+| ---------------- | ---- | ------- | ------ | ------- | ------- | -------------- | ------------ | ------- |
+| **User**         | -    |         |        |         |         |                | ✓ Event      |         |
+| **Product**      |      | -       |        |         |         | ✓ Event        |              | ✓ Event |
+| **Cart**         |      | ✓ REST  | -      | ✓ REST  |         | ✓ REST         |              | ✓ REST  |
+| **Order**        |      |         | ✓ REST | -       | ✓ Event | ✓ REST + Event | ✓ Event      |         |
+| **Payment**      |      |         |        | ✓ Event | -       |                | ✓ Event      |         |
+| **Inventory**    |      |         |        | ✓ Event |         | -              | ✓ Event      | ✓ Event |
+| **Notification** |      |         |        |         |         |                | -            |         |
+| **Search**       |      | ✓ Event |        |         |         | ✓ Event        |              | -       |
 
 **Legend:**
+
 - ✓ REST: Synchronous REST API call
 - ✓ Event: Asynchronous event-driven communication
 - Empty: No direct interaction
@@ -347,31 +387,34 @@ POST   /api/search/reindex (Admin)
 
 ### Resource Allocation (per replica)
 
-| Service | CPU | Memory | Storage | Min Replicas | Max Replicas |
-|---------|-----|--------|---------|--------------|--------------|
-| User | 0.5 | 512MB | - | 2 | 5 |
-| Product | 0.5 | 512MB | - | 3 | 10 |
-| Cart | 0.25 | 256MB | - | 2 | 8 |
-| Order | 1.0 | 1GB | - | 2 | 5 |
-| Payment | 1.0 | 1GB | - | 2 | 4 |
-| Inventory | 0.5 | 512MB | - | 2 | 5 |
-| Notification | 0.25 | 256MB | - | 2 | 5 |
-| Search | 1.0 | 2GB | 10GB | 2 | 5 |
+| Service      | CPU  | Memory | Storage | Min Replicas | Max Replicas |
+| ------------ | ---- | ------ | ------- | ------------ | ------------ |
+| User         | 0.5  | 512MB  | -       | 2            | 5            |
+| Product      | 0.5  | 512MB  | -       | 3            | 10           |
+| Cart         | 0.25 | 256MB  | -       | 2            | 8            |
+| Order        | 1.0  | 1GB    | -       | 2            | 5            |
+| Payment      | 1.0  | 1GB    | -       | 2            | 4            |
+| Inventory    | 0.5  | 512MB  | -       | 2            | 5            |
+| Notification | 0.25 | 256MB  | -       | 2            | 5            |
+| Search       | 1.0  | 2GB    | 10GB    | 2            | 5            |
 
 ## Security Boundaries
 
 ### Authentication Flow
+
 1. Client authenticates with User Service
 2. User Service issues JWT token
 3. API Gateway validates JWT for all requests
 4. Services trust API Gateway (internal network)
 
 ### Service-to-Service Authentication
+
 - mTLS for internal communication
 - Service mesh (Istio) for automatic encryption
 - API keys for external service calls
 
 ### Data Security
+
 - PCI compliance for Payment Service
 - PII encryption in User Service
 - Database encryption at rest

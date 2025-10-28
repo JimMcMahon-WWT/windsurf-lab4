@@ -9,6 +9,7 @@ This guide will help you test the foundation we've built so far.
 Before testing, ensure you have:
 
 ### 1. PostgreSQL (version 12+)
+
 ```powershell
 # Check if installed
 postgres --version
@@ -19,6 +20,7 @@ docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=postgres --name postgres-test po
 ```
 
 ### 2. Redis (version 6+)
+
 ```powershell
 # Check if installed
 redis-cli --version
@@ -29,6 +31,7 @@ docker run -d -p 6379:6379 --name redis-test redis:7-alpine
 ```
 
 ### 3. Node.js (version 18+)
+
 ```powershell
 node --version
 npm --version
@@ -97,6 +100,7 @@ npm run migrate
 ```
 
 **Expected Output:**
+
 ```
 🚀 Starting database migrations...
 
@@ -114,6 +118,7 @@ Found 2 migration files:
 ```
 
 **If you get an error:**
+
 - Check that PostgreSQL is running
 - Verify database credentials in `.env`
 - Ensure database `user_db` exists
@@ -129,6 +134,7 @@ npm run test:setup
 ```
 
 **Expected Output:**
+
 ```
 🧪 Testing User Service Setup
 
@@ -190,11 +196,13 @@ npm run test:setup
 **Error:** `Unable to connect to PostgreSQL database`
 
 **Solutions:**
+
 1. Check if PostgreSQL is running:
+
    ```powershell
    # Windows Service
    Get-Service postgresql*
-   
+
    # Or check with psql
    psql -U postgres -c "SELECT 1"
    ```
@@ -202,6 +210,7 @@ npm run test:setup
 2. Verify credentials in `.env` match your PostgreSQL setup
 
 3. Check if database exists:
+
    ```powershell
    psql -U postgres -l
    ```
@@ -215,7 +224,9 @@ npm run test:setup
 **Error:** `Redis connection error`
 
 **Solutions:**
+
 1. Check if Redis is running:
+
    ```powershell
    # Try connecting
    redis-cli ping
@@ -223,10 +234,11 @@ npm run test:setup
    ```
 
 2. Start Redis service:
+
    ```powershell
    # Windows Service (if installed as service)
    Start-Service Redis
-   
+
    # Or start Redis server manually
    redis-server
    ```
@@ -242,6 +254,7 @@ npm run test:setup
 **Solution:** Database tables already exist. You can either:
 
 1. **Drop and recreate database** (WARNING: Deletes all data):
+
    ```powershell
    psql -U postgres -c "DROP DATABASE user_db;"
    psql -U postgres -c "CREATE DATABASE user_db;"
@@ -257,6 +270,7 @@ npm run test:setup
 **Error:** Issues with JWT or password hashing
 
 **Solutions:**
+
 1. Ensure `.env` file has JWT_SECRET and JWT_REFRESH_SECRET set
 2. Check that secrets are at least 32 characters long
 3. Verify bcrypt is installed: `npm list bcryptjs`
@@ -266,16 +280,19 @@ npm run test:setup
 ## What We've Tested
 
 ✅ **Database Layer:**
+
 - Connection pooling
 - Table schema creation
 - Migration system
 
 ✅ **Redis Layer:**
+
 - Connection
 - Session storage/retrieval
 - Key-value operations
 
 ✅ **Authentication:**
+
 - Password hashing (bcrypt)
 - Password verification
 - JWT access token generation
@@ -284,6 +301,7 @@ npm run test:setup
 - Password reset token generation
 
 ✅ **Security:**
+
 - Strong password requirements
 - Secure token generation
 - Hash functions
@@ -323,6 +341,7 @@ SELECT * FROM users;
 ```
 
 **Expected tables:**
+
 - users
 - refresh_tokens
 - user_preferences

@@ -171,12 +171,14 @@ kubectl port-forward -n ecommerce svc/grafana 3000:3000
 ## Resource Allocation
 
 ### Development Environment
+
 - User Service: 2 replicas, 256Mi-512Mi memory
 - Product Service: 3 replicas, 256Mi-512Mi memory
 - Order Service: 2 replicas, 256Mi-512Mi memory
 - Payment Service: 2 replicas, 256Mi-512Mi memory
 
 ### Production Environment
+
 - Scale based on load testing results
 - Use HPA for automatic scaling
 - Monitor resource utilization
@@ -185,6 +187,7 @@ kubectl port-forward -n ecommerce svc/grafana 3000:3000
 ## Troubleshooting
 
 ### Check Pod Status
+
 ```bash
 kubectl get pods -n ecommerce
 kubectl describe pod <pod-name> -n ecommerce
@@ -192,23 +195,27 @@ kubectl logs <pod-name> -n ecommerce
 ```
 
 ### Check Service Endpoints
+
 ```bash
 kubectl get endpoints -n ecommerce
 ```
 
 ### Test Service Connectivity
+
 ```bash
 kubectl run test-pod --rm -i --tty --image=curlimages/curl -n ecommerce -- sh
 curl http://user-service:3001/health
 ```
 
 ### View HPA Status
+
 ```bash
 kubectl get hpa -n ecommerce
 kubectl describe hpa user-service-hpa -n ecommerce
 ```
 
 ### Check Ingress
+
 ```bash
 kubectl describe ingress ecommerce-ingress -n ecommerce
 ```
@@ -216,18 +223,21 @@ kubectl describe ingress ecommerce-ingress -n ecommerce
 ## Maintenance
 
 ### Rolling Updates
+
 ```bash
 kubectl set image deployment/user-service user-service=your-registry/user-service:v1.0.1 -n ecommerce
 kubectl rollout status deployment/user-service -n ecommerce
 ```
 
 ### Rollback
+
 ```bash
 kubectl rollout undo deployment/user-service -n ecommerce
 kubectl rollout history deployment/user-service -n ecommerce
 ```
 
 ### Scale Manually
+
 ```bash
 kubectl scale deployment user-service --replicas=5 -n ecommerce
 ```
@@ -251,6 +261,7 @@ kubectl apply -f https://raw.githubusercontent.com/istio/istio/release-1.19/samp
 ```
 
 ### Benefits of Service Mesh
+
 - Traffic management (canary deployments, A/B testing)
 - Security (mTLS, authentication, authorization)
 - Observability (distributed tracing, metrics)
@@ -272,12 +283,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Build and Push Docker Images
         run: |
           docker build -t ${{ secrets.REGISTRY }}/user-service:${{ github.sha }} ./services/user-service
           docker push ${{ secrets.REGISTRY }}/user-service:${{ github.sha }}
-      
+
       - name: Deploy to Kubernetes
         run: |
           kubectl set image deployment/user-service user-service=${{ secrets.REGISTRY }}/user-service:${{ github.sha }} -n ecommerce
@@ -286,6 +297,7 @@ jobs:
 ## Support
 
 For issues or questions:
+
 - Check logs: `kubectl logs -n ecommerce <pod-name>`
 - Review events: `kubectl get events -n ecommerce --sort-by='.lastTimestamp'`
 - Monitor metrics in Grafana

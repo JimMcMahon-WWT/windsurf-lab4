@@ -65,13 +65,15 @@ export abstract class AggregateRoot {
 
     // Load events after snapshot
     const events = await eventStore.getEvents(aggregateId, fromVersion);
-    
+
     for (const event of events) {
       this.applyEvent(event, false);
       this.version = event.eventVersion;
     }
 
-    logger.debug(`Loaded ${events.length} events for ${aggregateId}, current version: ${this.version}`);
+    logger.debug(
+      `Loaded ${events.length} events for ${aggregateId}, current version: ${this.version}`
+    );
   }
 
   /**
@@ -82,7 +84,7 @@ export abstract class AggregateRoot {
   protected applyEvent(event: DomainEvent, isNew: boolean = true): void {
     // Call the event handler method
     const handlerName = `on${event.eventType}`;
-    
+
     if (typeof (this as any)[handlerName] === 'function') {
       (this as any)[handlerName](event);
     } else {
@@ -139,7 +141,7 @@ export abstract class AggregateRoot {
    */
   protected async createSnapshotIfNeeded(): Promise<void> {
     const snapshotFrequency = parseInt(process.env.SNAPSHOT_FREQUENCY || '10');
-    
+
     if (this.version % snapshotFrequency === 0) {
       const snapshotData = this.createSnapshot();
       await eventStore.saveSnapshot({

@@ -5,29 +5,29 @@ metadata:
   namespace: ecommerce
 data:
   # Database Configuration
-  DB_HOST: "postgres-service"
-  DB_PORT: "5432"
-  DB_NAME: "ecommerce"
-  
+  DB_HOST: 'postgres-service'
+  DB_PORT: '5432'
+  DB_NAME: 'ecommerce'
+
   # Redis Configuration
-  REDIS_HOST: "redis-service"
-  REDIS_PORT: "6379"
-  
+  REDIS_HOST: 'redis-service'
+  REDIS_PORT: '6379'
+
   # Elasticsearch Configuration
-  ELASTICSEARCH_NODE: "http://elasticsearch-service:9200"
-  
+  ELASTICSEARCH_NODE: 'http://elasticsearch-service:9200'
+
   # Kafka Configuration
-  KAFKA_BROKERS: "kafka-service:9092"
-  
+  KAFKA_BROKERS: 'kafka-service:9092'
+
   # Service URLs
-  USER_SERVICE_URL: "http://user-service:3001"
-  PRODUCT_SERVICE_URL: "http://product-service:3002"
-  ORDER_SERVICE_URL: "http://order-service:3003"
-  PAYMENT_SERVICE_URL: "http://payment-service:3004"
-  
+  USER_SERVICE_URL: 'http://user-service:3001'
+  PRODUCT_SERVICE_URL: 'http://product-service:3002'
+  ORDER_SERVICE_URL: 'http://order-service:3003'
+  PAYMENT_SERVICE_URL: 'http://payment-service:3004'
+
   # Application Configuration
-  NODE_ENV: "production"
-  LOG_LEVEL: "info"
-  
+  NODE_ENV: 'production'
+  LOG_LEVEL: 'info'
+
   # PayPal Configuration
-  PAYPAL_MODE: "sandbox"
+  PAYPAL_MODE: 'sandbox'

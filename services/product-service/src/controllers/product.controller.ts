@@ -87,10 +87,7 @@ export class ProductController {
         return;
       }
 
-      const suggestions = await searchService.autocomplete(
-        q as string,
-        parseInt(limit as string)
-      );
+      const suggestions = await searchService.autocomplete(q as string, parseInt(limit as string));
 
       res.json(suggestions);
     } catch (error) {

@@ -107,10 +107,10 @@ async function startServer() {
     // Graceful shutdown
     const shutdown = async () => {
       logger.info('SIGINT received, shutting down gracefully...');
-      
+
       server.close(async () => {
         logger.info('HTTP server closed');
-        
+
         try {
           await closeConnection();
           await closeRedisConnection();
@@ -132,7 +132,6 @@ async function startServer() {
 
     process.on('SIGINT', shutdown);
     process.on('SIGTERM', shutdown);
-
   } catch (error) {
     logger.error('Failed to start server:', error);
     process.exit(1);

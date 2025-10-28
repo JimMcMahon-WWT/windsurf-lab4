@@ -20,12 +20,12 @@ This document provides a comprehensive guide for containerizing and orchestratin
 
 ### Microservices Overview
 
-| Service | Port | Purpose | Dependencies |
-|---------|------|---------|--------------|
-| User Service | 3001 | Authentication & user management | PostgreSQL, Redis |
-| Product Service | 3002 | Product catalog & search | PostgreSQL, Redis, Elasticsearch, Kafka |
-| Order Service | 3003 | Order processing | PostgreSQL, Redis, Kafka, Product, Payment |
-| Payment Service | 3004 | Payment processing | PostgreSQL, Redis, Stripe, PayPal |
+| Service         | Port | Purpose                          | Dependencies                               |
+| --------------- | ---- | -------------------------------- | ------------------------------------------ |
+| User Service    | 3001 | Authentication & user management | PostgreSQL, Redis                          |
+| Product Service | 3002 | Product catalog & search         | PostgreSQL, Redis, Elasticsearch, Kafka    |
+| Order Service   | 3003 | Order processing                 | PostgreSQL, Redis, Kafka, Product, Payment |
+| Payment Service | 3004 | Payment processing               | PostgreSQL, Redis, Stripe, PayPal          |
 
 ### Infrastructure Components
 
@@ -46,12 +46,14 @@ This document provides a comprehensive guide for containerizing and orchestratin
 All services use optimized multi-stage builds:
 
 #### Stage 1: Builder
+
 - Base: `node:18-alpine`
 - Installs all dependencies (including dev)
 - Compiles TypeScript to JavaScript
 - Optimizes build artifacts
 
 #### Stage 2: Production
+
 - Base: `node:18-alpine`
 - Installs only production dependencies
 - Copies compiled code from builder
@@ -61,18 +63,21 @@ All services use optimized multi-stage builds:
 ### Key Features
 
 #### Security
+
 - **Non-root user**: All services run as user `nodejs` (UID 1001)
 - **Minimal base image**: Alpine Linux reduces attack surface
 - **No secrets in images**: Environment variables for sensitive data
 - **Read-only filesystem**: Where possible
 
 #### Optimization
+
 - **Layer caching**: Package files copied before source code
 - **Dependency pruning**: Only production dependencies in final image
 - **dumb-init**: Proper signal handling for Node.js
 - **Image size**: ~50-70MB per service
 
 #### Health Checks
+
 - **HTTP-based**: Checks `/health` endpoint
 - **Configurable**: 30s interval, 10s timeout, 3 retries
 - **Startup period**: 40s grace period for initialization
@@ -93,13 +98,13 @@ All services use optimized multi-stage builds:
 
 #### Resource Allocation (Local)
 
-| Service | CPU | Memory | Replicas |
-|---------|-----|--------|----------|
-| PostgreSQL | 1.0 | 1GB | 1 |
-| Redis | 0.5 | 512MB | 1 |
-| Elasticsearch | 1.0 | 2GB | 1 |
-| Kafka | 1.0 | 1GB | 1 |
-| Each Microservice | 0.5 | 512MB | 1 |
+| Service           | CPU | Memory | Replicas |
+| ----------------- | --- | ------ | -------- |
+| PostgreSQL        | 1.0 | 1GB    | 1        |
+| Redis             | 0.5 | 512MB  | 1        |
+| Elasticsearch     | 1.0 | 2GB    | 1        |
+| Kafka             | 1.0 | 1GB    | 1        |
+| Each Microservice | 0.5 | 512MB  | 1        |
 
 #### Commands
 
@@ -162,16 +167,19 @@ docker-compose down -v
 ### Kubernetes Components
 
 #### 1. Namespace
+
 - **Name**: `ecommerce`
 - **Labels**: environment, application
 - **Purpose**: Resource isolation and organization
 
 #### 2. ConfigMaps
+
 - **Shared configuration**: Database hosts, service URLs
 - **Non-sensitive data**: Ports, feature flags
 - **Centralized management**: Single source of truth
 
 #### 3. Secrets
+
 - **Sensitive data**: Credentials, API keys
 - **Encrypted at rest**: Kubernetes encryption
 - **Injected as env vars**: No hardcoding
@@ -180,33 +188,39 @@ docker-compose down -v
 #### 4. Deployments
 
 ##### User Service
+
 - **Replicas**: 2-10 (HPA controlled)
 - **Strategy**: RollingUpdate (maxSurge: 1, maxUnavailable: 0)
 - **Resources**: 256Mi-512Mi memory, 250m-500m CPU
 - **Probes**: Liveness and readiness checks
 
 ##### Product Service
+
 - **Replicas**: 3-15 (HPA controlled)
 - **Higher scaling**: More traffic expected
 - **Additional deps**: Elasticsearch, Kafka
 
 ##### Order Service
+
 - **Replicas**: 2-10 (HPA controlled)
 - **Dependencies**: Product, Payment services
 - **State management**: PostgreSQL transactions
 
 ##### Payment Service
+
 - **Replicas**: 2-8 (HPA controlled)
 - **Critical service**: PCI compliance
 - **External APIs**: Stripe, PayPal integration
 
 #### 5. Services
+
 - **Type**: ClusterIP (internal)
 - **Port mapping**: Service port = container port
 - **Selector**: Label-based pod selection
 - **Session affinity**: None (stateless services)
 
 #### 6. Ingress
+
 - **Controller**: NGINX Ingress Controller
 - **TLS/SSL**: cert-manager with Let's Encrypt
 - **Path-based routing**: `/api/v1/{service}`
@@ -218,20 +232,20 @@ docker-compose down -v
 
 ```yaml
 Scaling Metrics:
-- CPU utilization: 70% target
-- Memory utilization: 80% target
+  - CPU utilization: 70% target
+  - Memory utilization: 80% target
 
 Scaling Behavior:
-- Scale up: Fast (100% increase or 2-3 pods per 30s)
-- Scale down: Slow (50% decrease per 60s, 5min stabilization)
+  - Scale up: Fast (100% increase or 2-3 pods per 30s)
+  - Scale down: Slow (50% decrease per 60s, 5min stabilization)
 ```
 
-| Service | Min | Max | Scale Up Policy | Scale Down Policy |
-|---------|-----|-----|-----------------|-------------------|
-| User | 2 | 10 | +100% or +2 pods/30s | -50%/60s |
-| Product | 3 | 15 | +100% or +3 pods/30s | -50%/60s |
-| Order | 2 | 10 | +100% or +2 pods/30s | -50%/60s |
-| Payment | 2 | 8 | +100% or +2 pods/30s | -50%/60s |
+| Service | Min | Max | Scale Up Policy      | Scale Down Policy |
+| ------- | --- | --- | -------------------- | ----------------- |
+| User    | 2   | 10  | +100% or +2 pods/30s | -50%/60s          |
+| Product | 3   | 15  | +100% or +3 pods/30s | -50%/60s          |
+| Order   | 2   | 10  | +100% or +2 pods/30s | -50%/60s          |
+| Payment | 2   | 8   | +100% or +2 pods/30s | -50%/60s          |
 
 ---
 
@@ -240,12 +254,14 @@ Scaling Behavior:
 ### Prometheus Stack
 
 #### Metrics Collection
+
 - **Service discovery**: Kubernetes pods and services
 - **Scrape interval**: 15s
 - **Retention**: 15 days
 - **Labels**: service, namespace, pod, environment
 
 #### Key Metrics
+
 - **Application metrics**: Request rate, latency, errors
 - **System metrics**: CPU, memory, disk, network
 - **Custom metrics**: Business KPIs, user actions
@@ -263,6 +279,7 @@ Scaling Behavior:
 ### Grafana Dashboards
 
 #### Pre-configured Dashboards
+
 1. **Service Overview**: All services health
 2. **User Service**: Auth, sessions, user metrics
 3. **Product Service**: Search, inventory, catalog
@@ -271,6 +288,7 @@ Scaling Behavior:
 6. **Infrastructure**: Kubernetes cluster metrics
 
 #### Access
+
 - **URL**: https://grafana.ecommerce.example.com
 - **Default creds**: admin/admin (change immediately)
 - **SSO**: Configure OAuth/SAML for production
@@ -278,6 +296,7 @@ Scaling Behavior:
 ### Distributed Tracing (Optional)
 
 #### Jaeger/Zipkin Integration
+
 - **Trace propagation**: W3C Trace Context
 - **Sampling**: 10% in production, 100% in dev
 - **Storage**: Elasticsearch backend
@@ -286,11 +305,13 @@ Scaling Behavior:
 ### Logging
 
 #### ELK Stack (Recommended)
+
 - **Elasticsearch**: Log storage
 - **Logstash/Fluentd**: Log aggregation
 - **Kibana**: Log visualization
 
 #### Log Structure
+
 ```json
 {
   "timestamp": "2025-10-22T12:00:00Z",
@@ -381,9 +402,10 @@ Scaling Behavior:
    - Cross-zone load balancing
 
 2. **Pod Disruption Budgets**
+
    ```yaml
-   minAvailable: 1  # For critical services
-   maxUnavailable: 1  # For non-critical
+   minAvailable: 1 # For critical services
+   maxUnavailable: 1 # For non-critical
    ```
 
 3. **Database HA**
@@ -578,6 +600,7 @@ kubectl logs <pod-name> -n ecommerce --previous
 ## Additional Resources
 
 ### Documentation
+
 - [Docker Documentation](https://docs.docker.com/)
 - [Kubernetes Documentation](https://kubernetes.io/docs/)
 - [NGINX Ingress Controller](https://kubernetes.github.io/ingress-nginx/)
@@ -585,6 +608,7 @@ kubectl logs <pod-name> -n ecommerce --previous
 - [Grafana Documentation](https://grafana.com/docs/)
 
 ### Tools
+
 - **kubectl**: Kubernetes CLI
 - **helm**: Kubernetes package manager
 - **k9s**: Kubernetes TUI
@@ -592,6 +616,7 @@ kubectl logs <pod-name> -n ecommerce --previous
 - **kubectx/kubens**: Context/namespace switching
 
 ### Best Practices
+
 - [12-Factor App](https://12factor.net/)
 - [Cloud Native Trail Map](https://github.com/cncf/trailmap)
 - [Kubernetes Best Practices](https://learnk8s.io/production-best-practices)
@@ -602,16 +627,19 @@ kubectl logs <pod-name> -n ecommerce --previous
 ## Support & Maintenance
 
 ### Monitoring Alerts
+
 - Set up PagerDuty/Opsgenie integration
 - Define on-call rotation
 - Document incident response procedures
 
 ### Regular Maintenance
+
 - **Weekly**: Review resource usage, check for updates
 - **Monthly**: Security patches, dependency updates
 - **Quarterly**: Disaster recovery drills, capacity planning
 
 ### Upgrades
+
 - **Kubernetes**: Minor version every 6 months
 - **Services**: CI/CD automated deployments
 - **Dependencies**: Security patches within 7 days

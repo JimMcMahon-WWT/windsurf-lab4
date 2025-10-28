@@ -19,15 +19,16 @@ This guide explains how to configure all required GitHub secrets for the CI/CD p
 
 ### Container Registry
 
-| Secret Name | Description | Example |
-|------------|-------------|---------|
-| `REGISTRY_URL` | Container registry URL | `ghcr.io/your-org` or `docker.io/username` |
-| `REGISTRY_USERNAME` | Registry username | `your-github-username` or Docker Hub username |
-| `REGISTRY_PASSWORD` | Registry password/token | GitHub PAT or Docker Hub access token |
+| Secret Name         | Description             | Example                                       |
+| ------------------- | ----------------------- | --------------------------------------------- |
+| `REGISTRY_URL`      | Container registry URL  | `ghcr.io/your-org` or `docker.io/username`    |
+| `REGISTRY_USERNAME` | Registry username       | `your-github-username` or Docker Hub username |
+| `REGISTRY_PASSWORD` | Registry password/token | GitHub PAT or Docker Hub access token         |
 
 **Setup Instructions:**
 
 **For GitHub Container Registry (ghcr.io):**
+
 ```bash
 # 1. Create Personal Access Token
 # Go to: Settings → Developer settings → Personal access tokens → Tokens (classic)
@@ -40,6 +41,7 @@ REGISTRY_PASSWORD: YOUR_GITHUB_PAT
 ```
 
 **For Docker Hub:**
+
 ```bash
 # 1. Create Access Token
 # Go to: Docker Hub → Account Settings → Security → New Access Token
@@ -52,15 +54,16 @@ REGISTRY_PASSWORD: YOUR_DOCKERHUB_ACCESS_TOKEN
 
 ### Database Configuration
 
-| Secret Name | Description | Example |
-|------------|-------------|---------|
-| `PROD_DB_HOST` | Production database hostname | `prod-db.example.com` |
-| `PROD_DB_PORT` | Production database port | `5432` |
-| `PROD_DB_NAME` | Production database name | `ecommerce_prod` |
-| `PROD_DB_USER` | Production database username | `app_user` |
-| `PROD_DB_PASSWORD` | Production database password | `<strong-password>` |
+| Secret Name        | Description                  | Example               |
+| ------------------ | ---------------------------- | --------------------- |
+| `PROD_DB_HOST`     | Production database hostname | `prod-db.example.com` |
+| `PROD_DB_PORT`     | Production database port     | `5432`                |
+| `PROD_DB_NAME`     | Production database name     | `ecommerce_prod`      |
+| `PROD_DB_USER`     | Production database username | `app_user`            |
+| `PROD_DB_PASSWORD` | Production database password | `<strong-password>`   |
 
 **Security Best Practices:**
+
 - Use read-only credentials for read operations
 - Use separate migration user with DDL permissions
 - Rotate passwords regularly
@@ -69,11 +72,12 @@ REGISTRY_PASSWORD: YOUR_DOCKERHUB_ACCESS_TOKEN
 
 ### Kubernetes Configuration
 
-| Secret Name | Description |
-|------------|-------------|
+| Secret Name   | Description                    |
+| ------------- | ------------------------------ |
 | `KUBE_CONFIG` | Base64-encoded kubeconfig file |
 
 **Setup Instructions:**
+
 ```bash
 # 1. Get your kubeconfig
 cat ~/.kube/config
@@ -87,6 +91,7 @@ cat ~/.kube/config | base64
 ```
 
 **Alternative (kubectl create secret):**
+
 ```bash
 kubectl create secret generic github-actions \
   --from-file=kubeconfig=$HOME/.kube/config \
@@ -95,13 +100,14 @@ kubectl create secret generic github-actions \
 
 ### Monitoring & Observability
 
-| Secret Name | Description | Example |
-|------------|-------------|---------|
-| `PROMETHEUS_URL` | Prometheus server URL | `https://prometheus.example.com` |
-| `GRAFANA_URL` | Grafana dashboard URL | `https://grafana.example.com` |
-| `GRAFANA_API_KEY` | Grafana API key for automation | `<api-key>` |
+| Secret Name       | Description                    | Example                          |
+| ----------------- | ------------------------------ | -------------------------------- |
+| `PROMETHEUS_URL`  | Prometheus server URL          | `https://prometheus.example.com` |
+| `GRAFANA_URL`     | Grafana dashboard URL          | `https://grafana.example.com`    |
+| `GRAFANA_API_KEY` | Grafana API key for automation | `<api-key>`                      |
 
 **Setup Prometheus:**
+
 ```bash
 # If using Prometheus Operator
 kubectl port-forward svc/prometheus-operated 9090:9090 -n monitoring
@@ -112,11 +118,12 @@ kubectl get svc prometheus-operated -n monitoring -o jsonpath='{.status.loadBala
 
 ### Notifications
 
-| Secret Name | Description |
-|------------|-------------|
+| Secret Name     | Description                         |
+| --------------- | ----------------------------------- |
 | `SLACK_WEBHOOK` | Slack webhook URL for notifications |
 
 **Setup Slack Webhook:**
+
 1. Go to https://api.slack.com/apps
 2. Create new app
 3. Enable Incoming Webhooks
@@ -126,26 +133,29 @@ kubectl get svc prometheus-operated -n monitoring -o jsonpath='{.status.loadBala
 7. Add to GitHub secrets
 
 **Webhook URL format:**
+
 ```
 https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX
 ```
 
 ### API Keys & Tokens
 
-| Secret Name | Description | Where to Get |
-|------------|-------------|--------------|
-| `PROD_API_KEY` | Production API key for testing | Your API management system |
-| `STAGING_API_KEY` | Staging API key for testing | Your API management system |
-| `SNYK_TOKEN` | Snyk security scanning | https://app.snyk.io/account |
-| `CODECOV_TOKEN` | Codecov upload token | https://codecov.io/gh/settings |
+| Secret Name       | Description                    | Where to Get                   |
+| ----------------- | ------------------------------ | ------------------------------ |
+| `PROD_API_KEY`    | Production API key for testing | Your API management system     |
+| `STAGING_API_KEY` | Staging API key for testing    | Your API management system     |
+| `SNYK_TOKEN`      | Snyk security scanning         | https://app.snyk.io/account    |
+| `CODECOV_TOKEN`   | Codecov upload token           | https://codecov.io/gh/settings |
 
 **Get Snyk Token:**
+
 1. Sign up at https://snyk.io
 2. Go to Account Settings
 3. Copy API token
 4. Add to GitHub secrets
 
 **Get Codecov Token:**
+
 1. Sign in to https://codecov.io
 2. Add repository
 3. Copy upload token
@@ -153,14 +163,15 @@ https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXXXXXXXXXX
 
 ### Backup Configuration
 
-| Secret Name | Description | Example |
-|------------|-------------|---------|
-| `BACKUP_S3_BUCKET` | S3 bucket for database backups | `prod-db-backups` |
-| `AWS_ACCESS_KEY_ID` | AWS access key | `AKIAIOSFODNN7EXAMPLE` |
-| `AWS_SECRET_ACCESS_KEY` | AWS secret key | `<secret-access-key>` |
-| `AWS_REGION` | AWS region | `us-east-1` |
+| Secret Name             | Description                    | Example                |
+| ----------------------- | ------------------------------ | ---------------------- |
+| `BACKUP_S3_BUCKET`      | S3 bucket for database backups | `prod-db-backups`      |
+| `AWS_ACCESS_KEY_ID`     | AWS access key                 | `AKIAIOSFODNN7EXAMPLE` |
+| `AWS_SECRET_ACCESS_KEY` | AWS secret key                 | `<secret-access-key>`  |
+| `AWS_REGION`            | AWS region                     | `us-east-1`            |
 
 **Setup AWS Backup:**
+
 ```bash
 # 1. Create IAM user for backups
 aws iam create-user --user-name github-actions-backup
@@ -234,6 +245,7 @@ STAGING_API_KEY
 Production requires all secrets listed above.
 
 **Checklist:**
+
 - [ ] Container Registry credentials
 - [ ] Production database credentials
 - [ ] Kubernetes configuration
@@ -301,6 +313,7 @@ snyk test
 ### Secret Rotation
 
 Rotate secrets regularly:
+
 - Database passwords: Every 90 days
 - API keys: Every 180 days
 - Access tokens: Every 90 days
@@ -317,6 +330,7 @@ Rotate secrets regularly:
 ### Monitoring
 
 Set up alerts for:
+
 - Failed authentication attempts
 - Unusual API usage patterns
 - Secret access outside business hours
@@ -327,6 +341,7 @@ Set up alerts for:
 ### Common Issues
 
 **Issue: Docker login fails**
+
 ```bash
 # Check credentials
 echo $REGISTRY_PASSWORD | docker login $REGISTRY_URL -u $REGISTRY_USERNAME --password-stdin
@@ -336,6 +351,7 @@ echo $REGISTRY_PASSWORD | docker login $REGISTRY_URL -u $REGISTRY_USERNAME --pas
 ```
 
 **Issue: Database connection refused**
+
 ```bash
 # Check firewall rules
 # Verify GitHub Actions IP ranges are whitelisted
@@ -343,6 +359,7 @@ echo $REGISTRY_PASSWORD | docker login $REGISTRY_URL -u $REGISTRY_USERNAME --pas
 ```
 
 **Issue: Kubeconfig invalid**
+
 ```bash
 # Verify base64 encoding
 echo $KUBE_CONFIG | base64 -d | kubectl --kubeconfig=/dev/stdin cluster-info
@@ -352,6 +369,7 @@ echo $KUBE_CONFIG | base64 -d | grep 'certificate-authority-data' | base64 -d | 
 ```
 
 **Issue: Snyk token invalid**
+
 ```bash
 # Regenerate token at https://app.snyk.io/account
 # Verify organization access
@@ -361,6 +379,7 @@ snyk config get api
 ## Environment-Specific Configuration
 
 ### Development
+
 ```bash
 # Minimal configuration
 - REGISTRY_URL
@@ -369,6 +388,7 @@ snyk config get api
 ```
 
 ### Staging
+
 ```bash
 # Full configuration except production database
 - All registry secrets
@@ -379,6 +399,7 @@ snyk config get api
 ```
 
 ### Production
+
 ```bash
 # Complete configuration
 - All secrets listed in this guide
@@ -391,6 +412,7 @@ snyk config get api
 ## Support
 
 For questions or issues:
+
 - Review GitHub Actions logs
 - Check secret expiry dates
 - Verify network connectivity

@@ -15,18 +15,16 @@ export const logger = winston.createLogger({
     new winston.transports.Console({
       format: winston.format.combine(
         winston.format.colorize(),
-        winston.format.printf(
-          ({ timestamp, level, message, ...metadata }) => {
-            let msg = `${timestamp} ${level}: ${message}`;
-            if (Object.keys(metadata).length > 0 && metadata.service) {
-              delete metadata.service;
-              if (Object.keys(metadata).length > 0) {
-                msg += ` ${JSON.stringify(metadata)}`;
-              }
+        winston.format.printf(({ timestamp, level, message, ...metadata }) => {
+          let msg = `${timestamp} ${level}: ${message}`;
+          if (Object.keys(metadata).length > 0 && metadata.service) {
+            delete metadata.service;
+            if (Object.keys(metadata).length > 0) {
+              msg += ` ${JSON.stringify(metadata)}`;
             }
-            return msg;
           }
-        )
+          return msg;
+        })
       ),
     }),
   ],

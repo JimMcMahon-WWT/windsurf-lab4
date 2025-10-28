@@ -20,25 +20,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run npm audit
         run: npm audit --audit-level=moderate --production
         continue-on-error: true
-      
+
       - name: Generate audit report
         run: |
           npm audit --json --production > npm-audit.json
           echo "Audit report generated"
-      
+
       - name: Upload audit report
         uses: actions/upload-artifact@v3
         with:
@@ -51,7 +51,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Run Snyk to check for vulnerabilities
         uses: snyk/actions/node@master
         continue-on-error: true
@@ -59,7 +59,7 @@ jobs:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
           args: --severity-threshold=high --all-projects
-      
+
       - name: Upload Snyk results to GitHub Code Scanning
         uses: github/codeql-action/upload-sarif@v2
         if: always()
@@ -79,20 +79,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Initialize CodeQL
         uses: github/codeql-action/init@v2
         with:
           languages: ${{ matrix.language }}
           queries: security-and-quality
-      
+
       - name: Autobuild
         uses: github/codeql-action/autobuild@v2
-      
+
       - name: Perform CodeQL Analysis
         uses: github/codeql-action/analyze@v2
         with:
-          category: "/language:${{ matrix.language }}"
+          category: '/language:${{ matrix.language }}'
 
   secret-scan:
     name: Secret Scanning
@@ -102,7 +102,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
+
       - name: TruffleHog OSS
         uses: trufflesecurity/trufflehog@main
         with:
@@ -125,12 +125,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Build Docker image
         run: |
           docker build -f services/${{ matrix.service }}/Dockerfile \
             -t ${{ matrix.service }}:test .
-      
+
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
@@ -138,20 +138,20 @@ jobs:
           format: 'sarif'
           output: 'trivy-results-${{ matrix.service }}.sarif'
           severity: 'CRITICAL,HIGH'
-      
+
       - name: Upload Trivy scan results
         uses: github/codeql-action/upload-sarif@v2
         if: always()
         with:
           sarif_file: 'trivy-results-${{ matrix.service }}.sarif'
-      
+
       - name: Run Grype vulnerability scanner
         uses: anchore/scan-action@v3
         with:
           image: '${{ matrix.service }}:test'
           fail-build: false
           severity-cutoff: high
-      
+
       - name: Upload Grype scan results
         uses: github/codeql-action/upload-sarif@v2
         if: always()
@@ -164,20 +164,20 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
-      
+
       - name: Install license-checker
         run: npm install -g license-checker
-      
+
       - name: Check licenses
         run: |
           license-checker --production --json > licenses.json
           license-checker --production --summary
-      
+
       - name: Check for restricted licenses
         run: |
           # Check for GPL, AGPL, and other restrictive licenses
@@ -186,7 +186,7 @@ jobs:
             exit 1
           fi
           echo "✅ No restricted licenses found"
-      
+
       - name: Upload license report
         uses: actions/upload-artifact@v3
         with:
@@ -196,12 +196,13 @@ jobs:
   security-report:
     name: Generate Security Report
     runs-on: ubuntu-latest
-    needs: [dependency-scan, snyk-scan, codeql-analysis, secret-scan, docker-security-scan, license-scan]
+    needs:
+      [dependency-scan, snyk-scan, codeql-analysis, secret-scan, docker-security-scan, license-scan]
     if: always()
     steps:
       - name: Download all artifacts
         uses: actions/download-artifact@v3
-      
+
       - name: Generate summary report
         run: |
           echo "# Security Scan Summary" > security-report.md
@@ -215,15 +216,15 @@ jobs:
           echo "- License Compliance: ${{ needs.license-scan.result }}" >> security-report.md
           echo "" >> security-report.md
           echo "Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> security-report.md
-          
+
           cat security-report.md
-      
+
       - name: Upload security report
         uses: actions/upload-artifact@v3
         with:
           name: security-report
           path: security-report.md
-      
+
       - name: Comment PR with security results
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6
@@ -231,14 +232,14 @@ jobs:
           script: |
             const fs = require('fs');
             const report = fs.readFileSync('security-report.md', 'utf8');
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: report
             });
-      
+
       - name: Notify on failure
         if: failure()
         uses: 8398a7/action-slack@v3

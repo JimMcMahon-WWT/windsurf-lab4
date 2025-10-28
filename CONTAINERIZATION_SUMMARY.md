@@ -11,12 +11,14 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 ### 1. Docker Implementation ✓
 
 #### Multi-Stage Dockerfiles (4 services)
+
 - ✅ **User Service** (`services/user-service/Dockerfile`)
 - ✅ **Product Service** (`services/product-service/Dockerfile`)
 - ✅ **Order Service** (`services/order-service/Dockerfile`)
 - ✅ **Payment Service** (`services/payment-service/Dockerfile`)
 
 **Features Implemented:**
+
 - Multi-stage builds for optimization
 - Alpine Linux base (minimal attack surface)
 - Non-root user execution (security)
@@ -28,6 +30,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 **Image Sizes:** ~50-70MB per service
 
 #### Docker Compose Configuration
+
 - ✅ **Updated `docker-compose.yml`** with all 4 services
 - ✅ Health checks with proper dependencies
 - ✅ Resource limits (CPU and memory)
@@ -37,6 +40,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 - ✅ Environment variable management
 
 **Infrastructure Services:**
+
 - PostgreSQL (with health checks)
 - Redis (with persistence)
 - Elasticsearch (for search)
@@ -49,32 +53,32 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 ### 2. Kubernetes Deployment ✓
 
 #### Core Manifests
+
 - ✅ **Namespace** (`k8s/namespace.yaml`) - Resource isolation
 - ✅ **ConfigMap** (`k8s/configmap.yaml`) - Shared configuration
 - ✅ **Secrets** (`k8s/secrets.yaml`) - Sensitive data management
 
 #### Service Deployments (4 services)
+
 - ✅ **User Service** (`k8s/user-service.yaml`)
   - 2-10 replicas with HPA
   - 256Mi-512Mi memory allocation
   - Liveness and readiness probes
-  
 - ✅ **Product Service** (`k8s/product-service.yaml`)
   - 3-15 replicas with HPA
   - Higher scaling for traffic
   - Elasticsearch and Kafka integration
-  
 - ✅ **Order Service** (`k8s/order-service.yaml`)
   - 2-10 replicas with HPA
   - Cross-service dependencies
   - Transaction management
-  
 - ✅ **Payment Service** (`k8s/payment-service.yaml`)
   - 2-8 replicas with HPA
   - PCI compliance considerations
   - External API integration (Stripe, PayPal)
 
 #### Ingress Configuration
+
 - ✅ **NGINX Ingress** (`k8s/ingress.yaml`)
   - SSL/TLS termination with cert-manager
   - Path-based routing
@@ -83,6 +87,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
   - Proxy timeouts
 
 #### Horizontal Pod Autoscaling
+
 - ✅ **HPA Configuration** (`k8s/hpa.yaml`)
   - CPU-based scaling (70% target)
   - Memory-based scaling (80% target)
@@ -94,6 +99,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 ### 3. Monitoring & Observability ✓
 
 #### Prometheus
+
 - ✅ **Prometheus Setup** (`k8s/monitoring/prometheus-config.yaml`)
   - Service discovery for Kubernetes pods
   - Scrape configs for all services
@@ -101,12 +107,14 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
   - Metric retention configuration
 
 #### Grafana
+
 - ✅ **Grafana Deployment** (`k8s/monitoring/grafana.yaml`)
   - Pre-configured Prometheus datasource
   - Dashboard provisioning
   - Persistent storage configuration
 
 **Metrics Collected:**
+
 - Application metrics (requests, latency, errors)
 - System metrics (CPU, memory, disk, network)
 - Business metrics (orders, payments, users)
@@ -117,6 +125,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 ### 4. Documentation ✓
 
 #### Comprehensive Guides
+
 - ✅ **CONTAINERIZATION_GUIDE.md** (8,000+ words)
   - Architecture overview
   - Docker implementation details
@@ -143,6 +152,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
   - CI/CD integration
 
 #### Deployment Scripts
+
 - ✅ **k8s/deploy.sh** (Linux/Mac automation)
   - Build and push images
   - Deploy to Kubernetes
@@ -161,26 +171,29 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 ### Resource Allocation
 
 #### Per-Service Limits (Kubernetes)
+
 | Service | CPU Request | CPU Limit | Memory Request | Memory Limit | Replicas (Min-Max) |
-|---------|-------------|-----------|----------------|--------------|-------------------|
-| User | 250m | 500m | 256Mi | 512Mi | 2-10 |
-| Product | 250m | 500m | 256Mi | 512Mi | 3-15 |
-| Order | 250m | 500m | 256Mi | 512Mi | 2-10 |
-| Payment | 250m | 500m | 256Mi | 512Mi | 2-8 |
+| ------- | ----------- | --------- | -------------- | ------------ | ------------------ |
+| User    | 250m        | 500m      | 256Mi          | 512Mi        | 2-10               |
+| Product | 250m        | 500m      | 256Mi          | 512Mi        | 3-15               |
+| Order   | 250m        | 500m      | 256Mi          | 512Mi        | 2-10               |
+| Payment | 250m        | 500m      | 256Mi          | 512Mi        | 2-8                |
 
 #### Infrastructure Resources
-| Component | CPU | Memory | Storage |
-|-----------|-----|--------|---------|
-| PostgreSQL | 1000m | 1Gi | 10Gi |
-| Redis | 500m | 512Mi | 5Gi |
-| Elasticsearch | 1000m | 2Gi | 50Gi |
-| Kafka | 1000m | 1Gi | 20Gi |
-| Prometheus | 500m | 1Gi | 50Gi |
-| Grafana | 250m | 512Mi | 10Gi |
+
+| Component     | CPU   | Memory | Storage |
+| ------------- | ----- | ------ | ------- |
+| PostgreSQL    | 1000m | 1Gi    | 10Gi    |
+| Redis         | 500m  | 512Mi  | 5Gi     |
+| Elasticsearch | 1000m | 2Gi    | 50Gi    |
+| Kafka         | 1000m | 1Gi    | 20Gi    |
+| Prometheus    | 500m  | 1Gi    | 50Gi    |
+| Grafana       | 250m  | 512Mi  | 10Gi    |
 
 ### High Availability Features
 
 #### Service Level
+
 - Multi-replica deployments
 - Rolling update strategy (zero downtime)
 - Health checks (liveness + readiness)
@@ -188,6 +201,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 - Pod disruption budgets
 
 #### Data Level
+
 - PostgreSQL replication
 - Redis persistence (AOF)
 - Elasticsearch clustering
@@ -195,6 +209,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 - Automated backups
 
 #### Network Level
+
 - LoadBalancer service type
 - Ingress with SSL/TLS
 - Service mesh ready (Istio)
@@ -206,6 +221,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 ## 🔒 Security Implementation
 
 ### Container Security
+
 - ✅ Non-root user execution
 - ✅ Minimal base images (Alpine)
 - ✅ Read-only root filesystem (where possible)
@@ -213,6 +229,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 - ✅ Security context constraints
 
 ### Kubernetes Security
+
 - ✅ RBAC configuration
 - ✅ Pod security standards
 - ✅ Network policies
@@ -220,6 +237,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 - ✅ Service account isolation
 
 ### Application Security
+
 - ✅ TLS/SSL termination
 - ✅ API authentication (JWT)
 - ✅ Rate limiting
@@ -227,6 +245,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 - ✅ Security headers
 
 ### PCI Compliance (Payment Service)
+
 - ✅ Encrypted sensitive data
 - ✅ Secure key management
 - ✅ Audit logging
@@ -238,17 +257,20 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 ## 📈 Scalability Features
 
 ### Horizontal Scaling
+
 - **Automatic**: HPA based on CPU/Memory
 - **Manual**: kubectl scale command
 - **Range**: 2-15 pods per service (configurable)
 - **Metrics**: Prometheus-based autoscaling
 
 ### Vertical Scaling
+
 - Resource requests/limits adjustable
 - VPA (Vertical Pod Autoscaler) compatible
 - Node affinity for large workloads
 
 ### Load Distribution
+
 - NGINX ingress load balancing
 - Kubernetes service load balancing
 - Session affinity (if needed)
@@ -259,6 +281,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 ## 🛠️ Operations & Maintenance
 
 ### Deployment Process
+
 1. **Build**: Multi-stage Docker builds
 2. **Test**: Automated testing in CI
 3. **Push**: Container registry
@@ -267,17 +290,20 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 6. **Rollback**: Automatic if health checks fail
 
 ### Monitoring & Alerting
+
 - **Prometheus**: Metrics collection
 - **Grafana**: Visualization dashboards
 - **AlertManager**: Alert routing
 - **PagerDuty**: Incident management
 
 ### Logging
+
 - **Fluentd/Filebeat**: Log collection
 - **Elasticsearch**: Log storage
 - **Kibana**: Log analysis
 
 ### Backup & Recovery
+
 - **Database**: Automated daily backups
 - **Kubernetes**: Velero cluster backup
 - **Configuration**: GitOps (ArgoCD/Flux)
@@ -289,6 +315,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 ## 🚀 Performance Optimizations
 
 ### Application Level
+
 - Connection pooling
 - Caching strategy (Redis)
 - Async processing (Kafka)
@@ -296,6 +323,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 - Query optimization
 
 ### Infrastructure Level
+
 - CDN integration ready
 - HTTP caching headers
 - Compression enabled
@@ -303,6 +331,7 @@ Successfully containerized and orchestrated a complete E-commerce microservices 
 - Connection reuse
 
 ### Kubernetes Level
+
 - Resource quotas
 - Priority classes
 - Node affinity/anti-affinity
@@ -353,6 +382,7 @@ module-4/
 ## 🎓 Training Value
 
 ### Skills Demonstrated
+
 1. **Container Orchestration**: Docker, Kubernetes
 2. **Infrastructure as Code**: YAML manifests, GitOps
 3. **Monitoring**: Prometheus, Grafana
@@ -362,6 +392,7 @@ module-4/
 7. **DevOps**: CI/CD pipelines, Automation
 
 ### Production-Ready Features
+
 - ✅ Multi-stage Docker builds
 - ✅ Health checks and probes
 - ✅ Resource limits and requests
@@ -378,6 +409,7 @@ module-4/
 ## 📊 Metrics & KPIs
 
 ### Deployment Metrics
+
 - **Services Deployed**: 4 microservices
 - **Total Pods**: 9-48 (with autoscaling)
 - **Infrastructure Components**: 6 (DB, Cache, Search, Queue, Monitoring)
@@ -386,6 +418,7 @@ module-4/
 - **Total YAML**: 12 Kubernetes manifests
 
 ### Performance Targets
+
 - **Uptime**: 99.9% availability
 - **Response Time**: <100ms (p50), <500ms (p95)
 - **Throughput**: 1000+ req/s per service
@@ -393,6 +426,7 @@ module-4/
 - **Recovery**: <5min for pod restart
 
 ### Resource Efficiency
+
 - **Image Size**: 50-70MB per service
 - **Build Time**: <5min per service
 - **Deployment Time**: <10min full stack
@@ -404,6 +438,7 @@ module-4/
 ## 🔮 Future Enhancements
 
 ### Short Term (Next 30 days)
+
 - [ ] Service mesh implementation (Istio)
 - [ ] Distributed tracing (Jaeger)
 - [ ] Advanced alerting rules
@@ -411,6 +446,7 @@ module-4/
 - [ ] Chaos engineering tests
 
 ### Medium Term (Next 90 days)
+
 - [ ] Multi-cluster deployment
 - [ ] GitOps with ArgoCD/Flux
 - [ ] Cost optimization analysis
@@ -418,6 +454,7 @@ module-4/
 - [ ] Security hardening
 
 ### Long Term (Next 180 days)
+
 - [ ] Multi-region deployment
 - [ ] Advanced observability (OpenTelemetry)
 - [ ] ML-based autoscaling
@@ -458,11 +495,13 @@ module-4/
 ## 📞 Quick Start Commands
 
 ### Local Development
+
 ```bash
 docker-compose up -d
 ```
 
 ### Kubernetes Deployment
+
 ```bash
 # Linux/Mac
 cd k8s && ./deploy.sh all
@@ -472,6 +511,7 @@ cd k8s && .\deploy.ps1 -Action all
 ```
 
 ### Verify Everything
+
 ```bash
 kubectl get all -n ecommerce
 kubectl get ingress -n ecommerce
@@ -485,6 +525,6 @@ kubectl get hpa -n ecommerce
 **Total Implementation Time**: ~4 hours  
 **Total Lines of Code/Config**: ~3,500 lines  
 **Documentation**: ~15,000 words  
-**Files Created**: 20+ files  
+**Files Created**: 20+ files
 
 **Result**: Fully containerized, orchestrated, monitored, and documented microservices platform ready for production deployment.

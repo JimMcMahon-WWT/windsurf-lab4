@@ -3,6 +3,7 @@
 ## ✅ Project Root Directory
 
 **Your monorepo root is:**
+
 ```
 c:\Users\mcmahonj\CascadeProjects\module 4\
 ```
@@ -96,6 +97,7 @@ npm install
 ```
 
 **Expected output:**
+
 ```
 added 250+ packages, and audited 251 packages in 45s
 ```
@@ -111,6 +113,7 @@ notepad .env
 ```
 
 **Minimum required values:**
+
 ```bash
 NODE_ENV=development
 POSTGRES_PASSWORD=postgres
@@ -156,6 +159,7 @@ Get-ChildItem -Directory | Select-Object Name
 ```
 
 **You should see:**
+
 ```
 Name
 ----
@@ -185,11 +189,13 @@ Run through this checklist:
 ## 📝 Quick Reference
 
 **Always run commands from:**
+
 ```powershell
 cd "c:\Users\mcmahonj\CascadeProjects\module 4"
 ```
 
 **Common commands:**
+
 ```powershell
 # Development
 npm run dev                    # Start all services
@@ -219,7 +225,7 @@ When you complete the steps above, you'll have:
 ✅ Dependencies installed  
 ✅ Environment variables configured  
 ✅ Workspace directories created  
-✅ Ready to build your first service  
+✅ Ready to build your first service
 
 ---
 

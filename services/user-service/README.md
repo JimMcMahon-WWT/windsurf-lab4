@@ -50,6 +50,7 @@ notepad .env
 ```
 
 Required variables:
+
 ```
 PORT=3001
 POSTGRES_HOST=localhost
@@ -86,6 +87,7 @@ npm start
 ### Manual Testing with curl
 
 **Register a user:**
+
 ```bash
 curl -X POST http://localhost:3001/api/auth/register \
   -H "Content-Type: application/json" \
@@ -98,6 +100,7 @@ curl -X POST http://localhost:3001/api/auth/register \
 ```
 
 **Login:**
+
 ```bash
 curl -X POST http://localhost:3001/api/auth/login \
   -H "Content-Type: application/json" \
@@ -108,6 +111,7 @@ curl -X POST http://localhost:3001/api/auth/login \
 ```
 
 **Get profile (with token):**
+
 ```bash
 curl -X GET http://localhost:3001/api/users/profile \
   -H "Authorization: Bearer YOUR_JWT_TOKEN"
@@ -151,20 +155,20 @@ user-service/
 
 ## Environment Variables
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `NODE_ENV` | Environment (development/production) | development |
-| `PORT` | Service port | 3001 |
-| `POSTGRES_HOST` | PostgreSQL host | localhost |
-| `POSTGRES_PORT` | PostgreSQL port | 5432 |
-| `POSTGRES_USER` | PostgreSQL user | postgres |
-| `POSTGRES_PASSWORD` | PostgreSQL password | postgres |
-| `POSTGRES_DB` | Database name | user_db |
-| `JWT_SECRET` | JWT secret key | (required) |
-| `JWT_EXPIRY` | JWT expiry time | 15m |
-| `REFRESH_TOKEN_EXPIRY` | Refresh token expiry | 7d |
-| `BCRYPT_ROUNDS` | Bcrypt hashing rounds | 12 |
-| `LOG_LEVEL` | Logging level | debug |
+| Variable               | Description                          | Default     |
+| ---------------------- | ------------------------------------ | ----------- |
+| `NODE_ENV`             | Environment (development/production) | development |
+| `PORT`                 | Service port                         | 3001        |
+| `POSTGRES_HOST`        | PostgreSQL host                      | localhost   |
+| `POSTGRES_PORT`        | PostgreSQL port                      | 5432        |
+| `POSTGRES_USER`        | PostgreSQL user                      | postgres    |
+| `POSTGRES_PASSWORD`    | PostgreSQL password                  | postgres    |
+| `POSTGRES_DB`          | Database name                        | user_db     |
+| `JWT_SECRET`           | JWT secret key                       | (required)  |
+| `JWT_EXPIRY`           | JWT expiry time                      | 15m         |
+| `REFRESH_TOKEN_EXPIRY` | Refresh token expiry                 | 7d          |
+| `BCRYPT_ROUNDS`        | Bcrypt hashing rounds                | 12          |
+| `LOG_LEVEL`            | Logging level                        | debug       |
 
 ## Technologies
 

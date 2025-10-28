@@ -5,16 +5,19 @@ Quick reference for testing the Product Service API.
 ## 🚀 Quick Start
 
 ### 1. Start the Service
+
 ```powershell
 npm run dev
 ```
 
 ### 2. Seed Test Data
+
 ```powershell
 .\scripts\seed-data.ps1
 ```
 
 ### 3. Test Inventory Reservations
+
 ```powershell
 .\scripts\test-inventory.ps1
 ```
@@ -24,6 +27,7 @@ npm run dev
 ## 📋 Manual API Testing
 
 ### Health Check
+
 ```powershell
 curl http://localhost:3002/api/v1/health
 ```
@@ -31,26 +35,31 @@ curl http://localhost:3002/api/v1/health
 ### Products
 
 #### Get All Products
+
 ```powershell
 curl http://localhost:3002/api/v1/products
 ```
 
 #### Get Featured Products
+
 ```powershell
 curl http://localhost:3002/api/v1/products/featured
 ```
 
 #### Get Product by ID
+
 ```powershell
 curl http://localhost:3002/api/v1/products/{product_id}
 ```
 
 #### Get Product by Slug
+
 ```powershell
 curl http://localhost:3002/api/v1/products/slug/macbook-pro-14
 ```
 
 #### Search Products
+
 ```powershell
 # Basic search
 curl "http://localhost:3002/api/v1/products/search?query=laptop"
@@ -65,16 +74,19 @@ curl "http://localhost:3002/api/v1/products/search?query=laptop&sort_by=price_as
 ### Categories
 
 #### Get All Categories
+
 ```powershell
 curl http://localhost:3002/api/v1/categories
 ```
 
 #### Get Category Tree (Hierarchical)
+
 ```powershell
 curl http://localhost:3002/api/v1/categories/tree
 ```
 
 #### Get Category by Slug
+
 ```powershell
 curl http://localhost:3002/api/v1/categories/slug/electronics
 ```
@@ -82,11 +94,13 @@ curl http://localhost:3002/api/v1/categories/slug/electronics
 ### Inventory
 
 #### Get Product Inventory
+
 ```powershell
 curl "http://localhost:3002/api/v1/inventory?product_id={product_id}"
 ```
 
 #### Reserve Inventory (Simulated Order)
+
 ```powershell
 $body = @{
     product_id = "your-product-id"
@@ -102,6 +116,7 @@ Invoke-RestMethod -Uri "http://localhost:3002/api/v1/inventory/reserve" `
 ```
 
 #### Complete Reservation (Payment Success)
+
 ```powershell
 Invoke-RestMethod -Uri "http://localhost:3002/api/v1/inventory/reservations/{reservation_id}/complete" `
     -Method Post `
@@ -109,6 +124,7 @@ Invoke-RestMethod -Uri "http://localhost:3002/api/v1/inventory/reservations/{res
 ```
 
 #### Release Reservation (Order Cancelled)
+
 ```powershell
 Invoke-RestMethod -Uri "http://localhost:3002/api/v1/inventory/reservations/{reservation_id}/release" `
     -Method Post `
@@ -116,6 +132,7 @@ Invoke-RestMethod -Uri "http://localhost:3002/api/v1/inventory/reservations/{res
 ```
 
 #### Get Low Stock Items
+
 ```powershell
 curl http://localhost:3002/api/v1/inventory/low-stock
 ```
@@ -127,21 +144,25 @@ curl http://localhost:3002/api/v1/inventory/low-stock
 ### Scenario 1: Complete Purchase Flow
 
 1. **Browse Products**
+
 ```powershell
 curl http://localhost:3002/api/v1/products/featured
 ```
 
 2. **View Product Details**
+
 ```powershell
 curl http://localhost:3002/api/v1/products/{product_id}
 ```
 
 3. **Check Inventory**
+
 ```powershell
 curl "http://localhost:3002/api/v1/inventory?product_id={product_id}"
 ```
 
 4. **Reserve Inventory (Add to Cart)**
+
 ```powershell
 $reservation = Invoke-RestMethod -Uri "http://localhost:3002/api/v1/inventory/reserve" `
     -Method Post `
@@ -155,6 +176,7 @@ $reservation = Invoke-RestMethod -Uri "http://localhost:3002/api/v1/inventory/re
 ```
 
 5. **Complete Purchase**
+
 ```powershell
 Invoke-RestMethod -Uri "http://localhost:3002/api/v1/inventory/reservations/$($reservation.id)/complete" `
     -Method Post `
@@ -183,18 +205,23 @@ curl "http://localhost:3002/api/v1/products?category_id={category_id}"
 ## 📊 Expected Results
 
 ### After Seeding Data
+
 - **5 categories** (Electronics, Laptops, Smartphones, Clothing, Men's Clothing)
 - **5 products** (MacBook Pro, Dell XPS, iPhone, Samsung, T-Shirt)
 - **Inventory** for all products
 
 ### Featured Products
+
 Should return products with `is_featured: true`:
+
 - MacBook Pro 14
 - Dell XPS 15
 - iPhone 15 Pro
 
 ### Products on Sale
+
 Should return products with `sale_price < price`:
+
 - Dell XPS 15 ($1,799 → $1,599)
 - Samsung Galaxy S24 ($899 → $799)
 
@@ -203,13 +230,16 @@ Should return products with `sale_price < price`:
 ## 🔍 Troubleshooting
 
 ### No Products Returned
+
 - Run the seed script: `.\scripts\seed-data.ps1`
 
 ### Inventory Reservation Fails
+
 - Check that product has available inventory
 - Verify product_id is correct UUID format
 
 ### Search Returns Nothing
+
 - Elasticsearch is optional - basic search uses database
 - For advanced search, start Elasticsearch: `docker-compose up -d elasticsearch`
 

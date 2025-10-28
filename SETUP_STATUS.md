@@ -11,17 +11,17 @@ All root configuration files have been created in your project directory:
 
 ### Core Configuration (9 files)
 
-| File | Status | Purpose |
-|------|--------|---------|
-| `.editorconfig` | ✅ Created | Editor consistency across team |
-| `.env.example` | ✅ Created | Environment variables template |
-| `.eslintrc.js` | ✅ Created | Code linting rules |
-| `.gitignore` | ✅ Created | Git ignore patterns |
-| `.prettierrc` | ✅ Created | Code formatting rules |
-| `.prettierignore` | ✅ Created | Prettier exclusions |
-| `package.json` | ✅ Created | Root dependencies & workspaces |
-| `tsconfig.json` | ✅ Created | TypeScript configuration |
-| `turbo.json` | ✅ Created | Build orchestration |
+| File              | Status     | Purpose                        |
+| ----------------- | ---------- | ------------------------------ |
+| `.editorconfig`   | ✅ Created | Editor consistency across team |
+| `.env.example`    | ✅ Created | Environment variables template |
+| `.eslintrc.js`    | ✅ Created | Code linting rules             |
+| `.gitignore`      | ✅ Created | Git ignore patterns            |
+| `.prettierrc`     | ✅ Created | Code formatting rules          |
+| `.prettierignore` | ✅ Created | Prettier exclusions            |
+| `package.json`    | ✅ Created | Root dependencies & workspaces |
+| `tsconfig.json`   | ✅ Created | TypeScript configuration       |
+| `turbo.json`      | ✅ Created | Build orchestration            |
 
 ---
 
@@ -35,12 +35,14 @@ npm install
 ```
 
 This will install:
+
 - Turbo (build system)
 - TypeScript compiler
 - ESLint & Prettier
 - All development tools
 
 **Expected output:**
+
 ```
 added 250+ packages in ~30s
 ```
@@ -56,6 +58,7 @@ notepad .env
 ```
 
 **Minimum required values for local development:**
+
 ```bash
 NODE_ENV=development
 POSTGRES_PASSWORD=postgres
@@ -101,46 +104,55 @@ All commands should return version numbers without errors.
 ## 🔍 What Each File Does
 
 ### package.json
+
 - **Defines npm workspaces** for monorepo structure
 - **Lists all scripts** (dev, build, test, lint)
 - **Manages dependencies** for the entire project
 
 ### turbo.json
+
 - **Configures build pipeline** for efficient rebuilds
 - **Enables caching** to speed up repeated builds
 - **Defines task dependencies** (build before test, etc.)
 
 ### tsconfig.json
+
 - **Sets TypeScript options** for the entire monorepo
 - **Enables strict mode** for better type safety
 - **Other configs extend this** for consistency
 
 ### .eslintrc.js
+
 - **Catches code errors** before runtime
 - **Enforces code style** rules
 - **Auto-fixable** with `npm run lint:fix`
 
 ### .prettierrc
+
 - **Formats code automatically** on save
 - **Ensures consistent style** across team
 - **Integrates with editors** (VS Code, etc.)
 
 ### .gitignore
+
 - **Excludes node_modules** from version control
 - **Protects secrets** (.env files never committed)
 - **Ignores build artifacts** (dist, build folders)
 
 ### .env.example
+
 - **Documents required env variables**
 - **Safe to commit** (no actual secrets)
 - **Template for .env** file
 
 ### .editorconfig
+
 - **Sets editor preferences** (spaces vs tabs, line endings)
 - **Works across all editors** (VS Code, IntelliJ, etc.)
 - **Prevents formatting conflicts**
 
 ### .prettierignore
+
 - **Tells Prettier what to skip**
 - **Excludes generated files** and lock files
 - **Prevents formatting minified code**
@@ -176,14 +188,14 @@ npm run type-check    # Should fail (no source files yet)
 
 ## 🚦 Status Indicators
 
-| Task | Status |
-|------|--------|
-| Configuration files created | ✅ Done |
-| Dependencies installed | ⏳ Next: Run `npm install` |
-| .env file created | ⏳ Next: Run `copy .env.example .env` |
-| Workspace folders created | ⏳ Next: Create folders |
-| First service created | ⏳ Later |
-| Infrastructure running | ⏳ Later |
+| Task                        | Status                                |
+| --------------------------- | ------------------------------------- |
+| Configuration files created | ✅ Done                               |
+| Dependencies installed      | ⏳ Next: Run `npm install`            |
+| .env file created           | ⏳ Next: Run `copy .env.example .env` |
+| Workspace folders created   | ⏳ Next: Create folders               |
+| First service created       | ⏳ Later                              |
+| Infrastructure running      | ⏳ Later                              |
 
 ---
 

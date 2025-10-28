@@ -18,7 +18,7 @@ This document describes the comprehensive CI/CD pipeline for the E-Commerce Micr
 ### Branching Strategy
 
 - **`develop`** - Development branch, deployed to dev environment
-- **`staging`** - Staging branch, deployed to staging environment  
+- **`staging`** - Staging branch, deployed to staging environment
 - **`main`** - Production branch, deployed using blue-green deployment
 
 ### Environment Progression
@@ -40,12 +40,14 @@ Runs on every push and pull request to `develop`, `staging`, and `main` branches
 #### Stages:
 
 **a) Code Quality Checks**
+
 - ESLint code linting
 - TypeScript type checking
 - Code formatting validation
 - Runs in parallel for all services
 
 **b) Security Scanning**
+
 - NPM audit for dependency vulnerabilities
 - Snyk security scan
 - CodeQL static analysis
@@ -54,24 +56,28 @@ Runs on every push and pull request to `develop`, `staging`, and `main` branches
 - License compliance checking
 
 **c) Unit Tests**
+
 - Parallel execution across all microservices
 - Code coverage collection (80% threshold)
 - Coverage reports uploaded to Codecov
 - Matrix strategy for efficient testing
 
 **d) Integration Tests**
+
 - Spins up PostgreSQL and Redis services
 - Runs database migrations
 - Tests service interactions
 - Validates API contracts
 
 **e) Build Verification**
+
 - Builds all services
 - Validates TypeScript compilation
 - Checks build artifacts
 - Uploads artifacts for deployment
 
 **f) End-to-End Tests (Staging Only)**
+
 - Full user journey testing
 - API integration validation
 - Performance baseline checks
@@ -101,47 +107,55 @@ Implements zero-downtime blue-green deployment with canary analysis.
 #### Deployment Phases:
 
 **Phase 1: Pre-Deployment Checks**
+
 - Version validation
 - Staging environment verification
 - Approval gate for production
 
 **Phase 2: Build & Scan**
+
 - Multi-arch Docker image builds
 - Push to container registry
 - Vulnerability scanning
 - Image signing
 
 **Phase 3: Database Migration**
+
 - Automated database backup to S3
 - Migration with rollback SQL generation
 - Post-migration validation
 - Integrity checks
 
 **Phase 4: Green Environment Deployment**
+
 - Deploy new version to "green" environment
 - Scale up green pods
 - Wait for readiness probes
 - Internal health checks
 
 **Phase 5: Health Verification**
+
 - Comprehensive health checks
 - Smoke test execution
 - Performance baseline comparison
 - Database connectivity validation
 
 **Phase 6: Canary Deployment**
+
 - Route 10% traffic to green
 - Monitor error rates and latency
 - Gradually increase: 10% → 25% → 50% → 75% → 100%
 - Automatic rollback on threshold violations
 
 **Phase 7: Traffic Switch**
+
 - Manual approval gate
 - Complete traffic cutover
 - Label swap (green becomes blue)
 - Scale down old blue environment
 
 **Phase 8: Post-Deployment Validation**
+
 - Full production test suite
 - Error rate monitoring
 - Latency checks (P95, P99)
@@ -149,6 +163,7 @@ Implements zero-downtime blue-green deployment with canary analysis.
 - Deployment record creation
 
 **Phase 9: Cleanup**
+
 - Keep old blue for 24 hours
 - Scheduled cleanup job
 - Release old resources
@@ -174,6 +189,7 @@ The pipeline implements blue-green deployment for zero-downtime releases:
 ```
 
 **Benefits:**
+
 - Zero downtime during deployment
 - Instant rollback capability
 - Full environment validation before traffic switch
@@ -190,12 +206,14 @@ Traffic is gradually shifted to validate the new deployment:
 5. **100%** - Complete cutover
 
 **Monitored Metrics:**
+
 - Error rate (threshold: < 1%)
 - P95 latency (threshold: < 500ms)
 - Request rate
 - Database connection health
 
 **Automatic Rollback Triggers:**
+
 - Error rate exceeds 1%
 - P95 latency exceeds 500ms
 - 3 consecutive metric violations
@@ -206,6 +224,7 @@ Traffic is gradually shifted to validate the new deployment:
 ### Required GitHub Secrets
 
 #### Container Registry
+
 ```
 REGISTRY_URL          # Docker registry URL (e.g., ghcr.io, docker.io)
 REGISTRY_USERNAME     # Registry username
@@ -213,6 +232,7 @@ REGISTRY_PASSWORD     # Registry password/token
 ```
 
 #### Database (Production)
+
 ```
 PROD_DB_HOST         # Production database host
 PROD_DB_PORT         # Production database port
@@ -222,22 +242,26 @@ PROD_DB_PASSWORD     # Production database password
 ```
 
 #### Kubernetes
+
 ```
 KUBE_CONFIG          # Base64-encoded kubeconfig file
 ```
 
 #### Monitoring
+
 ```
 PROMETHEUS_URL       # Prometheus server URL
 GRAFANA_URL          # Grafana dashboard URL
 ```
 
 #### Notifications
+
 ```
 SLACK_WEBHOOK        # Slack webhook for notifications
 ```
 
 #### API Keys
+
 ```
 PROD_API_KEY         # Production API key for testing
 STAGING_API_KEY      # Staging API key for testing
@@ -246,6 +270,7 @@ CODECOV_TOKEN       # Codecov upload token
 ```
 
 #### Backups
+
 ```
 BACKUP_S3_BUCKET    # S3 bucket for database backups
 AWS_ACCESS_KEY_ID   # AWS access key
@@ -255,12 +280,14 @@ AWS_SECRET_ACCESS_KEY # AWS secret key
 ### Environment Variables
 
 **CI Workflow:**
+
 ```yaml
 NODE_VERSION: '18'
 COVERAGE_THRESHOLD: 80
 ```
 
 **Production Deployment:**
+
 ```yaml
 DEPLOYMENT_STRATEGY: 'blue-green'
 HEALTH_CHECK_TIMEOUT: 300
@@ -273,18 +300,21 @@ CANARY_INITIAL_PERCENTAGE: 10
 ### Deploying to Development
 
 Push to `develop` branch:
+
 ```bash
 git checkout develop
 git push origin develop
 ```
 
 Automatically triggers:
+
 - CI pipeline
 - Deployment to dev environment
 
 ### Deploying to Staging
 
 Create PR from `develop` to `staging`:
+
 ```bash
 git checkout staging
 git merge develop
@@ -292,6 +322,7 @@ git push origin staging
 ```
 
 Triggers:
+
 - Full CI pipeline
 - E2E tests
 - Deployment to staging
@@ -299,6 +330,7 @@ Triggers:
 ### Deploying to Production
 
 **Option 1: Tag-based Release**
+
 ```bash
 git checkout main
 git tag -a v1.2.3 -m "Release v1.2.3"
@@ -306,6 +338,7 @@ git push origin v1.2.3
 ```
 
 **Option 2: Manual Workflow Dispatch**
+
 1. Go to Actions tab in GitHub
 2. Select "Deploy to Production"
 3. Click "Run workflow"
@@ -338,12 +371,14 @@ kubectl get pods -n production -l environment=blue
 ### Health Checks
 
 All services expose health endpoints:
+
 ```
 GET /health
 GET /metrics
 ```
 
 Health check script validates:
+
 - HTTP 200 response
 - Service status: "healthy"
 - Database connectivity
@@ -353,6 +388,7 @@ Health check script validates:
 ### Performance Monitoring
 
 Performance checks compare against baselines:
+
 - Request rate (RPS)
 - Success rate (%)
 - Latency percentiles (P50, P95, P99)
@@ -363,6 +399,7 @@ Baselines stored in: `./performance-baselines/`
 ### Canary Monitoring
 
 Real-time monitoring during canary deployment:
+
 ```
 Metrics Checked:
 - Error Rate < 1%
@@ -382,6 +419,7 @@ Failure Threshold: 3 consecutive violations
 **Symptom:** TypeScript compilation errors
 
 **Solution:**
+
 ```bash
 # Run type check locally
 npm run type-check
@@ -395,6 +433,7 @@ npm run lint:fix
 **Symptom:** Unit tests failing in CI
 
 **Solution:**
+
 ```bash
 # Run tests locally with same environment
 npm run test:unit
@@ -408,6 +447,7 @@ npm run test:coverage
 **Symptom:** Database migration fails during deployment
 
 **Solution:**
+
 ```bash
 # Test migration locally
 DRY_RUN=true node scripts/migrate-production.js
@@ -421,6 +461,7 @@ kubectl logs -n production job/migration-job
 **Symptom:** Green environment fails health checks
 
 **Solution:**
+
 ```bash
 # Check pod logs
 kubectl logs -n production -l environment=green
@@ -437,6 +478,7 @@ kubectl exec -it pod-name -n production -- env | grep DB_
 **Symptom:** Automatic rollback triggered
 
 **Actions:**
+
 1. Check Prometheus metrics for error spikes
 2. Review application logs
 3. Verify database migration success
@@ -448,6 +490,7 @@ kubectl exec -it pod-name -n production -- env | grep DB_
 **Symptom:** TruffleHog reports false positives
 
 **Solution:**
+
 ```bash
 # Add to .trufflehogignore
 echo "path/to/false/positive" >> .trufflehogignore
@@ -456,6 +499,7 @@ echo "path/to/false/positive" >> .trufflehogignore
 ### Debug Commands
 
 **View workflow logs:**
+
 ```bash
 # Using GitHub CLI
 gh run list
@@ -463,6 +507,7 @@ gh run view <run-id> --log
 ```
 
 **Check deployment status:**
+
 ```bash
 kubectl get deployments -n production
 kubectl get pods -n production
@@ -470,12 +515,14 @@ kubectl describe deployment user-service-green -n production
 ```
 
 **View metrics:**
+
 ```bash
 # Prometheus query
 curl "http://prometheus:9090/api/v1/query?query=http_requests_total"
 ```
 
 **Check recent migrations:**
+
 ```bash
 psql -h $DB_HOST -U $DB_USER -d $DB_NAME \
   -c "SELECT * FROM schema_migrations ORDER BY applied_at DESC LIMIT 10;"
@@ -509,6 +556,7 @@ Track these metrics for continuous improvement:
 ## Support
 
 For issues or questions:
+
 - Create an issue in GitHub
 - Contact DevOps team on Slack: #devops-support
 - Review runbooks: `./docs/runbooks/`

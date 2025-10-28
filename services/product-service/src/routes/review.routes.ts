@@ -14,29 +14,13 @@ router.get('/products/:product_id/distribution', reviewController.getRatingDistr
 // Protected routes - require authentication
 router.get('/me', authenticate, reviewController.getUserReviews);
 
-router.post(
-  '/',
-  authenticate,
-  validate(createReviewSchema),
-  reviewController.createReview
-);
+router.post('/', authenticate, validate(createReviewSchema), reviewController.createReview);
 
-router.put(
-  '/:id',
-  authenticate,
-  reviewController.updateReview
-);
+router.put('/:id', authenticate, reviewController.updateReview);
 
-router.delete(
-  '/:id',
-  authenticate,
-  reviewController.deleteReview
-);
+router.delete('/:id', authenticate, reviewController.deleteReview);
 
-router.post(
-  '/:id/helpful',
-  reviewController.markHelpful
-);
+router.post('/:id/helpful', reviewController.markHelpful);
 
 router.post(
   '/:id/merchant-response',

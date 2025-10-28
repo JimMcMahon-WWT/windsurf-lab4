@@ -1,32 +1,28 @@
 import { pool } from '../config/database.config';
-import { 
-  Inventory, 
-  InventoryReservation, 
-  InventoryHistory, 
+import {
+  Inventory,
+  InventoryReservation,
+  InventoryHistory,
   InventoryChangeType,
-  ReservationStatus 
+  ReservationStatus,
 } from '../types/product.types';
 
 export class InventoryRepository {
   // ==================== INVENTORY MANAGEMENT ====================
-  
+
   async findByProductId(productId: string): Promise<Inventory | null> {
-    const result = await pool.query(
-      'SELECT * FROM inventory WHERE product_id = $1',
-      [productId]
-    );
+    const result = await pool.query('SELECT * FROM inventory WHERE product_id = $1', [productId]);
     return result.rows[0] || null;
   }
 
   async findByVariantId(variantId: string): Promise<Inventory | null> {
-    const result = await pool.query(
-      'SELECT * FROM inventory WHERE variant_id = $1',
-      [variantId]
-    );
+    const result = await pool.query('SELECT * FROM inventory WHERE variant_id = $1', [variantId]);
     return result.rows[0] || null;
   }
 
-  async create(data: Omit<Inventory, 'id' | 'available_quantity' | 'created_at' | 'updated_at'>): Promise<Inventory> {
+  async create(
+    data: Omit<Inventory, 'id' | 'available_quantity' | 'created_at' | 'updated_at'>
+  ): Promise<Inventory> {
     const result = await pool.query(
       `INSERT INTO inventory (
         product_id, variant_id, quantity, reserved_quantity,
@@ -57,15 +53,14 @@ export class InventoryRepository {
     reason?: string
   ): Promise<Inventory> {
     const client = await pool.connect();
-    
+
     try {
       await client.query('BEGIN');
 
       // Get current inventory
-      const currentResult = await client.query(
-        'SELECT * FROM inventory WHERE id = $1 FOR UPDATE',
-        [id]
-      );
+      const currentResult = await client.query('SELECT * FROM inventory WHERE id = $1 FOR UPDATE', [
+        id,
+      ]);
       const current = currentResult.rows[0];
 
       if (!current) {
@@ -118,7 +113,12 @@ export class InventoryRepository {
     }
   }
 
-  async adjustQuantity(id: string, newQuantity: number, userId?: string, reason?: string): Promise<Inventory> {
+  async adjustQuantity(
+    id: string,
+    newQuantity: number,
+    userId?: string,
+    reason?: string
+  ): Promise<Inventory> {
     const current = await this.findById(id);
     if (!current) {
       throw new Error('Inventory not found');
@@ -134,10 +134,10 @@ export class InventoryRepository {
   }
 
   async findLowStockItems(threshold?: number): Promise<Inventory[]> {
-    const query = threshold 
+    const query = threshold
       ? 'SELECT * FROM inventory WHERE available_quantity <= $1'
       : 'SELECT * FROM inventory WHERE available_quantity <= low_stock_threshold';
-    
+
     const params = threshold ? [threshold] : [];
     const result = await pool.query(query, params);
     return result.rows;
@@ -154,7 +154,7 @@ export class InventoryRepository {
     ttl_seconds?: number;
   }): Promise<InventoryReservation> {
     const client = await pool.connect();
-    
+
     try {
       await client.query('BEGIN');
 
@@ -162,11 +162,10 @@ export class InventoryRepository {
       const inventoryQuery = data.product_id
         ? 'SELECT * FROM inventory WHERE product_id = $1 FOR UPDATE'
         : 'SELECT * FROM inventory WHERE variant_id = $1 FOR UPDATE';
-      
-      const inventoryResult = await client.query(
-        inventoryQuery,
-        [data.product_id || data.variant_id]
-      );
+
+      const inventoryResult = await client.query(inventoryQuery, [
+        data.product_id || data.variant_id,
+      ]);
       const inventory = inventoryResult.rows[0];
 
       if (!inventory) {
@@ -234,7 +233,7 @@ export class InventoryRepository {
 
   async completeReservation(reservationId: string): Promise<void> {
     const client = await pool.connect();
-    
+
     try {
       await client.query('BEGIN');
 
@@ -247,11 +246,10 @@ export class InventoryRepository {
       const inventoryQuery = reservation.product_id
         ? 'SELECT * FROM inventory WHERE product_id = $1 FOR UPDATE'
         : 'SELECT * FROM inventory WHERE variant_id = $1 FOR UPDATE';
-      
-      const inventoryResult = await client.query(
-        inventoryQuery,
-        [reservation.product_id || reservation.variant_id]
-      );
+
+      const inventoryResult = await client.query(inventoryQuery, [
+        reservation.product_id || reservation.variant_id,
+      ]);
       const inventory = inventoryResult.rows[0];
 
       await client.query(
@@ -300,7 +298,7 @@ export class InventoryRepository {
 
   async releaseReservation(reservationId: string): Promise<void> {
     const client = await pool.connect();
-    
+
     try {
       await client.query('BEGIN');
 
@@ -313,11 +311,11 @@ export class InventoryRepository {
       const inventoryQuery = reservation.product_id
         ? 'UPDATE inventory SET reserved_quantity = reserved_quantity - $1 WHERE product_id = $2'
         : 'UPDATE inventory SET reserved_quantity = reserved_quantity - $1 WHERE variant_id = $2';
-      
-      await client.query(
-        inventoryQuery,
-        [reservation.quantity, reservation.product_id || reservation.variant_id]
-      );
+
+      await client.query(inventoryQuery, [
+        reservation.quantity,
+        reservation.product_id || reservation.variant_id,
+      ]);
 
       // Mark reservation as cancelled
       await client.query(
@@ -337,10 +335,7 @@ export class InventoryRepository {
   }
 
   async findReservationById(id: string): Promise<InventoryReservation | null> {
-    const result = await pool.query(
-      'SELECT * FROM inventory_reservations WHERE id = $1',
-      [id]
-    );
+    const result = await pool.query('SELECT * FROM inventory_reservations WHERE id = $1', [id]);
     return result.rows[0] || null;
   }
 
@@ -354,7 +349,7 @@ export class InventoryRepository {
 
   async expireOldReservations(): Promise<number> {
     const client = await pool.connect();
-    
+
     try {
       await client.query('BEGIN');
 
@@ -372,11 +367,11 @@ export class InventoryRepository {
         const inventoryQuery = reservation.product_id
           ? 'UPDATE inventory SET reserved_quantity = reserved_quantity - $1 WHERE product_id = $2'
           : 'UPDATE inventory SET reserved_quantity = reserved_quantity - $1 WHERE variant_id = $2';
-        
-        await client.query(
-          inventoryQuery,
-          [reservation.quantity, reservation.product_id || reservation.variant_id]
-        );
+
+        await client.query(inventoryQuery, [
+          reservation.quantity,
+          reservation.product_id || reservation.variant_id,
+        ]);
       }
 
       // Mark as expired
@@ -399,7 +394,11 @@ export class InventoryRepository {
 
   // ==================== HISTORY ====================
 
-  async getHistory(productId?: string, variantId?: string, limit: number = 50): Promise<InventoryHistory[]> {
+  async getHistory(
+    productId?: string,
+    variantId?: string,
+    limit: number = 50
+  ): Promise<InventoryHistory[]> {
     let query = 'SELECT * FROM inventory_history WHERE 1=1';
     const params: any[] = [];
     let paramCount = 1;

@@ -7,13 +7,13 @@ const logFormat = winston.format.combine(
   winston.format.errors({ stack: true }),
   winston.format.printf(({ timestamp, level, message, ...meta }) => {
     let log = `${timestamp} ${level}: ${message}`;
-    
+
     if (Object.keys(meta).length > 0) {
       // Sanitize sensitive data before logging
       const sanitized = sanitizeLogData(meta);
       log += ` ${JSON.stringify(sanitized)}`;
     }
-    
+
     return log;
   })
 );
@@ -23,7 +23,7 @@ const logFormat = winston.format.combine(
  */
 const sanitizeLogData = (data: any): any => {
   if (!data) return data;
-  
+
   const sensitiveFields = [
     'cardNumber',
     'cvv',
@@ -33,9 +33,9 @@ const sanitizeLogData = (data: any): any => {
     'secret',
     'authorization',
   ];
-  
+
   const sanitized: any = { ...data };
-  
+
   for (const key in sanitized) {
     if (sensitiveFields.includes(key)) {
       sanitized[key] = '***REDACTED***';
@@ -45,7 +45,7 @@ const sanitizeLogData = (data: any): any => {
       sanitized[key] = sanitizeLogData(sanitized[key]);
     }
   }
-  
+
   return sanitized;
 };
 
@@ -55,10 +55,7 @@ export const logger = winston.createLogger({
   defaultMeta: { service: process.env.SERVICE_NAME || 'payment-service' },
   transports: [
     new winston.transports.Console({
-      format: winston.format.combine(
-        winston.format.colorize(),
-        logFormat
-      ),
+      format: winston.format.combine(winston.format.colorize(), logFormat),
     }),
     // File transport for audit logs (PCI requirement)
     new winston.transports.File({

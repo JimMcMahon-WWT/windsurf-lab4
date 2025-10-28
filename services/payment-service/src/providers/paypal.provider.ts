@@ -7,7 +7,7 @@ import { logger } from '../utils/logger.utils';
 const environment = () => {
   const clientId = process.env.PAYPAL_CLIENT_ID || '';
   const clientSecret = process.env.PAYPAL_CLIENT_SECRET || '';
-  
+
   if (process.env.PAYPAL_MODE === 'production') {
     return new paypal.core.LiveEnvironment(clientId, clientSecret);
   }
@@ -49,7 +49,7 @@ export const createOrder = async (
     });
 
     const response = await client().execute(request);
-    
+
     logger.info('PayPal order created', {
       orderId: response.result.id,
       status: response.result.status,
@@ -106,7 +106,7 @@ export const refundCapture = async (
 ): Promise<any> => {
   try {
     const request = new paypal.payments.CapturesRefundRequest(captureId);
-    
+
     if (amount && currency) {
       request.requestBody({
         amount: {

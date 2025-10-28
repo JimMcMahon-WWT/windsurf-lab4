@@ -48,11 +48,7 @@ export const testRedisConnection = async (): Promise<boolean> => {
 export const cacheTTL = parseInt(process.env.REDIS_CACHE_TTL || '3600');
 
 // Cache helpers
-export const cacheSet = async (
-  key: string,
-  value: any,
-  ttl: number = cacheTTL
-): Promise<void> => {
+export const cacheSet = async (key: string, value: any, ttl: number = cacheTTL): Promise<void> => {
   await redisClient.setex(`product:${key}`, ttl, JSON.stringify(value));
 };
 
@@ -73,17 +69,8 @@ export const cacheDeletePattern = async (pattern: string): Promise<void> => {
 };
 
 // Inventory lock helpers (for concurrent inventory updates)
-export const acquireLock = async (
-  key: string,
-  ttl: number = 10
-): Promise<boolean> => {
-  const result = await redisClient.set(
-    `lock:${key}`,
-    '1',
-    'EX',
-    ttl,
-    'NX'
-  );
+export const acquireLock = async (key: string, ttl: number = 10): Promise<boolean> => {
+  const result = await redisClient.set(`lock:${key}`, '1', 'EX', ttl, 'NX');
   return result === 'OK';
 };
 

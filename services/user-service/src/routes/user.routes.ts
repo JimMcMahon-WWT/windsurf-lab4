@@ -10,6 +10,11 @@ router.get('/profile', authenticate, userController.getProfile.bind(userControll
 router.put('/profile', authenticate, userController.updateProfile.bind(userController));
 
 // Admin only route
-router.get('/:id', authenticate, authorize('admin'), userController.getProfile.bind(userController));
+router.get(
+  '/:id',
+  authenticate,
+  authorize('admin'),
+  userController.getProfile.bind(userController)
+);
 
 export default router;

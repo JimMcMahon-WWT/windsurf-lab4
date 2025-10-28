@@ -121,11 +121,7 @@ export class ImageService {
   /**
    * Upload file to S3
    */
-  private async uploadToS3(
-    buffer: Buffer,
-    key: string,
-    contentType: string
-  ): Promise<string> {
+  private async uploadToS3(buffer: Buffer, key: string, contentType: string): Promise<string> {
     try {
       await s3
         .putObject({

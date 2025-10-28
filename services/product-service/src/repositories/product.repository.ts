@@ -1,43 +1,34 @@
 import { pool } from '../config/database.config';
-import { 
-  Product, 
-  ProductVariant, 
-  ProductImage, 
+import {
+  Product,
+  ProductVariant,
+  ProductImage,
   CreateProductRequest,
   UpdateProductRequest,
-  ProductSearchFilters
+  ProductSearchFilters,
 } from '../types/product.types';
 
 export class ProductRepository {
   // ==================== PRODUCT CRUD ====================
-  
+
   async findById(id: string): Promise<Product | null> {
-    const result = await pool.query(
-      'SELECT * FROM products WHERE id = $1',
-      [id]
-    );
+    const result = await pool.query('SELECT * FROM products WHERE id = $1', [id]);
     return result.rows[0] || null;
   }
 
   async findBySlug(slug: string): Promise<Product | null> {
-    const result = await pool.query(
-      'SELECT * FROM products WHERE slug = $1',
-      [slug]
-    );
+    const result = await pool.query('SELECT * FROM products WHERE slug = $1', [slug]);
     return result.rows[0] || null;
   }
 
   async findBySku(sku: string): Promise<Product | null> {
-    const result = await pool.query(
-      'SELECT * FROM products WHERE sku = $1',
-      [sku]
-    );
+    const result = await pool.query('SELECT * FROM products WHERE sku = $1', [sku]);
     return result.rows[0] || null;
   }
 
   async create(data: CreateProductRequest): Promise<Product> {
     const slug = this.generateSlug(data.name);
-    
+
     const result = await pool.query(
       `INSERT INTO products (
         name, slug, description, short_description, sku,
@@ -72,7 +63,7 @@ export class ProductRepository {
         data.meta_keywords || null,
       ]
     );
-    
+
     return result.rows[0];
   }
 
@@ -179,17 +170,14 @@ export class ProductRepository {
   }
 
   async updateViewCount(id: string): Promise<void> {
-    await pool.query(
-      'UPDATE products SET view_count = view_count + 1 WHERE id = $1',
-      [id]
-    );
+    await pool.query('UPDATE products SET view_count = view_count + 1 WHERE id = $1', [id]);
   }
 
   async updatePurchaseCount(id: string, increment: number = 1): Promise<void> {
-    await pool.query(
-      'UPDATE products SET purchase_count = purchase_count + $1 WHERE id = $2',
-      [increment, id]
-    );
+    await pool.query('UPDATE products SET purchase_count = purchase_count + $1 WHERE id = $2', [
+      increment,
+      id,
+    ]);
   }
 
   async updateStatus(id: string, status: string): Promise<Product> {
@@ -242,7 +230,9 @@ export class ProductRepository {
 
   // ==================== PRODUCT VARIANTS ====================
 
-  async createVariant(data: Omit<ProductVariant, 'id' | 'created_at' | 'updated_at'>): Promise<ProductVariant> {
+  async createVariant(
+    data: Omit<ProductVariant, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<ProductVariant> {
     const result = await pool.query(
       `INSERT INTO product_variants (
         product_id, sku, name, attributes, price, sale_price, cost_price,
@@ -277,18 +267,12 @@ export class ProductRepository {
   }
 
   async findVariantById(id: string): Promise<ProductVariant | null> {
-    const result = await pool.query(
-      'SELECT * FROM product_variants WHERE id = $1',
-      [id]
-    );
+    const result = await pool.query('SELECT * FROM product_variants WHERE id = $1', [id]);
     return result.rows[0] || null;
   }
 
   async findVariantBySku(sku: string): Promise<ProductVariant | null> {
-    const result = await pool.query(
-      'SELECT * FROM product_variants WHERE sku = $1',
-      [sku]
-    );
+    const result = await pool.query('SELECT * FROM product_variants WHERE sku = $1', [sku]);
     return result.rows[0] || null;
   }
 
@@ -333,7 +317,9 @@ export class ProductRepository {
 
   // ==================== PRODUCT IMAGES ====================
 
-  async addImage(data: Omit<ProductImage, 'id' | 'created_at' | 'updated_at'>): Promise<ProductImage> {
+  async addImage(
+    data: Omit<ProductImage, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<ProductImage> {
     const result = await pool.query(
       `INSERT INTO product_images (
         product_id, variant_id, url, thumbnail_url, alt_text, 
@@ -377,19 +363,15 @@ export class ProductRepository {
     const client = await pool.connect();
     try {
       await client.query('BEGIN');
-      
+
       // Remove primary flag from all images of this product
-      await client.query(
-        'UPDATE product_images SET is_primary = FALSE WHERE product_id = $1',
-        [productId]
-      );
-      
+      await client.query('UPDATE product_images SET is_primary = FALSE WHERE product_id = $1', [
+        productId,
+      ]);
+
       // Set the specified image as primary
-      await client.query(
-        'UPDATE product_images SET is_primary = TRUE WHERE id = $1',
-        [imageId]
-      );
-      
+      await client.query('UPDATE product_images SET is_primary = TRUE WHERE id = $1', [imageId]);
+
       await client.query('COMMIT');
     } catch (error) {
       await client.query('ROLLBACK');

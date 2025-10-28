@@ -1,7 +1,7 @@
 # Monitoring Stack - Status Report
 
 **Date**: October 24, 2025  
-**Status**: ✅ Operational  
+**Status**: ✅ Operational
 
 ---
 
@@ -9,14 +9,14 @@
 
 ### Core Services
 
-| Service | URL | Port | Status | Health Check |
-|---------|-----|------|--------|--------------|
-| **Prometheus** | http://localhost:9090 | 9090 | ✅ **Running** | 200 OK |
-| **Grafana** | http://localhost:3000 | 3000 | ✅ **Running** | 200 OK |
-| **cAdvisor** | http://localhost:8080 | 8080 | ✅ **Running** | 200 OK |
-| **Postgres Exporter** | http://localhost:9187 | 9187 | ✅ **Running** | 200 OK |
-| **Redis Exporter** | http://localhost:9121 | 9121 | ✅ **Running** | 200 OK |
-| **Node Exporter** | http://localhost:9100 | 9100 | ⚠️ **Not Running** | Windows incompatible |
+| Service               | URL                   | Port | Status             | Health Check         |
+| --------------------- | --------------------- | ---- | ------------------ | -------------------- |
+| **Prometheus**        | http://localhost:9090 | 9090 | ✅ **Running**     | 200 OK               |
+| **Grafana**           | http://localhost:3000 | 3000 | ✅ **Running**     | 200 OK               |
+| **cAdvisor**          | http://localhost:8080 | 8080 | ✅ **Running**     | 200 OK               |
+| **Postgres Exporter** | http://localhost:9187 | 9187 | ✅ **Running**     | 200 OK               |
+| **Redis Exporter**    | http://localhost:9121 | 9121 | ✅ **Running**     | 200 OK               |
+| **Node Exporter**     | http://localhost:9100 | 9100 | ⚠️ **Not Running** | Windows incompatible |
 
 ---
 
@@ -303,4 +303,4 @@ redis_keyspace_hits_total / (redis_keyspace_hits_total + redis_keyspace_misses_t
 
 ---
 
-*For detailed implementation guides, see `monitoring/README.md`*
+_For detailed implementation guides, see `monitoring/README.md`_

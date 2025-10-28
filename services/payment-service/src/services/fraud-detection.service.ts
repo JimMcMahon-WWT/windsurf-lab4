@@ -20,9 +20,7 @@ export interface TransactionContext {
   paymentMethodId?: string;
 }
 
-export const assessFraudRisk = async (
-  context: TransactionContext
-): Promise<FraudAssessment> => {
+export const assessFraudRisk = async (context: TransactionContext): Promise<FraudAssessment> => {
   const flags: string[] = [];
   let score = 0;
 
@@ -77,14 +75,14 @@ export const assessFraudRisk = async (
 const checkVelocity = async (userId: string, amount: number): Promise<number> => {
   const key = `velocity:${userId}`;
   const transactions = await redisClient.lRange(key, 0, -1);
-  
+
   if (transactions.length > 5) return 30;
   if (transactions.length > 3) return 20;
   if (transactions.length > 1) return 10;
-  
+
   await redisClient.lPush(key, amount.toString());
   await redisClient.expire(key, 3600);
-  
+
   return 0;
 };
 

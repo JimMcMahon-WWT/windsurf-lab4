@@ -31,7 +31,7 @@ export class EventStore {
    */
   async appendEvent(event: DomainEvent): Promise<void> {
     const client = await pool.connect();
-    
+
     try {
       await client.query('BEGIN');
 
@@ -77,7 +77,7 @@ export class EventStore {
     if (events.length === 0) return;
 
     const client = await pool.connect();
-    
+
     try {
       await client.query('BEGIN');
 
@@ -93,7 +93,7 @@ export class EventStore {
       // Insert all events
       for (const event of events) {
         currentVersion++;
-        
+
         await client.query(
           `INSERT INTO event_store 
            (id, aggregate_id, aggregate_type, event_type, event_version, event_data, metadata, created_by) 
@@ -190,17 +190,18 @@ export class EventStore {
       ]
     );
 
-    logger.debug(`Snapshot saved for aggregate ${snapshot.aggregate_id} at version ${snapshot.snapshot_version}`);
+    logger.debug(
+      `Snapshot saved for aggregate ${snapshot.aggregate_id} at version ${snapshot.snapshot_version}`
+    );
   }
 
   /**
    * Get the latest snapshot for an aggregate
    */
   async getSnapshot(aggregateId: string): Promise<Snapshot | null> {
-    const result = await pool.query(
-      'SELECT * FROM event_snapshots WHERE aggregate_id = $1',
-      [aggregateId]
-    );
+    const result = await pool.query('SELECT * FROM event_snapshots WHERE aggregate_id = $1', [
+      aggregateId,
+    ]);
 
     if (result.rows.length === 0) {
       return null;

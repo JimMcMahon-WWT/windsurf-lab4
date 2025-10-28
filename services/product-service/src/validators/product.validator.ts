@@ -20,7 +20,9 @@ export const createProductSchema = Joi.object({
   sale_price: Joi.number().min(0).optional().allow(null),
   cost_price: Joi.number().min(0).optional().allow(null),
   currency: Joi.string().length(3).uppercase().optional(),
-  status: Joi.string().valid('draft', 'active', 'inactive', 'out_of_stock', 'discontinued').optional(),
+  status: Joi.string()
+    .valid('draft', 'active', 'inactive', 'out_of_stock', 'discontinued')
+    .optional(),
   is_featured: Joi.boolean().optional(),
   weight: Joi.number().min(0).optional().allow(null),
   weight_unit: Joi.string().valid('kg', 'g', 'lb', 'oz').optional(),
@@ -44,7 +46,9 @@ export const updateProductSchema = Joi.object({
   base_price: Joi.number().min(0).optional(),
   sale_price: Joi.number().min(0).optional().allow(null),
   cost_price: Joi.number().min(0).optional().allow(null),
-  status: Joi.string().valid('draft', 'active', 'inactive', 'out_of_stock', 'discontinued').optional(),
+  status: Joi.string()
+    .valid('draft', 'active', 'inactive', 'out_of_stock', 'discontinued')
+    .optional(),
   is_featured: Joi.boolean().optional(),
   is_available: Joi.boolean().optional(),
   weight: Joi.number().min(0).optional().allow(null),
@@ -84,7 +88,9 @@ export const searchProductsSchema = Joi.object({
   in_stock: Joi.boolean().optional(),
   is_featured: Joi.boolean().optional(),
   tags: Joi.array().items(Joi.string()).optional(),
-  sort_by: Joi.string().valid('relevance', 'price_asc', 'price_desc', 'rating', 'newest', 'popular').optional(),
+  sort_by: Joi.string()
+    .valid('relevance', 'price_asc', 'price_desc', 'rating', 'newest', 'popular')
+    .optional(),
   page: Joi.number().integer().min(1).optional(),
   limit: Joi.number().integer().min(1).max(100).optional(),
 });
@@ -111,9 +117,11 @@ export const updateInventorySchema = Joi.object({
   change_type: Joi.string()
     .valid('restock', 'sale', 'adjustment', 'return', 'damaged', 'reservation', 'release')
     .required(),
-}).or('product_id', 'variant_id').messages({
-  'object.missing': 'Either product_id or variant_id must be provided',
-});
+})
+  .or('product_id', 'variant_id')
+  .messages({
+    'object.missing': 'Either product_id or variant_id must be provided',
+  });
 
 export const reserveInventorySchema = Joi.object({
   product_id: Joi.string().uuid().optional(),
@@ -122,9 +130,11 @@ export const reserveInventorySchema = Joi.object({
   user_id: Joi.string().uuid().optional(),
   order_id: Joi.string().uuid().optional(),
   ttl_seconds: Joi.number().integer().min(60).max(3600).optional(),
-}).or('product_id', 'variant_id').messages({
-  'object.missing': 'Either product_id or variant_id must be provided',
-});
+})
+  .or('product_id', 'variant_id')
+  .messages({
+    'object.missing': 'Either product_id or variant_id must be provided',
+  });
 
 export const createCategorySchema = Joi.object({
   name: Joi.string().min(1).max(255).required(),
@@ -137,7 +147,9 @@ export const createCategorySchema = Joi.object({
 });
 
 export const bulkOperationSchema = Joi.object({
-  operation: Joi.string().valid('update_status', 'update_price', 'update_stock', 'delete').required(),
+  operation: Joi.string()
+    .valid('update_status', 'update_price', 'update_stock', 'delete')
+    .required(),
   product_ids: Joi.array().items(Joi.string().uuid()).min(1).required(),
   data: Joi.object().optional(),
 });

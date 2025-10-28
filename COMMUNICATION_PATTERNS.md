@@ -3,6 +3,7 @@
 ## Communication Strategy Overview
 
 The architecture uses a **hybrid approach**:
+
 - **Synchronous (REST)**: For immediate consistency requirements
 - **Asynchronous (Events)**: For loose coupling and scalability
 
@@ -11,6 +12,7 @@ The architecture uses a **hybrid approach**:
 ## 1. Synchronous Communication (REST)
 
 ### When to Use REST
+
 - Need immediate response
 - Query operations (GET requests)
 - Simple request-response workflows
@@ -36,6 +38,7 @@ sequenceDiagram
 ### REST Communication Examples
 
 #### Example 1: Get Product Details
+
 ```http
 GET /api/products/{id}
 Authorization: Bearer {jwt_token}
@@ -51,6 +54,7 @@ Response:
 ```
 
 #### Example 2: Add Item to Cart
+
 ```http
 POST /api/cart/items
 Authorization: Bearer {jwt_token}
@@ -127,7 +131,7 @@ async function retryWithBackoff(fn, maxRetries = 3) {
       return await fn();
     } catch (error) {
       if (i === maxRetries - 1) throw error;
-      
+
       const delay = Math.min(1000 * Math.pow(2, i), 10000);
       await sleep(delay);
     }
@@ -140,6 +144,7 @@ async function retryWithBackoff(fn, maxRetries = 3) {
 ## 2. Asynchronous Communication (Events)
 
 ### When to Use Events
+
 - Don't need immediate response
 - Multiple services need to react to same event
 - Eventual consistency is acceptable
@@ -214,18 +219,18 @@ sequenceDiagram
     Inventory-->>Order: Reserved
     Order->>Kafka: Publish order.created
     Order-->>Client: Order Created (202 Accepted)
-    
+
     Kafka->>Payment: order.created event
     Payment->>Payment: Process Payment
     Payment->>Kafka: Publish payment.success
-    
+
     Kafka->>Order: payment.success event
     Order->>Order: Update Order Status
     Order->>Kafka: Publish order.confirmed
-    
+
     Kafka->>Notification: order.confirmed event
     Notification->>Notification: Send Email
-    
+
     Kafka->>Inventory: order.confirmed event
     Inventory->>Inventory: Finalize Reservation
 ```
@@ -243,11 +248,11 @@ sequenceDiagram
     Kafka->>Payment: order.created event
     Payment->>Payment: Process Payment
     Payment->>Kafka: Publish payment.failed
-    
+
     Kafka->>Order: payment.failed event
     Order->>Order: Update Status to Failed
     Order->>Kafka: Publish order.failed
-    
+
     Kafka->>Inventory: order.failed event
     Inventory->>Inventory: Release Reserved Inventory
     Inventory->>Kafka: Publish inventory.released
@@ -256,6 +261,7 @@ sequenceDiagram
 ### Event Examples
 
 #### Event: `order.created`
+
 ```json
 {
   "event_id": "550e8400-e29b-41d4-a716-446655440000",
@@ -293,6 +299,7 @@ sequenceDiagram
 ```
 
 #### Event: `payment.success`
+
 ```json
 {
   "event_id": "650e8400-e29b-41d4-a716-446655440000",
@@ -319,6 +326,7 @@ sequenceDiagram
 ```
 
 #### Event: `inventory.reserved`
+
 ```json
 {
   "event_id": "750e8400-e29b-41d4-a716-446655440000",
@@ -355,11 +363,13 @@ sequenceDiagram
 Each service listens to events and publishes new events. No central coordinator.
 
 **Advantages:**
+
 - Loose coupling
 - Services are autonomous
 - Easy to add new steps
 
 **Disadvantages:**
+
 - Harder to track overall flow
 - Complex error handling
 
@@ -368,11 +378,13 @@ Each service listens to events and publishes new events. No central coordinator.
 A central orchestrator manages the saga workflow.
 
 **Advantages:**
+
 - Clear workflow visibility
 - Easier error handling
 - Centralized retry logic
 
 **Disadvantages:**
+
 - Single point of failure
 - Orchestrator can become complex
 
@@ -384,13 +396,13 @@ class OrderService {
   async createOrder(orderData) {
     // 1. Validate order
     const order = await this.validateAndCreateOrder(orderData);
-    
+
     // 2. Publish event
     await eventBus.publish({
       event_type: 'order.created',
-      data: order
+      data: order,
     });
-    
+
     return { order_id: order.id, status: 'pending' };
   }
 
@@ -398,20 +410,20 @@ class OrderService {
   async onPaymentSuccess(event) {
     const { order_id } = event.data;
     await this.updateOrderStatus(order_id, 'confirmed');
-    
+
     await eventBus.publish({
       event_type: 'order.confirmed',
-      data: { order_id }
+      data: { order_id },
     });
   }
 
   async onPaymentFailed(event) {
     const { order_id } = event.data;
     await this.updateOrderStatus(order_id, 'failed');
-    
+
     await eventBus.publish({
       event_type: 'order.failed',
-      data: { order_id }
+      data: { order_id },
     });
   }
 }
@@ -420,18 +432,18 @@ class OrderService {
 class PaymentService {
   async onOrderCreated(event) {
     const { order_id, total, currency } = event.data;
-    
+
     try {
       const payment = await this.processPayment(total, currency);
-      
+
       await eventBus.publish({
         event_type: 'payment.success',
-        data: { order_id, payment_id: payment.id }
+        data: { order_id, payment_id: payment.id },
       });
     } catch (error) {
       await eventBus.publish({
         event_type: 'payment.failed',
-        data: { order_id, reason: error.message }
+        data: { order_id, reason: error.message },
       });
     }
   }
@@ -441,18 +453,18 @@ class PaymentService {
 class InventoryService {
   async onOrderCreated(event) {
     const { order_id, items } = event.data;
-    
+
     try {
       await this.reserveInventory(order_id, items);
-      
+
       await eventBus.publish({
         event_type: 'inventory.reserved',
-        data: { order_id }
+        data: { order_id },
       });
     } catch (error) {
       await eventBus.publish({
         event_type: 'inventory.reservation.failed',
-        data: { order_id, reason: error.message }
+        data: { order_id, reason: error.message },
       });
     }
   }
@@ -460,10 +472,10 @@ class InventoryService {
   async onOrderFailed(event) {
     const { order_id } = event.data;
     await this.releaseInventory(order_id);
-    
+
     await eventBus.publish({
       event_type: 'inventory.released',
-      data: { order_id }
+      data: { order_id },
     });
   }
 }
@@ -482,17 +494,17 @@ topics:
     partitions: 6
     replication_factor: 3
     retention_ms: 604800000 # 7 days
-    
+
   - name: payment-events
     partitions: 6
     replication_factor: 3
     retention_ms: 2592000000 # 30 days
-    
+
   - name: inventory-events
     partitions: 6
     replication_factor: 3
     retention_ms: 604800000 # 7 days
-    
+
   - name: notification-events
     partitions: 3
     replication_factor: 3
@@ -502,10 +514,10 @@ topics:
 consumer_groups:
   - name: payment-service-group
     topics: [order-events]
-    
+
   - name: notification-service-group
     topics: [order-events, payment-events, inventory-events]
-    
+
   - name: search-service-group
     topics: [product-events, inventory-events]
 ```
@@ -518,11 +530,11 @@ exchanges:
   - name: order.exchange
     type: topic
     durable: true
-    
+
   - name: payment.exchange
     type: topic
     durable: true
-    
+
   - name: inventory.exchange
     type: topic
     durable: true
@@ -534,7 +546,7 @@ queues:
     bindings:
       - exchange: order.exchange
         routing_key: order.created
-        
+
   - name: notification.order.queue
     durable: true
     bindings:
@@ -555,16 +567,16 @@ class PaymentService {
   async processPayment(paymentData, idempotencyKey) {
     // Check if we've already processed this request
     const existingPayment = await this.db.findByIdempotencyKey(idempotencyKey);
-    
+
     if (existingPayment) {
       // Return cached result
       return existingPayment;
     }
-    
+
     // Process payment
     const payment = await this.performPayment(paymentData);
     payment.idempotency_key = idempotencyKey;
-    
+
     await this.db.save(payment);
     return payment;
   }
@@ -575,9 +587,9 @@ const idempotencyKey = uuidv4();
 await fetch('/api/payments/process', {
   method: 'POST',
   headers: {
-    'Idempotency-Key': idempotencyKey
+    'Idempotency-Key': idempotencyKey,
   },
-  body: JSON.stringify(paymentData)
+  body: JSON.stringify(paymentData),
 });
 ```
 
@@ -595,13 +607,13 @@ class EventConsumer {
       console.log('Event already processed, skipping');
       return;
     }
-    
+
     try {
       await this.processEvent(event);
-      
+
       // Mark as processed
       this.processedEvents.add(event.event_id);
-      
+
       // In production, store in Redis with TTL
       await redis.setex(
         `processed:${event.event_id}`,
@@ -626,12 +638,16 @@ class EventConsumer {
 // Service Registration
 class ServiceRegistry {
   async register(serviceName, serviceUrl, healthCheckUrl) {
-    await redis.hset('services', serviceName, JSON.stringify({
-      url: serviceUrl,
-      healthCheck: healthCheckUrl,
-      lastSeen: Date.now()
-    }));
-    
+    await redis.hset(
+      'services',
+      serviceName,
+      JSON.stringify({
+        url: serviceUrl,
+        healthCheck: healthCheckUrl,
+        lastSeen: Date.now(),
+      })
+    );
+
     // Set TTL and require periodic heartbeat
     await redis.expire(`service:${serviceName}`, 30);
   }
@@ -643,11 +659,9 @@ class ServiceRegistry {
 
   async getHealthyServices(serviceName) {
     const services = await this.getAll(serviceName);
-    
-    const healthChecks = await Promise.all(
-      services.map(s => this.checkHealth(s))
-    );
-    
+
+    const healthChecks = await Promise.all(services.map((s) => this.checkHealth(s)));
+
     return services.filter((s, i) => healthChecks[i]);
   }
 }
@@ -698,7 +712,7 @@ services:
       - name: rate-limiting
         config:
           minute: 100
-          
+
   - name: product-service
     url: http://product-service:3002
     routes:
@@ -729,24 +743,24 @@ const { trace, context } = require('@opentelemetry/api');
 
 async function handleOrderCreation(orderData) {
   const tracer = trace.getTracer('order-service');
-  
+
   return tracer.startActiveSpan('create-order', async (span) => {
     try {
       span.setAttribute('order.total', orderData.total);
       span.setAttribute('order.currency', orderData.currency);
-      
+
       const order = await createOrder(orderData);
-      
+
       // Propagate trace context in events
       await eventBus.publish({
         event_type: 'order.created',
         data: order,
         metadata: {
           trace_id: span.spanContext().traceId,
-          span_id: span.spanContext().spanId
-        }
+          span_id: span.spanContext().spanId,
+        },
       });
-      
+
       span.setStatus({ code: SpanStatusCode.OK });
       return order;
     } catch (error) {
@@ -773,12 +787,12 @@ app.get('/health', async (req, res) => {
     checks: {
       database: await checkDatabase(),
       eventBus: await checkEventBus(),
-      externalServices: await checkExternalServices()
-    }
+      externalServices: await checkExternalServices(),
+    },
   };
-  
-  const isHealthy = Object.values(health.checks).every(c => c === 'ok');
-  
+
+  const isHealthy = Object.values(health.checks).every((c) => c === 'ok');
+
   res.status(isHealthy ? 200 : 503).json(health);
 });
 ```
@@ -788,26 +802,31 @@ app.get('/health', async (req, res) => {
 ## Communication Best Practices
 
 ### 1. Timeouts
+
 - **REST calls**: 5-10 seconds
 - **Event processing**: 30 seconds
 - **Payment processing**: 30 seconds
 
 ### 2. Retry Policies
+
 - **Exponential backoff**: Start with 1s, max 10s
 - **Max retries**: 3 attempts
 - **Retry only idempotent operations**
 
 ### 3. Error Handling
+
 - **Graceful degradation**: Fallback to cached data
 - **Circuit breakers**: Prevent cascading failures
 - **Dead letter queues**: Capture failed events
 
 ### 4. Data Consistency
+
 - **Strong consistency**: Use REST for critical operations
 - **Eventual consistency**: Use events for most operations
 - **Saga pattern**: For distributed transactions
 
 ### 5. Versioning
+
 - **API versioning**: `/api/v1/orders`
 - **Event versioning**: `event_version` field in events
 - **Backward compatibility**: Support multiple versions

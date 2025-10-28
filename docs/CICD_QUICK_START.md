@@ -3,8 +3,9 @@
 ## 🚀 Overview
 
 This project implements a production-grade CI/CD pipeline with:
+
 - **Automated Testing** - Unit, integration, and E2E tests
-- **Security Scanning** - Vulnerabilities, secrets, and compliance  
+- **Security Scanning** - Vulnerabilities, secrets, and compliance
 - **Blue-Green Deployment** - Zero-downtime releases
 - **Canary Analysis** - Gradual rollout with automatic rollback
 - **Database Migrations** - Safe schema changes with rollback capability
@@ -27,6 +28,7 @@ Before using the CI/CD pipeline, ensure you have:
 Go to **Settings** → **Secrets and variables** → **Actions** and add:
 
 **Minimum Required:**
+
 ```
 REGISTRY_URL=ghcr.io/YOUR_USERNAME
 REGISTRY_USERNAME=YOUR_USERNAME
@@ -34,6 +36,7 @@ REGISTRY_PASSWORD=YOUR_GITHUB_PAT
 ```
 
 **For Production:**
+
 ```
 PROD_DB_HOST=your-db-host
 PROD_DB_PASSWORD=your-secure-password
@@ -66,7 +69,7 @@ git push origin feature/test-cicd
 1. Go to **Actions** tab in GitHub
 2. You should see:
    - ✅ Code Quality checks
-   - ✅ Security scanning  
+   - ✅ Security scanning
    - ✅ Unit tests
    - ✅ Build verification
 
@@ -78,6 +81,7 @@ git push origin feature/test-cicd
 git checkout develop
 git push origin develop
 ```
+
 ✅ Automatically deploys to dev environment
 
 ### Staging Environment
@@ -87,6 +91,7 @@ git checkout staging
 git merge develop
 git push origin staging
 ```
+
 ✅ Runs full test suite + E2E tests
 ✅ Deploys to staging environment
 
@@ -106,27 +111,32 @@ git push origin v1.2.3
 ## 📊 Pipeline Stages Explained
 
 ### 1. Code Quality (2-3 minutes)
+
 - ESLint & TypeScript checks
 - Code formatting validation
 - Runs in parallel for all services
 
 ### 2. Security Scan (3-5 minutes)
+
 - NPM audit for vulnerabilities
 - Snyk security scan
 - Secret detection
 - License compliance
 
 ### 3. Testing (5-10 minutes)
+
 - **Unit Tests:** All microservices in parallel
 - **Integration Tests:** With PostgreSQL & Redis
 - **Code Coverage:** 80% threshold enforced
 
 ### 4. Build (3-5 minutes)
+
 - TypeScript compilation
 - Docker image builds
 - Artifact uploads
 
 ### 5. Deployment (Production: 15-20 minutes)
+
 - Database backup & migration
 - Blue-green deployment
 - Health checks
@@ -243,6 +253,7 @@ gh run view <run-id> --log
 ### Deployment Notifications
 
 All deployments send notifications to Slack:
+
 - 🚀 Deployment started
 - ✅ Deployment successful
 - ❌ Deployment failed
@@ -287,18 +298,20 @@ npm run build
 
 - **[Full CI/CD Pipeline Documentation](./CICD_PIPELINE.md)**
 - **[GitHub Secrets Setup](./GITHUB_SECRETS_SETUP.md)**
-- **[Kubernetes Deployment Guide](./KUBERNETES_DEPLOYMENT.md)** *(if exists)*
-- **[Monitoring Setup](./MONITORING_SETUP.md)** *(from previous modules)*
+- **[Kubernetes Deployment Guide](./KUBERNETES_DEPLOYMENT.md)** _(if exists)_
+- **[Monitoring Setup](./MONITORING_SETUP.md)** _(from previous modules)_
 
 ## 🔐 Security Notes
 
 ### Secrets Management
+
 - Never commit secrets to Git
 - Rotate secrets every 90 days
 - Use environment-specific secrets
 - Enable audit logging
 
 ### Access Control
+
 - Require PR reviews for main/staging
 - Use branch protection rules
 - Enable CODEOWNERS file
@@ -307,6 +320,7 @@ npm run build
 ## 🤝 Getting Help
 
 ### Resources
+
 - 📖 [Full Documentation](./CICD_PIPELINE.md)
 - 💬 Slack: #devops-support
 - 🐛 [Create an Issue](https://github.com/your-org/your-repo/issues)
@@ -332,23 +346,25 @@ A: Yes, create a PR to trigger CI without deployment.
 
 Track these KPIs:
 
-| Metric | Target | Current |
-|--------|--------|---------|
-| Deployment Frequency | Daily | - |
-| Lead Time | < 1 hour | - |
-| MTTR | < 30 min | - |
-| Change Failure Rate | < 5% | - |
-| Test Coverage | > 80% | - |
+| Metric               | Target   | Current |
+| -------------------- | -------- | ------- |
+| Deployment Frequency | Daily    | -       |
+| Lead Time            | < 1 hour | -       |
+| MTTR                 | < 30 min | -       |
+| Change Failure Rate  | < 5%     | -       |
+| Test Coverage        | > 80%    | -       |
 
 ## 🎓 Learn More
 
 ### Advanced Topics
+
 - [Blue-Green vs Canary Deployments](https://martinfowler.com/bliki/CanaryRelease.html)
 - [Database Migration Strategies](https://www.liquibase.org/get-started/best-practices)
 - [Kubernetes Best Practices](https://kubernetes.io/docs/concepts/configuration/overview/)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
 
 ### Video Tutorials
+
 - Setting up GitHub Actions
 - Configuring Kubernetes
 - Database Migration Best Practices

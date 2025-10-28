@@ -3,12 +3,14 @@
 ## New Files Created
 
 ### Docker Configuration
+
 ```
 services/payment-service/Dockerfile (58 lines)
 services/user-service/Dockerfile (49 lines)
 ```
 
 ### Documentation
+
 ```
 CONTAINERIZATION_PROGRESS.md (585 lines)
 COMMIT_MESSAGES.txt (280 lines)
@@ -20,17 +22,18 @@ FILES_CHANGED.md (this file)
 ## Modified Files
 
 ### Docker Compose Configuration
+
 ```
 docker-compose.yml
   - Lines 115-118: user-service build context
-  - Lines 155-158: product-service build context  
+  - Lines 155-158: product-service build context
   - Lines 200-202: order-service build context
   - Lines 247-249: payment-service build context
-  
+
   Changed from:
     context: ./services/<service-name>
     dockerfile: Dockerfile
-  
+
   To:
     context: .
     dockerfile: services/<service-name>/Dockerfile
@@ -39,6 +42,7 @@ docker-compose.yml
 ### Payment Service - Code Fixes
 
 #### 1. Validation Middleware
+
 ```
 services/payment-service/src/middleware/validation.middleware.ts
   - Line 5: Removed explicit void return type
@@ -46,12 +50,14 @@ services/payment-service/src/middleware/validation.middleware.ts
 ```
 
 #### 2. Package Dependencies
+
 ```
 services/payment-service/package.json
   - Line 48: Added "@types/cors": "^2.8.17"
 ```
 
 #### 3. PayPal Provider
+
 ```
 services/payment-service/src/providers/paypal.provider.ts
   - Lines 1-2: Added @ts-expect-error comment
@@ -59,6 +65,7 @@ services/payment-service/src/providers/paypal.provider.ts
 ```
 
 #### 4. Encryption Utils
+
 ```
 services/payment-service/src/utils/encryption.utils.ts
   - Line 19: Cast cipher to CipherGCM type
@@ -68,12 +75,14 @@ services/payment-service/src/utils/encryption.utils.ts
 ### User Service - Code Fixes
 
 #### 1. Auth Middleware
+
 ```
 services/user-service/src/middlewares/auth.middleware.ts
   - Line 18: Changed verifyToken to verifyAccessToken
 ```
 
 #### 2. User Service
+
 ```
 services/user-service/src/services/user.service.ts
   - Line 6: Added crypto import
@@ -83,6 +92,7 @@ services/user-service/src/services/user.service.ts
 ```
 
 #### 3. Database Configuration
+
 ```
 services/user-service/src/config/database.ts
   - Lines 4-8: Added fallback to both DB_* and POSTGRES_* env vars
@@ -100,10 +110,12 @@ services/user-service/src/config/database.ts
 The following were considered but NOT modified:
 
 ### Infrastructure Services
+
 - ✅ services/product-service/ - Not containerized yet
 - ✅ services/order-service/ - Not containerized yet
 
 ### Configuration Files
+
 - ✅ .env files - Use docker-compose environment variables instead
 - ✅ tsconfig.json (root) - Used as-is, copied into containers
 - ✅ package.json (root) - Used for workspace management
@@ -114,11 +126,13 @@ The following were considered but NOT modified:
 ## File Statistics
 
 ### Created
+
 - Docker files: 2
 - Documentation: 3
 - **Total new files: 5**
 
 ### Modified
+
 - TypeScript source files: 6
 - Configuration files: 2 (docker-compose.yml, package.json)
 - **Total modified files: 8**
@@ -130,12 +144,14 @@ The following were considered but NOT modified:
 ## Lines of Code Changed
 
 ### Added
+
 - Dockerfile code: ~107 lines
 - Documentation: ~865 lines
 - TypeScript fixes: ~25 lines
 - **Total added: ~997 lines**
 
 ### Modified
+
 - TypeScript code: ~15 lines modified
 - Config files: ~8 lines modified
 - **Total modified: ~23 lines**
@@ -147,11 +163,13 @@ The following were considered but NOT modified:
 ## Verification Commands
 
 ### Check what files are staged:
+
 ```bash
 git status
 ```
 
 ### Review changes:
+
 ```bash
 # All changes
 git diff
@@ -162,11 +180,13 @@ git diff services/user-service/src/services/user.service.ts
 ```
 
 ### Unstage if needed:
+
 ```bash
 git reset HEAD <file>
 ```
 
 ### Discard changes if needed (careful!):
+
 ```bash
 git checkout -- <file>
 ```
@@ -176,7 +196,7 @@ git checkout -- <file>
 ## Before Committing Checklist
 
 - [ ] Verified both services are running: `docker ps`
-- [ ] Tested health endpoints: 
+- [ ] Tested health endpoints:
   - [ ] `curl http://localhost:3004/health`
   - [ ] `curl http://localhost:3001/health`
 - [ ] Reviewed all changed files: `git status`
@@ -200,7 +220,7 @@ git commit -m "feat: update docker-compose for monorepo containerization"
 git add services/payment-service/ package-lock.json
 git commit -m "feat: containerize payment service with Docker"
 
-# 3. Stage and commit user service  
+# 3. Stage and commit user service
 git add services/user-service/
 git commit -m "feat: containerize user service with Docker"
 

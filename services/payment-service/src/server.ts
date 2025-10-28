@@ -16,14 +16,16 @@ const app: Application = express();
 const PORT = process.env.PORT || 3004;
 
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+      },
     },
-  },
-}));
+  })
+);
 
 // CORS configuration
 const corsOptions = {
@@ -62,7 +64,7 @@ app.get('/metrics', async (_req: Request, res: Response) => {
 // Request logging
 app.use((req: Request, res: Response, next) => {
   const start = Date.now();
-  
+
   res.on('finish', () => {
     const duration = Date.now() - start;
     logger.info(`${req.method} ${req.path}`, {
@@ -72,7 +74,7 @@ app.use((req: Request, res: Response, next) => {
       duration: `${duration}ms`,
     });
   });
-  
+
   next();
 });
 
@@ -99,7 +101,7 @@ app.use((req: Request, res: Response) => {
 // Error handler
 app.use((error: Error, _req: Request, res: Response, _next: any) => {
   logger.error('Unhandled error:', error);
-  
+
   res.status(500).json({
     error: 'Internal server error',
     message: process.env.NODE_ENV === 'development' ? error.message : undefined,
@@ -109,7 +111,7 @@ app.use((error: Error, _req: Request, res: Response, _next: any) => {
 // Graceful shutdown
 const gracefulShutdown = async () => {
   logger.info('Received shutdown signal, closing connections...');
-  
+
   // Give time for in-flight requests to complete
   setTimeout(() => {
     logger.info('Shutdown complete');
@@ -124,13 +126,13 @@ process.on('SIGINT', gracefulShutdown);
 const startServer = async () => {
   try {
     logger.info('🚀 Starting Payment Service...');
-    
+
     // Test database connection
     await testConnection();
-    
+
     // Connect to Redis
     await connectRedis();
-    
+
     // Start HTTP server
     app.listen(PORT, () => {
       logger.info(`✅ Payment Service listening on port ${PORT}`);

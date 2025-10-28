@@ -120,10 +120,7 @@ export class CartService {
   /**
    * Add item to cart
    */
-  async addItem(
-    userId: string,
-    item: Omit<CartItem, 'id'>
-  ): Promise<Cart> {
+  async addItem(userId: string, item: Omit<CartItem, 'id'>): Promise<Cart> {
     const cart = await this.getOrCreateCart(userId);
 
     // Check if item already exists
@@ -146,22 +143,12 @@ export class CartService {
         `INSERT INTO cart_items 
          (cart_id, product_id, product_name, product_sku, quantity, price)
          VALUES ($1, $2, $3, $4, $5, $6)`,
-        [
-          cart.id,
-          item.productId,
-          item.productName,
-          item.productSku,
-          item.quantity,
-          item.price,
-        ]
+        [cart.id, item.productId, item.productName, item.productSku, item.quantity, item.price]
       );
     }
 
     // Update cart timestamp
-    await pool.query(
-      'UPDATE carts SET updated_at = NOW() WHERE id = $1',
-      [cart.id]
-    );
+    await pool.query('UPDATE carts SET updated_at = NOW() WHERE id = $1', [cart.id]);
 
     // Invalidate cache
     await cacheDelete(`${this.CART_CACHE_PREFIX}${userId}`);
@@ -174,19 +161,15 @@ export class CartService {
   /**
    * Update item quantity
    */
-  async updateItemQuantity(
-    userId: string,
-    productId: string,
-    quantity: number
-  ): Promise<Cart> {
+  async updateItemQuantity(userId: string, productId: string, quantity: number): Promise<Cart> {
     const cart = await this.getOrCreateCart(userId);
 
     if (quantity <= 0) {
       // Remove item
-      await pool.query(
-        'DELETE FROM cart_items WHERE cart_id = $1 AND product_id = $2',
-        [cart.id, productId]
-      );
+      await pool.query('DELETE FROM cart_items WHERE cart_id = $1 AND product_id = $2', [
+        cart.id,
+        productId,
+      ]);
     } else {
       // Update quantity
       await pool.query(
@@ -198,10 +181,7 @@ export class CartService {
     }
 
     // Update cart timestamp
-    await pool.query(
-      'UPDATE carts SET updated_at = NOW() WHERE id = $1',
-      [cart.id]
-    );
+    await pool.query('UPDATE carts SET updated_at = NOW() WHERE id = $1', [cart.id]);
 
     // Invalidate cache
     await cacheDelete(`${this.CART_CACHE_PREFIX}${userId}`);
@@ -215,10 +195,10 @@ export class CartService {
   async removeItem(userId: string, productId: string): Promise<Cart> {
     const cart = await this.getOrCreateCart(userId);
 
-    await pool.query(
-      'DELETE FROM cart_items WHERE cart_id = $1 AND product_id = $2',
-      [cart.id, productId]
-    );
+    await pool.query('DELETE FROM cart_items WHERE cart_id = $1 AND product_id = $2', [
+      cart.id,
+      productId,
+    ]);
 
     // Invalidate cache
     await cacheDelete(`${this.CART_CACHE_PREFIX}${userId}`);
@@ -235,12 +215,11 @@ export class CartService {
     const cart = await this.getOrCreateCart(userId);
 
     await pool.query('DELETE FROM cart_items WHERE cart_id = $1', [cart.id]);
-    
+
     // Mark cart as converted or create new one
-    await pool.query(
-      `UPDATE carts SET status = 'converted', updated_at = NOW() WHERE id = $1`,
-      [cart.id]
-    );
+    await pool.query(`UPDATE carts SET status = 'converted', updated_at = NOW() WHERE id = $1`, [
+      cart.id,
+    ]);
 
     // Invalidate cache
     await cacheDelete(`${this.CART_CACHE_PREFIX}${userId}`);

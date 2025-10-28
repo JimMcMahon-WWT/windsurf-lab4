@@ -17,7 +17,6 @@ import { logger } from '../utils/logger.utils';
 import imageService from './image.service';
 import searchService from './search.service';
 
-
 export class ProductService {
   /**
    * Get product by ID with caching
@@ -136,10 +135,7 @@ export class ProductService {
   /**
    * Update a product
    */
-  async updateProduct(
-    id: string,
-    data: UpdateProductRequest
-  ): Promise<ProductResponse> {
+  async updateProduct(id: string, data: UpdateProductRequest): Promise<ProductResponse> {
     try {
       const product = await productRepository.update(id, data);
 
@@ -176,9 +172,7 @@ export class ProductService {
 
       // Delete images from S3
       const images = await productRepository.findImagesByProductId(id);
-      await Promise.all(
-        images.map((img) => imageService.deleteImage(img.url))
-      );
+      await Promise.all(images.map((img) => imageService.deleteImage(img.url)));
 
       // Remove from Elasticsearch
       await searchService.removeProduct(id);
@@ -211,9 +205,7 @@ export class ProductService {
       const offset = (page - 1) * limit;
       const { products, total } = await productRepository.findAll(filters, limit, offset);
 
-      const productResponses = await Promise.all(
-        products.map((p) => this.buildProductResponse(p))
-      );
+      const productResponses = await Promise.all(products.map((p) => this.buildProductResponse(p)));
 
       return {
         products: productResponses,
@@ -230,10 +222,7 @@ export class ProductService {
   /**
    * Upload product images
    */
-  async uploadProductImages(
-    productId: string,
-    files: Express.Multer.File[]
-  ): Promise<void> {
+  async uploadProductImages(productId: string, files: Express.Multer.File[]): Promise<void> {
     try {
       for (const file of files) {
         // Validate
@@ -275,7 +264,9 @@ export class ProductService {
   /**
    * Create product variant
    */
-  async createVariant(data: Omit<ProductVariant, 'id' | 'created_at' | 'updated_at'>): Promise<ProductVariant> {
+  async createVariant(
+    data: Omit<ProductVariant, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<ProductVariant> {
     try {
       // Check if SKU exists
       const existingSku = await productRepository.findVariantBySku(data.sku);
@@ -326,9 +317,7 @@ export class ProductService {
       }
 
       const products = await productRepository.getFeaturedProducts(limit);
-      const responses = await Promise.all(
-        products.map((p) => this.buildProductResponse(p))
-      );
+      const responses = await Promise.all(products.map((p) => this.buildProductResponse(p)));
 
       await cacheSet(`featured:${limit}`, responses, 1800); // Cache 30 min
       return responses;
@@ -371,26 +360,21 @@ export class ProductService {
     try {
       switch (operation.operation) {
         case 'update_status':
-          await productRepository.bulkUpdateStatus(
-            operation.product_ids,
-            operation.data.status
-          );
+          await productRepository.bulkUpdateStatus(operation.product_ids, operation.data.status);
           break;
         case 'delete':
-          await Promise.all(
-            operation.product_ids.map((id) => this.deleteProduct(id))
-          );
+          await Promise.all(operation.product_ids.map((id) => this.deleteProduct(id)));
           break;
         default:
           throw new Error(`Unknown operation: ${operation.operation}`);
       }
 
       // Invalidate caches
-      await Promise.all(
-        operation.product_ids.map((id) => this.invalidateProductCache(id))
-      );
+      await Promise.all(operation.product_ids.map((id) => this.invalidateProductCache(id)));
 
-      logger.info(`Bulk operation ${operation.operation} completed for ${operation.product_ids.length} products`);
+      logger.info(
+        `Bulk operation ${operation.operation} completed for ${operation.product_ids.length} products`
+      );
     } catch (error) {
       logger.error('Error in bulk operation:', error);
       throw error;
@@ -479,7 +463,7 @@ export class ProductService {
   private async invalidateProductCache(productId: string): Promise<void> {
     try {
       await cacheDelete(`product:${productId}`);
-      
+
       // Also invalidate slug cache
       const product = await productRepository.findById(productId);
       if (product) {

@@ -33,6 +33,7 @@ npm install
 ```
 
 **This installs:**
+
 - Express (web framework)
 - PostgreSQL client (pg)
 - JWT & bcrypt (authentication)
@@ -55,6 +56,7 @@ notepad .env
 ```
 
 **Minimum configuration for local development:**
+
 ```bash
 NODE_ENV=development
 PORT=3001
@@ -116,17 +118,20 @@ psql -U postgres -d user_db -f migrations\001_create_users_table.sql
 ```
 
 **This creates:**
+
 - `users` table with all columns
 - `addresses` table
 - Indexes for performance
 - Triggers for automatic timestamp updates
 
 **Verify it worked:**
+
 ```powershell
 psql -U postgres -d user_db -c "\dt"
 ```
 
 You should see:
+
 ```
         List of relations
  Schema |   Name    | Type  |  Owner
@@ -145,6 +150,7 @@ npm run dev
 ```
 
 **Expected output:**
+
 ```
 2024-01-15 10:30:00 [user-service] info: Database connected successfully
 2024-01-15 10:30:00 [user-service] info: User service running on port 3001
@@ -168,6 +174,7 @@ curl http://localhost:3001/health
 ```
 
 **Expected response:**
+
 ```json
 {
   "status": "healthy",
@@ -189,6 +196,7 @@ Invoke-WebRequest -Uri "http://localhost:3001/api/auth/register" `
 ```
 
 **Expected response:**
+
 ```json
 {
   "success": true,
@@ -215,7 +223,7 @@ Invoke-WebRequest -Uri "http://localhost:3001/api/auth/register" `
 $response = Invoke-WebRequest -Uri "http://localhost:3001/api/auth/login" `
   -Method POST `
   -Headers @{"Content-Type"="application/json"} `
-  -Body '{"email":"test@example.com","password":"password123"}' | 
+  -Body '{"email":"test@example.com","password":"password123"}' |
   ConvertFrom-Json
 
 # Display response
@@ -227,6 +235,7 @@ echo "Token saved: $token"
 ```
 
 **Expected response:**
+
 ```json
 {
   "success": true,
@@ -255,11 +264,12 @@ echo "Token saved: $token"
 # Use the token from login
 Invoke-WebRequest -Uri "http://localhost:3001/api/users/profile" `
   -Method GET `
-  -Headers @{"Authorization"="Bearer $token"} | 
+  -Headers @{"Authorization"="Bearer $token"} |
   Select-Object -Expand Content
 ```
 
 **Expected response:**
+
 ```json
 {
   "success": true,
@@ -297,6 +307,7 @@ user-service/
 ```
 
 **Request Flow:**
+
 ```
 Client → Routes → Middleware → Controller → Service → Repository → Database
                                     ↓
@@ -381,6 +392,7 @@ npm install
 ### 1. Build More Services
 
 Use the same pattern to create:
+
 - **Product Service** (port 3002)
 - **Cart Service** (port 3003)
 - **Order Service** (port 3004)
@@ -388,6 +400,7 @@ Use the same pattern to create:
 ### 2. Add Shared Packages
 
 Create reusable code in `packages/common`:
+
 ```powershell
 cd "c:\Users\mcmahonj\CascadeProjects\module 4\packages\common"
 # Create shared utilities, types, etc.
@@ -396,6 +409,7 @@ cd "c:\Users\mcmahonj\CascadeProjects\module 4\packages\common"
 ### 3. Setup Infrastructure
 
 Create `infrastructure/docker/docker-compose.yml` with:
+
 - PostgreSQL
 - Redis
 - Kafka
@@ -427,6 +441,7 @@ npm run test
 You've successfully created and run your first microservice!
 
 **Your User Service is:**
+
 - ✅ Running on http://localhost:3001
 - ✅ Connected to PostgreSQL
 - ✅ Ready to handle authentication

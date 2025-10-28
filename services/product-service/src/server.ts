@@ -3,7 +3,11 @@ dotenv.config();
 
 import app from './app';
 import { testConnection, closePool } from './config/database.config';
-import { testElasticsearchConnection, createProductIndex, closeElasticsearch } from './config/elasticsearch.config';
+import {
+  testElasticsearchConnection,
+  createProductIndex,
+  closeElasticsearch,
+} from './config/elasticsearch.config';
 import { createProducer, closeKafka } from './config/kafka.config';
 import { testRedisConnection, closeRedis } from './config/redis.config';
 import inventoryService from './services/inventory.service';
@@ -59,13 +63,16 @@ const startServer = async () => {
     });
 
     // Setup cron job for expiring reservations (every 5 minutes)
-    setInterval(async () => {
-      try {
-        await inventoryService.expireOldReservations();
-      } catch (error) {
-        logger.error('Error expiring reservations:', error);
-      }
-    }, 5 * 60 * 1000);
+    setInterval(
+      async () => {
+        try {
+          await inventoryService.expireOldReservations();
+        } catch (error) {
+          logger.error('Error expiring reservations:', error);
+        }
+      },
+      5 * 60 * 1000
+    );
 
     // Graceful shutdown
     const shutdown = async (signal: string) => {
@@ -75,12 +82,7 @@ const startServer = async () => {
         logger.info('HTTP server closed');
 
         // Close all connections
-        await Promise.all([
-          closePool(),
-          closeRedis(),
-          closeElasticsearch(),
-          closeKafka(),
-        ]);
+        await Promise.all([closePool(), closeRedis(), closeElasticsearch(), closeKafka()]);
 
         logger.info('All connections closed');
         process.exit(0);

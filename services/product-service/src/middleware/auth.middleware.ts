@@ -74,7 +74,7 @@ export const optionalAuth = async (
     if (authHeader && authHeader.startsWith('Bearer ')) {
       // TODO: Verify JWT token
       // const token = authHeader.substring(7);
-      
+
       // For development
       if (process.env.NODE_ENV === 'development') {
         req.user = {

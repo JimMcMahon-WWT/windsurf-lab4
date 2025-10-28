@@ -5,6 +5,7 @@ Secure, PCI-compliant payment processing service with support for multiple payme
 ## Features
 
 ### Payment Processing
+
 - **Multiple Providers**: Stripe and PayPal integration
 - **Payment Methods**: Credit cards, digital wallets, PayPal
 - **Payment Flows**: Authorization, capture, refund
@@ -12,7 +13,8 @@ Secure, PCI-compliant payment processing service with support for multiple payme
 - **3D Secure**: Enhanced security for high-value transactions
 
 ### Security & Compliance
-- **PCI DSS Compliance**: 
+
+- **PCI DSS Compliance**:
   - Never stores raw card data
   - Tokenization for payment methods
   - End-to-end encryption
@@ -23,6 +25,7 @@ Secure, PCI-compliant payment processing service with support for multiple payme
 - **Webhook Verification**: Signature validation
 
 ### Fraud Detection
+
 - **Velocity Checks**: Multiple transactions detection
 - **Amount Thresholds**: High-value transaction flags
 - **Geolocation**: Location-based risk assessment
@@ -31,6 +34,7 @@ Secure, PCI-compliant payment processing service with support for multiple payme
 - **3DS Enforcement**: Require 3D Secure for risky transactions
 
 ### Operational Features
+
 - **Idempotency**: Prevent duplicate charges
 - **Reconciliation**: Automated payment reconciliation
 - **Webhook Processing**: Real-time payment updates
@@ -65,6 +69,7 @@ Secure, PCI-compliant payment processing service with support for multiple payme
 ## Database Schema
 
 ### Core Tables
+
 - `payment_providers` - Payment provider configurations
 - `payment_methods` - Tokenized payment methods (PCI compliant)
 - `payment_transactions` - All payment transactions
@@ -72,6 +77,7 @@ Secure, PCI-compliant payment processing service with support for multiple payme
 - `subscriptions` - Recurring payment subscriptions
 
 ### Compliance & Security
+
 - `payment_audit_log` - Complete audit trail (PCI requirement)
 - `webhook_events` - Webhook event processing
 - `fraud_rules` - Fraud detection rules
@@ -82,6 +88,7 @@ Secure, PCI-compliant payment processing service with support for multiple payme
 ### Payment Operations
 
 #### Process Payment
+
 ```http
 POST /api/v1/payments
 Content-Type: application/json
@@ -98,6 +105,7 @@ X-User-ID: {userId}
 ```
 
 #### Capture Payment
+
 ```http
 POST /api/v1/payments/{transactionId}/capture
 Content-Type: application/json
@@ -108,6 +116,7 @@ Content-Type: application/json
 ```
 
 #### Refund Payment
+
 ```http
 POST /api/v1/payments/{transactionId}/refund
 Content-Type: application/json
@@ -120,6 +129,7 @@ X-User-ID: {userId}
 ```
 
 #### Get Transaction
+
 ```http
 GET /api/v1/payments/{transactionId}
 ```
@@ -127,12 +137,14 @@ GET /api/v1/payments/{transactionId}
 ### Webhooks
 
 #### Stripe Webhook
+
 ```http
 POST /api/v1/webhooks/stripe
 Stripe-Signature: {signature}
 ```
 
 #### PayPal Webhook
+
 ```http
 POST /api/v1/webhooks/paypal
 ```
@@ -140,18 +152,21 @@ POST /api/v1/webhooks/paypal
 ## Setup Instructions
 
 ### 1. Install Dependencies
+
 ```bash
 cd services/payment-service
 npm install
 ```
 
 ### 2. Configure Environment Variables
+
 ```bash
 cp .env.example .env
 # Edit .env with your configuration
 ```
 
 ### 3. Setup Database
+
 ```bash
 # Create database
 docker exec -it ecommerce-postgres psql -U postgres -c "CREATE DATABASE payment_db;"
@@ -163,6 +178,7 @@ Get-Content schema.sql | docker exec -i ecommerce-postgres psql -U postgres -d p
 ### 4. Configure Payment Providers
 
 #### Stripe Setup
+
 1. Create Stripe account at https://stripe.com
 2. Get API keys from Dashboard > Developers > API keys
 3. Set up webhook endpoint at Dashboard > Developers > Webhooks
@@ -175,6 +191,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 ```
 
 #### PayPal Setup
+
 1. Create PayPal developer account at https://developer.paypal.com
 2. Create app in Dashboard > My Apps & Credentials
 3. Get client ID and secret
@@ -187,6 +204,7 @@ PAYPAL_CLIENT_SECRET=...
 ```
 
 ### 5. Start Service
+
 ```bash
 npm run dev
 ```
@@ -194,6 +212,7 @@ npm run dev
 ## Security Best Practices
 
 ### PCI Compliance Checklist
+
 - [x] Never log sensitive card data
 - [x] Use tokenization for card storage
 - [x] Encrypt all sensitive data at rest
@@ -204,6 +223,7 @@ npm run dev
 - [x] Secure key management
 
 ### Production Deployment
+
 1. **Use Environment Variables**: Never commit secrets
 2. **Enable HTTPS**: TLS 1.2+ required
 3. **Rotate Keys**: Regular key rotation schedule
@@ -216,17 +236,20 @@ npm run dev
 ## Fraud Detection Configuration
 
 ### Risk Thresholds
+
 ```env
 FRAUD_HIGH_RISK_THRESHOLD=75
 FRAUD_MEDIUM_RISK_THRESHOLD=50
 ```
 
 ### Actions by Risk Level
+
 - **Low (0-49)**: Process normally
 - **Medium (50-74)**: Require 3D Secure
 - **High (75-100)**: Block and review
 
 ### Custom Rules
+
 Add custom fraud rules via database:
 
 ```sql
@@ -245,6 +268,7 @@ VALUES (
 ## Testing
 
 ### Test with Stripe
+
 ```bash
 # Use Stripe test cards
 # Success: 4242 4242 4242 4242
@@ -253,9 +277,11 @@ VALUES (
 ```
 
 ### Test with PayPal
+
 Use PayPal sandbox accounts for testing
 
 ### Test Webhooks Locally
+
 ```bash
 # Stripe CLI
 stripe listen --forward-to localhost:3004/api/v1/webhooks/stripe
@@ -264,6 +290,7 @@ stripe listen --forward-to localhost:3004/api/v1/webhooks/stripe
 ## Monitoring & Alerts
 
 ### Key Metrics
+
 - Transaction success rate
 - Average payment processing time
 - Fraud detection accuracy
@@ -271,6 +298,7 @@ stripe listen --forward-to localhost:3004/api/v1/webhooks/stripe
 - Failed payment reasons
 
 ### Recommended Alerts
+
 - High fraud score transactions
 - Failed payment spike
 - Webhook processing failures
@@ -280,12 +308,14 @@ stripe listen --forward-to localhost:3004/api/v1/webhooks/stripe
 ## Compliance & Audit
 
 ### Audit Log Retention
+
 - Payment transactions: 7 years (PCI requirement)
 - Audit logs: 7 years
 - Webhook events: 1 year
 - Fraud assessments: 2 years
 
 ### Regular Reviews
+
 - Monthly reconciliation
 - Quarterly security audit
 - Annual PCI compliance review
@@ -296,15 +326,19 @@ stripe listen --forward-to localhost:3004/api/v1/webhooks/stripe
 ### Common Issues
 
 **Issue**: Payment fails with "Insufficient funds"
+
 - **Solution**: Customer needs to use different payment method
 
 **Issue**: 3D Secure not triggering
+
 - **Solution**: Check `REQUIRE_3DS_ABOVE_AMOUNT` setting
 
 **Issue**: Webhook signature verification fails
+
 - **Solution**: Verify webhook secret matches provider dashboard
 
 **Issue**: High fraud scores
+
 - **Solution**: Review fraud rules and adjust thresholds
 
 ## API Reference

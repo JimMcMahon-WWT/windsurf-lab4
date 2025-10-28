@@ -27,27 +27,27 @@ export const TOPICS = {
   ORDER_CANCELLED: 'order.cancelled',
   ORDER_COMPLETED: 'order.completed',
   ORDER_FAILED: 'order.failed',
-  
+
   // Payment Events
   PAYMENT_REQUESTED: 'payment.requested',
   PAYMENT_SUCCEEDED: 'payment.succeeded',
   PAYMENT_FAILED: 'payment.failed',
   PAYMENT_REFUNDED: 'payment.refunded',
-  
+
   // Inventory Events
   INVENTORY_RESERVED: 'inventory.reserved',
   INVENTORY_RELEASED: 'inventory.released',
   INVENTORY_FAILED: 'inventory.failed',
-  
+
   // Shipping Events
   SHIPPING_REQUESTED: 'shipping.requested',
   SHIPPING_CONFIRMED: 'shipping.confirmed',
   SHIPPING_DISPATCHED: 'shipping.dispatched',
   SHIPPING_DELIVERED: 'shipping.delivered',
-  
+
   // Notification Events
   NOTIFICATION_REQUESTED: 'notification.requested',
-  
+
   // Dead Letter Queue
   DLQ: 'dead-letter-queue',
 };
@@ -64,7 +64,7 @@ export const getProducer = async (): Promise<Producer> => {
 
   await producer.connect();
   logger.info('✅ Kafka producer connected');
-  
+
   return producer;
 };
 
@@ -81,17 +81,18 @@ export const getConsumer = async (): Promise<Consumer> => {
 
   await consumer.connect();
   logger.info('✅ Kafka consumer connected');
-  
+
   return consumer;
 };
 
 export const publishEvent = async (topic: string, message: any): Promise<void> => {
   try {
     const prod = await getProducer();
-    
+
     const key = message.aggregateId || message.orderId || 'unknown';
-    const correlationId = message.correlationId || message.aggregateId || message.orderId || 'unknown';
-    
+    const correlationId =
+      message.correlationId || message.aggregateId || message.orderId || 'unknown';
+
     const messageData = {
       key,
       value: JSON.stringify(message),
@@ -128,9 +129,9 @@ export const subscribeToTopics = async (
   await cons.run({
     eachMessage: async (payload) => {
       const { topic, partition, message } = payload;
-      
+
       logger.debug(`Received message from ${topic} [${partition}]`);
-      
+
       try {
         await messageHandler(payload);
       } catch (error) {
@@ -175,7 +176,7 @@ export const disconnectKafka = async (): Promise<void> => {
     await producer.disconnect();
     logger.info('Kafka producer disconnected');
   }
-  
+
   if (consumer) {
     await consumer.disconnect();
     logger.info('Kafka consumer disconnected');
@@ -184,11 +185,11 @@ export const disconnectKafka = async (): Promise<void> => {
 
 export const createTopics = async (): Promise<void> => {
   const admin = kafka.admin();
-  
+
   try {
     await admin.connect();
-    
-    const topicList = Object.values(TOPICS).map(topic => ({
+
+    const topicList = Object.values(TOPICS).map((topic) => ({
       topic,
       numPartitions: 3,
       replicationFactor: 1,

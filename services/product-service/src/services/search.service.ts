@@ -1,9 +1,9 @@
-import { 
-  PRODUCT_INDEX, 
-  indexProduct, 
+import {
+  PRODUCT_INDEX,
+  indexProduct,
   deleteProduct as deleteFromIndex,
   updateProduct as updateInIndex,
-  searchProducts as esSearch
+  searchProducts as esSearch,
 } from '../config/elasticsearch.config';
 import categoryRepository from '../repositories/category.repository';
 import inventoryRepository from '../repositories/inventory.repository';
@@ -53,7 +53,7 @@ export class SearchService {
         review_count: product.review_count,
         view_count: product.view_count,
         purchase_count: product.purchase_count,
-        images: images.map(img => ({
+        images: images.map((img) => ({
           url: img.url,
           thumbnail_url: img.thumbnail_url,
           is_primary: img.is_primary,
@@ -117,10 +117,7 @@ export class SearchService {
       const esQuery: any = {
         bool: {
           must: [],
-          filter: [
-            { term: { status: 'active' } },
-            { term: { is_available: true } },
-          ],
+          filter: [{ term: { status: 'active' } }, { term: { is_available: true } }],
         },
       };
 
@@ -244,27 +241,29 @@ export class SearchService {
 
       // Parse results
       const hits = result.hits.hits;
-      const total = typeof result.hits.total === 'number' 
-        ? result.hits.total 
-        : result.hits.total.value;
+      const total =
+        typeof result.hits.total === 'number' ? result.hits.total : result.hits.total.value;
 
       const products = hits.map((hit: any) => hit._source);
 
       // Parse facets
       const facets: SearchFacets = {
-        brands: result.aggregations?.brands?.buckets.map((b: any) => ({
-          name: b.key,
-          count: b.doc_count,
-        })) || [],
-        price_ranges: result.aggregations?.price_ranges?.buckets.map((b: any) => ({
-          min: b.from || 0,
-          max: b.to || 999999,
-          count: b.doc_count,
-        })) || [],
-        ratings: result.aggregations?.ratings?.buckets.map((b: any) => ({
-          rating: b.key,
-          count: b.doc_count,
-        })) || [],
+        brands:
+          result.aggregations?.brands?.buckets.map((b: any) => ({
+            name: b.key,
+            count: b.doc_count,
+          })) || [],
+        price_ranges:
+          result.aggregations?.price_ranges?.buckets.map((b: any) => ({
+            min: b.from || 0,
+            max: b.to || 999999,
+            count: b.doc_count,
+          })) || [],
+        ratings:
+          result.aggregations?.ratings?.buckets.map((b: any) => ({
+            rating: b.key,
+            count: b.doc_count,
+          })) || [],
       };
 
       // Get category names for facets
@@ -273,7 +272,7 @@ export class SearchService {
         const categories = await Promise.all(
           categoryIds.map((id: string) => categoryRepository.findById(id))
         );
-        
+
         facets.categories = result.aggregations.categories.buckets
           .map((b: any, idx: number) => ({
             id: b.key,
@@ -318,10 +317,7 @@ export class SearchService {
                   },
                 },
               ],
-              filter: [
-                { term: { status: 'active' } },
-                { term: { is_available: true } },
-              ],
+              filter: [{ term: { status: 'active' } }, { term: { is_available: true } }],
             },
           },
           _source: ['name'],
@@ -342,23 +338,21 @@ export class SearchService {
   async reindexAll(): Promise<void> {
     try {
       logger.info('Starting full reindex...');
-      
+
       let offset = 0;
       const batchSize = 100;
       let hasMore = true;
 
       while (hasMore) {
         const { products, total } = await productRepository.findAll({}, batchSize, offset);
-        
+
         if (products.length === 0) {
           hasMore = false;
           break;
         }
 
         // Index batch
-        await Promise.all(
-          products.map(product => this.indexProduct(product.id))
-        );
+        await Promise.all(products.map((product) => this.indexProduct(product.id)));
 
         offset += batchSize;
         logger.info(`Reindexed ${Math.min(offset, total)} of ${total} products`);

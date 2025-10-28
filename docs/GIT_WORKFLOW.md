@@ -21,39 +21,47 @@ main                    # Production-ready code
 ### Supporting Branches
 
 #### Feature Branches
+
 ```
 feature/<service>/<ticket-id>-<short-description>
 ```
 
 **Examples:**
+
 - `feature/user-service/ECOM-123-add-password-reset`
 - `feature/product-service/ECOM-456-add-search-filters`
 - `feature/shared/ECOM-789-update-logger-package`
 
 #### Bugfix Branches
+
 ```
 bugfix/<service>/<ticket-id>-<short-description>
 ```
 
 **Examples:**
+
 - `bugfix/order-service/ECOM-234-fix-payment-timeout`
 - `bugfix/cart-service/ECOM-567-fix-quantity-validation`
 
 #### Hotfix Branches
+
 ```
 hotfix/<version>-<ticket-id>-<short-description>
 ```
 
 **Examples:**
+
 - `hotfix/1.2.1-ECOM-890-critical-auth-bug`
 - `hotfix/1.3.2-ECOM-901-payment-gateway-down`
 
 #### Release Branches
+
 ```
 release/<version>
 ```
 
 **Examples:**
+
 - `release/1.2.0`
 - `release/2.0.0`
 
@@ -66,6 +74,7 @@ See [PULL_REQUEST_TEMPLATE.md](./PULL_REQUEST_TEMPLATE.md) for the full template
 ### Review Process
 
 #### Stage 1: Automated Checks (Pre-Review)
+
 - ✅ Linting (ESLint)
 - ✅ Type checking (TypeScript)
 - ✅ Unit tests (Jest) - >80% coverage
@@ -73,7 +82,9 @@ See [PULL_REQUEST_TEMPLATE.md](./PULL_REQUEST_TEMPLATE.md) for the full template
 - ✅ Security scan
 
 #### Stage 2: Code Review
+
 **Required Reviewers:**
+
 - Small changes (< 200 lines): 1 approval
 - Medium changes (200-500 lines): 2 approvals
 - Large changes (> 500 lines): 2 approvals + tech lead
@@ -82,10 +93,12 @@ See [PULL_REQUEST_TEMPLATE.md](./PULL_REQUEST_TEMPLATE.md) for the full template
 **Review Timeline:** Within 4 hours during business hours
 
 #### Stage 3: Testing
+
 - Feature branches → Deploy to dev environment
 - After approval → Deploy to staging
 
 #### Stage 4: Merge
+
 - Must have all approvals
 - Must pass all automated checks
 - Must be up-to-date with target branch
@@ -95,12 +108,15 @@ See [PULL_REQUEST_TEMPLATE.md](./PULL_REQUEST_TEMPLATE.md) for the full template
 ## 3. Merge Strategies
 
 ### Feature → Develop: Squash and Merge
+
 Clean history, easier to revert
 
 ### Develop → Staging: Merge Commit
+
 Preserve feature context for testing
 
 ### Staging → Main: Merge Commit + Tag
+
 Clear release points, enables rollbacks
 
 ```bash
@@ -119,12 +135,14 @@ git push origin main --tags
 ### Release Steps
 
 1. **Create Release Branch**
+
    ```bash
    git checkout develop
    git checkout -b release/1.2.0
    ```
 
 2. **Version Bump & Changelog**
+
    ```bash
    npm version 1.2.0 --no-git-tag-version
    npm run changelog
@@ -133,6 +151,7 @@ git push origin main --tags
 3. **Deploy to Staging** (2-3 days QA testing)
 
 4. **Merge to Main**
+
    ```bash
    git checkout main
    git merge --no-ff release/1.2.0
@@ -149,11 +168,11 @@ See [RELEASE_PROCESS.md](./RELEASE_PROCESS.md) for detailed steps.
 
 ### Priority Levels
 
-| Level | Response Time | Examples |
-|-------|---------------|----------|
-| **P0** | < 1 hour | Complete outage, security breach |
-| **P1** | < 4 hours | Major feature broken, payment issues |
-| **P2** | Next release | Minor bugs |
+| Level  | Response Time | Examples                             |
+| ------ | ------------- | ------------------------------------ |
+| **P0** | < 1 hour      | Complete outage, security breach     |
+| **P1** | < 4 hours     | Major feature broken, payment issues |
+| **P2** | Next release  | Minor bugs                           |
 
 ### Hotfix Workflow
 
@@ -172,6 +191,7 @@ See [HOTFIX_GUIDE.md](./HOTFIX_GUIDE.md) for details.
 ## 6. Code Review Checklist
 
 ### For Authors
+
 - [ ] Code follows style guide (ESLint passes)
 - [ ] No console.log or debug statements
 - [ ] Tests added/updated (>80% coverage)
@@ -180,6 +200,7 @@ See [HOTFIX_GUIDE.md](./HOTFIX_GUIDE.md) for details.
 - [ ] Security best practices followed
 
 ### For Reviewers
+
 - [ ] Functionality is correct
 - [ ] Code is maintainable
 - [ ] Tests are meaningful
@@ -193,14 +214,17 @@ See [CODE_REVIEW_CHECKLIST.md](./CODE_REVIEW_CHECKLIST.md) for complete list.
 ## 7. Automated Quality Gates
 
 ### Pre-Commit (Husky)
+
 - Lint staged files
 - Type check
 
 ### Pre-Push
+
 - Run tests
 - Ensure build succeeds
 
 ### CI Pipeline (GitHub Actions)
+
 - Code quality checks
 - Security scan
 - Unit & integration tests
@@ -211,20 +235,21 @@ See [CI_CD_PIPELINE.md](./CI_CD_PIPELINE.md) for complete configuration.
 
 ### Quality Gate Criteria
 
-| Check | Threshold | Blocking |
-|-------|-----------|----------|
-| Linting | 0 errors | ✅ Yes |
-| Type Errors | 0 errors | ✅ Yes |
-| Unit Tests | 100% pass | ✅ Yes |
-| Code Coverage | ≥ 80% | ✅ Yes |
-| Security Scan | 0 high/critical | ✅ Yes |
-| Build Success | Must succeed | ✅ Yes |
+| Check         | Threshold       | Blocking |
+| ------------- | --------------- | -------- |
+| Linting       | 0 errors        | ✅ Yes   |
+| Type Errors   | 0 errors        | ✅ Yes   |
+| Unit Tests    | 100% pass       | ✅ Yes   |
+| Code Coverage | ≥ 80%           | ✅ Yes   |
+| Security Scan | 0 high/critical | ✅ Yes   |
+| Build Success | Must succeed    | ✅ Yes   |
 
 ---
 
 ## Branch Protection Rules
 
 ### Main Branch
+
 - Require 2 PR reviews
 - Require all status checks to pass
 - Require up-to-date branches
@@ -233,6 +258,7 @@ See [CI_CD_PIPELINE.md](./CI_CD_PIPELINE.md) for complete configuration.
 - Require signed commits
 
 ### Develop Branch
+
 - Require 1 PR review
 - Require status checks
 - Allow force pushes (maintainers only)
@@ -252,6 +278,7 @@ Follow **Conventional Commits**:
 ```
 
 ### Types
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation
@@ -275,6 +302,7 @@ Closes ECOM-123
 ## Best Practices
 
 ### ✅ Do's
+
 - Keep PRs small (< 500 lines)
 - Write descriptive commit messages
 - Update documentation with code changes
@@ -282,6 +310,7 @@ Closes ECOM-123
 - Delete branches after merge
 
 ### ❌ Don'ts
+
 - Don't commit directly to protected branches
 - Don't force push to protected branches
 - Don't merge without approvals
@@ -303,6 +332,7 @@ Closes ECOM-123
 ## Team Training
 
 New developers should:
+
 1. Read this workflow guide
 2. Review 2-3 recent PRs
 3. Pair with senior dev for first PR

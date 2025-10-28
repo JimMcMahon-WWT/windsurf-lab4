@@ -11,7 +11,7 @@ export class OrderController {
   async createOrder(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.headers['x-user-id'] as string;
-      
+
       if (!userId) {
         res.status(401).json({ error: 'User ID required' });
         return;
@@ -79,7 +79,7 @@ export class OrderController {
   async getUserOrders(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const userId = req.headers['x-user-id'] as string;
-      
+
       if (!userId) {
         res.status(401).json({ error: 'User ID required' });
         return;

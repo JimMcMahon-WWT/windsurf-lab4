@@ -21,7 +21,7 @@ export const getRedisClient = async (): Promise<RedisClientType> => {
   redisClient.on('ready', () => logger.info('Redis client ready'));
 
   await redisClient.connect();
-  
+
   return redisClient;
 };
 

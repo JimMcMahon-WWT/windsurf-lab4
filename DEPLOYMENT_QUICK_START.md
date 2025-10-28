@@ -16,6 +16,7 @@ docker-compose down
 ```
 
 **Access Services:**
+
 - User Service: http://localhost:3001
 - Product Service: http://localhost:3002
 - Order Service: http://localhost:3003
@@ -28,6 +29,7 @@ docker-compose down
 ### Kubernetes Production Deployment
 
 #### Prerequisites
+
 ```bash
 # Install kubectl
 curl -LO https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl
@@ -39,6 +41,7 @@ curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 #### Deploy Everything
 
 **Linux/Mac:**
+
 ```bash
 cd k8s
 chmod +x deploy.sh
@@ -46,12 +49,14 @@ chmod +x deploy.sh
 ```
 
 **Windows PowerShell:**
+
 ```powershell
 cd k8s
 .\deploy.ps1 -Action all
 ```
 
 #### Verify Deployment
+
 ```bash
 kubectl get pods -n ecommerce
 kubectl get services -n ecommerce
@@ -147,24 +152,25 @@ kubectl delete namespace ecommerce
 
 ## Service Ports
 
-| Service | Port | Protocol | Purpose |
-|---------|------|----------|---------|
-| User Service | 3001 | HTTP | Authentication, Users |
-| Product Service | 3002 | HTTP | Products, Catalog |
-| Order Service | 3003 | HTTP | Orders, Cart |
-| Payment Service | 3004 | HTTP | Payments, Billing |
-| PostgreSQL | 5432 | TCP | Database |
-| Redis | 6379 | TCP | Cache |
-| Elasticsearch | 9200 | HTTP | Search |
-| Kafka | 9092 | TCP | Events |
-| Prometheus | 9090 | HTTP | Metrics |
-| Grafana | 3000 | HTTP | Dashboards |
+| Service         | Port | Protocol | Purpose               |
+| --------------- | ---- | -------- | --------------------- |
+| User Service    | 3001 | HTTP     | Authentication, Users |
+| Product Service | 3002 | HTTP     | Products, Catalog     |
+| Order Service   | 3003 | HTTP     | Orders, Cart          |
+| Payment Service | 3004 | HTTP     | Payments, Billing     |
+| PostgreSQL      | 5432 | TCP      | Database              |
+| Redis           | 6379 | TCP      | Cache                 |
+| Elasticsearch   | 9200 | HTTP     | Search                |
+| Kafka           | 9092 | TCP      | Events                |
+| Prometheus      | 9090 | HTTP     | Metrics               |
+| Grafana         | 3000 | HTTP     | Dashboards            |
 
 ---
 
 ## Environment Variables
 
 ### Required for All Services
+
 ```
 NODE_ENV=production
 PORT=<service-port>
@@ -178,18 +184,21 @@ REDIS_PORT=6379
 ```
 
 ### User Service Specific
+
 ```
 JWT_SECRET=<secret>
 JWT_EXPIRES_IN=7d
 ```
 
 ### Product Service Specific
+
 ```
 ELASTICSEARCH_NODE=http://elasticsearch:9200
 KAFKA_BROKERS=kafka:9092
 ```
 
 ### Payment Service Specific
+
 ```
 STRIPE_SECRET_KEY=<secret>
 STRIPE_PUBLISHABLE_KEY=<secret>
@@ -214,6 +223,7 @@ curl http://localhost:3004/health  # Payment Service
 ```
 
 Expected response:
+
 ```json
 {
   "status": "healthy",
@@ -228,10 +238,12 @@ Expected response:
 ## Monitoring URLs
 
 ### Local (Docker Compose)
+
 - **Kibana**: http://localhost:5601
 - **Grafana**: http://localhost:3000 (admin/admin)
 
 ### Kubernetes
+
 - **Prometheus**: http://prometheus.ecommerce.example.com
 - **Grafana**: http://grafana.ecommerce.example.com
 - **Kibana**: http://kibana.ecommerce.example.com
@@ -241,6 +253,7 @@ Expected response:
 ## Troubleshooting Quick Fixes
 
 ### Service won't start
+
 ```bash
 # Check logs
 docker-compose logs <service-name>
@@ -254,6 +267,7 @@ kubectl logs <pod-name> -n ecommerce
 ```
 
 ### Can't connect to database
+
 ```bash
 # Test connection
 docker-compose exec user-service nc -zv postgres 5432
@@ -267,6 +281,7 @@ kubectl exec -it <pod> -n ecommerce -- nc -zv postgres-service 5432
 ```
 
 ### High memory usage
+
 ```bash
 # Check usage
 docker stats
@@ -280,6 +295,7 @@ kubectl top pods -n ecommerce
 ```
 
 ### Slow performance
+
 ```bash
 # Check if Redis is working
 redis-cli ping
@@ -298,11 +314,13 @@ redis-cli ping
 ## Scaling
 
 ### Docker Compose (Limited)
+
 ```bash
 docker-compose up -d --scale product-service=3
 ```
 
 ### Kubernetes (Automatic)
+
 ```bash
 # Manual scaling
 kubectl scale deployment product-service --replicas=5 -n ecommerce
@@ -316,6 +334,7 @@ kubectl get hpa -n ecommerce
 ## Backup & Restore
 
 ### Database Backup
+
 ```bash
 # Docker Compose
 docker-compose exec postgres pg_dump -U postgres ecommerce > backup.sql
@@ -325,6 +344,7 @@ kubectl exec -it postgres-0 -n ecommerce -- pg_dump -U postgres ecommerce > back
 ```
 
 ### Database Restore
+
 ```bash
 # Docker Compose
 docker-compose exec -T postgres psql -U postgres ecommerce < backup.sql
@@ -353,16 +373,19 @@ kubectl exec -i postgres-0 -n ecommerce -- psql -U postgres ecommerce < backup.s
 ## Performance Tuning
 
 ### Database
+
 - Connection pooling: 10-20 connections per service
 - Indexes on frequently queried columns
 - Regular VACUUM and ANALYZE
 
 ### Redis
+
 - Use appropriate eviction policy
 - Monitor memory usage
 - Use clustering for high load
 
 ### Services
+
 - Enable compression
 - Use connection pooling
 - Implement circuit breakers
@@ -384,6 +407,7 @@ kubectl exec -i postgres-0 -n ecommerce -- psql -U postgres ecommerce < backup.s
 ## Support
 
 ### Get Help
+
 ```bash
 # View all documentation
 ls -la docs/
@@ -399,6 +423,7 @@ kubectl logs -n ecommerce --all-containers=true | grep ERROR
 ```
 
 ### Report Issues
+
 1. Collect logs
 2. Document steps to reproduce
 3. Include environment details
@@ -420,6 +445,7 @@ kubectl logs -n ecommerce --all-containers=true | grep ERROR
 ---
 
 **For detailed information, see:**
+
 - `CONTAINERIZATION_GUIDE.md` - Comprehensive guide
 - `k8s/README.md` - Kubernetes deployment details
 - `docker-compose.yml` - Local development setup

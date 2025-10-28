@@ -28,7 +28,6 @@ import {
 
 import { AggregateRoot } from './aggregate.base';
 
-
 /**
  * Order Aggregate Root
  * Manages the complete order lifecycle through events
@@ -218,10 +217,7 @@ export class OrderAggregate extends AggregateRoot {
    * Cancel the order
    */
   cancelOrder(reason: string, metadata?: any): void {
-    if (
-      this.status === OrderStatus.CANCELLED ||
-      this.status === OrderStatus.DELIVERED
-    ) {
+    if (this.status === OrderStatus.CANCELLED || this.status === OrderStatus.DELIVERED) {
       throw new Error(`Cannot cancel order in status: ${this.status}`);
     }
 

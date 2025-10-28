@@ -8,13 +8,13 @@ Complete monitoring solution for the containerized e-commerce microservices plat
 
 ### Core Monitoring Services
 
-| Service | Port | Purpose | Status |
-|---------|------|---------|--------|
-| **Prometheus** | 9090 | Metrics collection & storage | ✅ Running |
-| **Grafana** | 3000 | Metrics visualization | ✅ Running |
-| **cAdvisor** | 8080 | Container metrics | ✅ Running |
-| **Postgres Exporter** | 9187 | PostgreSQL metrics | ✅ Running |
-| **Redis Exporter** | 9121 | Redis metrics | ✅ Running |
+| Service               | Port | Purpose                      | Status     |
+| --------------------- | ---- | ---------------------------- | ---------- |
+| **Prometheus**        | 9090 | Metrics collection & storage | ✅ Running |
+| **Grafana**           | 3000 | Metrics visualization        | ✅ Running |
+| **cAdvisor**          | 8080 | Container metrics            | ✅ Running |
+| **Postgres Exporter** | 9187 | PostgreSQL metrics           | ✅ Running |
+| **Redis Exporter**    | 9121 | Redis metrics                | ✅ Running |
 
 ### Metrics Sources
 
@@ -126,10 +126,12 @@ Once you add the `prom-client` library to your services, you'll get:
 Located at: `monitoring/prometheus/prometheus.yml`
 
 **Scrape Intervals:**
+
 - Global: 15s
 - Services: 30s (configurable per job)
 
 **Retention:**
+
 - 30 days of metrics data
 
 **Targets:**
@@ -143,6 +145,7 @@ Located at: `monitoring/grafana/provisioning/`
 **Dashboards:** Auto-loaded from provisioning directory
 
 **Default Credentials:**
+
 - Username: `admin`
 - Password: `admin`
 
@@ -260,7 +263,7 @@ groups:
         labels:
           severity: critical
         annotations:
-          summary: "Service {{ $labels.job }} is down"
+          summary: 'Service {{ $labels.job }} is down'
 
       - alert: HighErrorRate
         expr: rate(http_requests_total{status=~"5.."}[5m]) > 0.05
@@ -268,7 +271,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "High error rate on {{ $labels.service }}"
+          summary: 'High error rate on {{ $labels.service }}'
 
       - alert: HighMemoryUsage
         expr: container_memory_usage_bytes / container_spec_memory_limit_bytes > 0.9
@@ -276,7 +279,7 @@ groups:
         labels:
           severity: warning
         annotations:
-          summary: "Container {{ $labels.name }} using >90% memory"
+          summary: 'Container {{ $labels.name }} using >90% memory'
 ```
 
 Update `prometheus.yml` to include rules:
@@ -362,7 +365,7 @@ const httpRequestDuration = new promClient.Histogram({
   name: 'http_request_duration_seconds',
   help: 'Duration of HTTP requests in seconds',
   labelNames: ['method', 'route', 'status_code'],
-  registers: [register]
+  registers: [register],
 });
 
 // Expose metrics endpoint
@@ -380,14 +383,14 @@ const ordersTotal = new promClient.Counter({
   name: 'orders_created_total',
   help: 'Total number of orders created',
   labelNames: ['status'],
-  registers: [register]
+  registers: [register],
 });
 
 // Gauge for active sessions
 const activeSessions = new promClient.Gauge({
   name: 'user_sessions_active',
   help: 'Number of active user sessions',
-  registers: [register]
+  registers: [register],
 });
 
 // Histogram for payment amounts
@@ -395,7 +398,7 @@ const paymentAmount = new promClient.Histogram({
   name: 'payment_amount_dollars',
   help: 'Distribution of payment amounts',
   buckets: [10, 50, 100, 500, 1000, 5000],
-  registers: [register]
+  registers: [register],
 });
 ```
 

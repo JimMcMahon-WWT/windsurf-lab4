@@ -16,7 +16,7 @@ export class CategoryRepository {
     const query = includeInactive
       ? 'SELECT * FROM categories ORDER BY display_order, name'
       : 'SELECT * FROM categories WHERE is_active = TRUE ORDER BY display_order, name';
-    
+
     const result = await pool.query(query);
     return result.rows;
   }
@@ -25,7 +25,7 @@ export class CategoryRepository {
     const query = parentId
       ? 'SELECT * FROM categories WHERE parent_id = $1 AND is_active = TRUE ORDER BY display_order, name'
       : 'SELECT * FROM categories WHERE parent_id IS NULL AND is_active = TRUE ORDER BY display_order, name';
-    
+
     const params = parentId ? [parentId] : [];
     const result = await pool.query(query, params);
     return result.rows;
@@ -100,7 +100,7 @@ export class CategoryRepository {
       SELECT * FROM category_tree
       ORDER BY level, display_order, name
     `;
-    
+
     const result = await pool.query(query);
     return result.rows;
   }

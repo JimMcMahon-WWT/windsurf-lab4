@@ -5,6 +5,7 @@
 A hotfix is an emergency fix deployed outside the normal release cycle.
 
 **Create a hotfix for:**
+
 - ✅ Production outages
 - ✅ Critical security vulnerabilities
 - ✅ Data corruption issues
@@ -12,6 +13,7 @@ A hotfix is an emergency fix deployed outside the normal release cycle.
 - ✅ Complete feature breakage affecting all users
 
 **Do NOT create a hotfix for:**
+
 - ❌ Minor bugs affecting few users
 - ❌ UI cosmetic issues
 - ❌ Feature requests
@@ -22,12 +24,12 @@ A hotfix is an emergency fix deployed outside the normal release cycle.
 
 ## Severity Levels
 
-| Level | Response | Examples | Process |
-|-------|----------|----------|---------|
-| **P0 - Critical** | < 1 hour | Complete outage, data loss, security breach | Immediate hotfix |
-| **P1 - High** | < 4 hours | Major feature broken, payment issues | Same-day hotfix |
-| **P2 - Medium** | < 24 hours | Minor bugs, partial feature broken | Next release |
-| **P3 - Low** | Next sprint | UI issues, small bugs | Backlog |
+| Level             | Response    | Examples                                    | Process          |
+| ----------------- | ----------- | ------------------------------------------- | ---------------- |
+| **P0 - Critical** | < 1 hour    | Complete outage, data loss, security breach | Immediate hotfix |
+| **P1 - High**     | < 4 hours   | Major feature broken, payment issues        | Same-day hotfix  |
+| **P2 - Medium**   | < 24 hours  | Minor bugs, partial feature broken          | Next release     |
+| **P3 - Low**      | Next sprint | UI issues, small bugs                       | Backlog          |
 
 ---
 
@@ -36,6 +38,7 @@ A hotfix is an emergency fix deployed outside the normal release cycle.
 ### Phase 1: Identification & Assessment (0-30 minutes)
 
 #### 1.1 Identify the Issue
+
 ```bash
 # Gather information:
 # - What's broken?
@@ -51,6 +54,7 @@ A hotfix is an emergency fix deployed outside the normal release cycle.
 ```
 
 #### 1.2 Assess Severity
+
 ```bash
 # Determine severity level
 # P0: Immediate action required
@@ -61,6 +65,7 @@ A hotfix is an emergency fix deployed outside the normal release cycle.
 ```
 
 #### 1.3 Notify Team
+
 ```bash
 # Post in #incidents Slack channel
 # Alert on-call engineer
@@ -69,6 +74,7 @@ A hotfix is an emergency fix deployed outside the normal release cycle.
 ```
 
 **Incident Template:**
+
 ```markdown
 🚨 INCIDENT ALERT
 
@@ -86,6 +92,7 @@ A hotfix is an emergency fix deployed outside the normal release cycle.
 ### Phase 2: Investigation & Fix (30 minutes - 2 hours)
 
 #### 2.1 Create Hotfix Branch
+
 ```bash
 # Create branch from main (current production code)
 git checkout main
@@ -97,6 +104,7 @@ git checkout -b hotfix/1.2.1-ECOM-999-auth-failure
 ```
 
 #### 2.2 Reproduce the Issue
+
 ```bash
 # Reproduce locally or in staging
 # Identify root cause
@@ -104,7 +112,9 @@ git checkout -b hotfix/1.2.1-ECOM-999-auth-failure
 ```
 
 #### 2.3 Develop the Fix
+
 **Guidelines:**
+
 - Keep it MINIMAL - only fix the critical issue
 - Don't add features or refactor
 - Don't fix unrelated bugs
@@ -131,6 +141,7 @@ export class AuthService {
 ```
 
 #### 2.4 Test Thoroughly
+
 ```bash
 # Run unit tests
 npm run test
@@ -146,6 +157,7 @@ npm run test:integration
 ```
 
 #### 2.5 Commit with Clear Message
+
 ```bash
 git add .
 git commit -m "hotfix: resolve authentication failure in login endpoint
@@ -169,12 +181,14 @@ git push origin hotfix/1.2.1-ECOM-999-auth-failure
 ### Phase 3: Review & Approval (30 minutes)
 
 #### 3.1 Create Pull Request
+
 ```bash
 # Create PR to main branch
 # Use hotfix PR template
 ```
 
 **Hotfix PR Template:**
+
 ```markdown
 ## 🚨 HOTFIX - URGENT
 
@@ -183,36 +197,45 @@ git push origin hotfix/1.2.1-ECOM-999-auth-failure
 **Service:** User Service
 
 ### Issue
+
 All users unable to log in. Authentication endpoint returning 500 errors.
 
 ### Root Cause
+
 Missing null check allowed undefined email/password to reach database query.
 
 ### Fix
+
 Added input validation and proper error handling.
 
 ### Testing
+
 - [x] Unit tests pass
 - [x] Manual testing completed
 - [x] Verified fix in staging
 - [x] No regressions found
 
 ### Impact
+
 - **Users Affected:** All users (100%)
 - **Duration:** 30 minutes
 - **Data Loss:** None
 
 ### Rollback Plan
+
 Revert this commit if issues arise.
 
 ### Deployment
+
 Deploy immediately after approval.
 ```
 
 #### 3.2 Fast-Track Review
+
 **Required:** 1 senior developer approval
 
 **Reviewers focus on:**
+
 - Does it fix the issue?
 - Is it safe to deploy?
 - Are there obvious bugs?
@@ -225,6 +248,7 @@ Deploy immediately after approval.
 ### Phase 4: Staging Deployment (15-30 minutes)
 
 #### 4.1 Deploy to Staging First
+
 ```bash
 # Even for P0, test in staging if possible
 git checkout staging
@@ -236,6 +260,7 @@ npm run deploy:staging
 ```
 
 #### 4.2 Verify Fix in Staging
+
 ```bash
 # Run smoke tests
 npm run test:smoke:staging
@@ -253,6 +278,7 @@ npm run test:smoke:staging
 ### Phase 5: Production Deployment (15-30 minutes)
 
 #### 5.1 Pre-Deployment
+
 ```bash
 # Backup database (if needed)
 npm run db:backup:production
@@ -262,6 +288,7 @@ npm run db:backup:production
 ```
 
 #### 5.2 Merge to Main
+
 ```bash
 git checkout main
 git merge --no-ff hotfix/1.2.1-ECOM-999-auth-failure -m "hotfix: authentication failure fix"
@@ -278,6 +305,7 @@ git push origin main --tags
 ```
 
 #### 5.3 Deploy
+
 ```bash
 # Deploy hotfix
 npm run deploy:production
@@ -286,6 +314,7 @@ npm run deploy:production
 ```
 
 #### 5.4 Verify Deployment
+
 ```bash
 # Health checks
 curl https://api.example.com/user-service/health
@@ -304,6 +333,7 @@ npm run test:smoke:production
 ### Phase 6: Monitoring (1-24 hours)
 
 #### 6.1 Immediate Monitoring (First Hour)
+
 ```bash
 # Watch logs continuously
 npm run logs:production --follow --service=user-service
@@ -316,6 +346,7 @@ npm run logs:production --follow --service=user-service
 ```
 
 #### 6.2 Extended Monitoring (24 Hours)
+
 - Check error rates every hour
 - Monitor customer support tickets
 - Review application logs
@@ -326,6 +357,7 @@ npm run logs:production --follow --service=user-service
 ### Phase 7: Post-Hotfix (24-48 hours)
 
 #### 7.1 Backport to Develop
+
 ```bash
 # Merge hotfix back to develop branch
 git checkout develop
@@ -334,6 +366,7 @@ git push origin develop
 ```
 
 #### 7.2 Backport to Release Branch (if exists)
+
 ```bash
 # If there's an active release branch
 git checkout release/1.3.0
@@ -342,6 +375,7 @@ git push origin release/1.3.0
 ```
 
 #### 7.3 Clean Up
+
 ```bash
 # Delete hotfix branch
 git branch -d hotfix/1.2.1-ECOM-999-auth-failure
@@ -349,6 +383,7 @@ git push origin --delete hotfix/1.2.1-ECOM-999-auth-failure
 ```
 
 #### 7.4 Update Documentation
+
 ```bash
 # Update CHANGELOG.md
 # Update incident log
@@ -356,7 +391,9 @@ git push origin --delete hotfix/1.2.1-ECOM-999-auth-failure
 ```
 
 #### 7.5 Communication
+
 **Update status page:**
+
 ```
 ✅ Incident Resolved
 
@@ -371,6 +408,7 @@ We apologize for the inconvenience.
 ```
 
 **Notify stakeholders:**
+
 - Engineering team
 - Customer support
 - Product team
@@ -386,9 +424,11 @@ We apologize for the inconvenience.
 # Post-Mortem: Authentication Failure - 2025-01-15
 
 ## Summary
+
 Users unable to log in due to missing input validation in authentication endpoint.
 
 ## Timeline
+
 - **10:30 AM** - Issue detected via monitoring alerts
 - **10:35 AM** - Incident declared, team notified
 - **10:45 AM** - Root cause identified
@@ -403,6 +443,7 @@ Users unable to log in due to missing input validation in authentication endpoin
 **Time to Deploy:** 15 minutes
 
 ## Impact
+
 - **Users Affected:** 100% (all users)
 - **Duration:** 45 minutes
 - **Failed Login Attempts:** ~2,500
@@ -410,10 +451,12 @@ Users unable to log in due to missing input validation in authentication endpoin
 - **Customer Support Tickets:** 37
 
 ## Root Cause
+
 Missing null/undefined check for email and password parameters allowed
 invalid values to reach database query, causing uncaught exception.
 
 ## What Went Well
+
 ✅ Quick detection (< 5 minutes after deployment)
 ✅ Clear monitoring alerts
 ✅ Fast root cause identification
@@ -422,12 +465,14 @@ invalid values to reach database query, causing uncaught exception.
 ✅ Good team communication
 
 ## What Went Wrong
+
 ❌ Missing test cases for edge cases
 ❌ No input validation in API layer
 ❌ Insufficient code review focus on validation
 ❌ Staging tests didn't catch the issue
 
 ## Action Items
+
 1. **Immediate**
    - [ ] Add input validation middleware (Owner: @dev1, Due: 2025-01-16)
    - [ ] Add test cases for null/undefined inputs (Owner: @dev2, Due: 2025-01-16)
@@ -443,12 +488,14 @@ invalid values to reach database query, causing uncaught exception.
    - [ ] Improve staging test coverage (Owner: @qa, Due: 2025-02-15)
 
 ## Prevention
+
 - Enforce input validation at API gateway level
 - Require schema validation for all endpoints
 - Add property-based testing for edge cases
 - Update developer training materials
 
 ## Lessons Learned
+
 1. Input validation is critical and should be layered
 2. Edge case testing prevents production issues
 3. Quick detection and response minimized impact
@@ -463,6 +510,7 @@ invalid values to reach database query, causing uncaught exception.
 ## Hotfix Checklist - v1.2.1
 
 ### Identification
+
 - [ ] Issue identified and documented
 - [ ] Severity assessed (P0/P1)
 - [ ] Team notified in #incidents
@@ -470,6 +518,7 @@ invalid values to reach database query, causing uncaught exception.
 - [ ] On-call engineer assigned
 
 ### Development
+
 - [ ] Hotfix branch created from main
 - [ ] Issue reproduced locally
 - [ ] Root cause identified
@@ -478,16 +527,19 @@ invalid values to reach database query, causing uncaught exception.
 - [ ] Manual testing completed
 
 ### Review
+
 - [ ] PR created with hotfix template
 - [ ] Senior developer approval obtained
 - [ ] Security review (if applicable)
 
 ### Staging
+
 - [ ] Deployed to staging
 - [ ] Smoke tests passed
 - [ ] Fix verified
 
 ### Production
+
 - [ ] Database backup completed (if needed)
 - [ ] Merged to main
 - [ ] Tagged with new version
@@ -496,6 +548,7 @@ invalid values to reach database query, causing uncaught exception.
 - [ ] Fix verified in production
 
 ### Post-Deployment
+
 - [ ] Monitoring alerts configured
 - [ ] Logs reviewed for errors
 - [ ] Metrics back to normal
@@ -503,12 +556,14 @@ invalid values to reach database query, causing uncaught exception.
 - [ ] Team notified
 
 ### Cleanup
+
 - [ ] Merged back to develop
 - [ ] Merged to release branch (if exists)
 - [ ] Hotfix branch deleted
 - [ ] Documentation updated
 
 ### Post-Mortem
+
 - [ ] Post-mortem scheduled
 - [ ] Root cause documented
 - [ ] Action items created
@@ -520,6 +575,7 @@ invalid values to reach database query, causing uncaught exception.
 ## Common Hotfix Scenarios
 
 ### Scenario 1: Database Migration Issue
+
 ```bash
 # Rollback migration
 npm run migrate:down:production
@@ -530,6 +586,7 @@ npm run migrate:down:production
 ```
 
 ### Scenario 2: Configuration Error
+
 ```bash
 # Update environment variables
 kubectl set env deployment/user-service NEW_CONFIG=value
@@ -539,6 +596,7 @@ kubectl rollout restart deployment/user-service
 ```
 
 ### Scenario 3: Dependency Vulnerability
+
 ```bash
 # Update vulnerable dependency
 npm update vulnerable-package
@@ -550,6 +608,7 @@ npm audit
 ```
 
 ### Scenario 4: External Service Outage
+
 ```bash
 # Implement circuit breaker
 # Add fallback logic
@@ -577,23 +636,24 @@ Database Admin: @dba (Slack, +1-XXX-XXX-XXXX)
 
 ## Hotfix vs Regular Release
 
-| Aspect | Hotfix | Regular Release |
-|--------|--------|-----------------|
-| **Trigger** | Production emergency | Scheduled sprint end |
-| **Branch** | From main | From develop |
-| **Scope** | Minimal fix only | Multiple features |
-| **Review** | 1 senior dev, fast | 2 devs, thorough |
-| **Testing** | Critical paths only | Full test suite |
-| **Staging** | Quick verification | 2-3 days QA |
-| **Approval** | Fast-track | Full sign-off process |
-| **Timeline** | Hours | Days/weeks |
-| **Risk** | Higher (speed) | Lower (thorough testing) |
+| Aspect       | Hotfix               | Regular Release          |
+| ------------ | -------------------- | ------------------------ |
+| **Trigger**  | Production emergency | Scheduled sprint end     |
+| **Branch**   | From main            | From develop             |
+| **Scope**    | Minimal fix only     | Multiple features        |
+| **Review**   | 1 senior dev, fast   | 2 devs, thorough         |
+| **Testing**  | Critical paths only  | Full test suite          |
+| **Staging**  | Quick verification   | 2-3 days QA              |
+| **Approval** | Fast-track           | Full sign-off process    |
+| **Timeline** | Hours                | Days/weeks               |
+| **Risk**     | Higher (speed)       | Lower (thorough testing) |
 
 ---
 
 ## Best Practices
 
 ### ✅ Do's
+
 - Act quickly but carefully
 - Communicate clearly and frequently
 - Keep the fix minimal
@@ -603,6 +663,7 @@ Database Admin: @dba (Slack, +1-XXX-XXX-XXXX)
 - Conduct post-mortem
 
 ### ❌ Don'ts
+
 - Don't panic
 - Don't skip testing entirely
 - Don't add unrelated changes
@@ -625,6 +686,7 @@ Track these for hotfix process improvement:
 - **Hotfix Success Rate:** % deployed successfully
 
 **Target Metrics:**
+
 - Time to detect: < 5 minutes
 - Time to fix: < 2 hours (P0), < 4 hours (P1)
 - Time to deploy: < 30 minutes

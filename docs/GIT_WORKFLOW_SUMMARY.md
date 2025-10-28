@@ -16,22 +16,22 @@
 ```
 main (production)
   └── Protected, requires 2 approvals
-  
+
 staging (pre-production)
   └── Protected, requires 1 approval, E2E tests
-  
+
 develop (integration)
   └── Protected, requires 1 approval
-  
+
 feature/<service>/<ticket>-<description>
   └── From develop, squash merge back
-  
+
 bugfix/<service>/<ticket>-<description>
   └── From develop, squash merge back
-  
+
 hotfix/<version>-<ticket>-<description>
   └── From main, merge to main + develop
-  
+
 release/<version>
   └── From develop, merge to staging → main
 ```
@@ -137,15 +137,15 @@ git merge --no-ff hotfix/1.2.1-ECOM-999-critical-bug
 
 All PRs must pass:
 
-| Gate | Threshold | Blocking |
-|------|-----------|----------|
-| Linting | 0 errors | ✅ |
-| Type Check | 0 errors | ✅ |
-| Unit Tests | 100% pass | ✅ |
-| Coverage | ≥ 80% | ✅ |
-| Security Scan | 0 high/critical | ✅ |
-| Build | Success | ✅ |
-| Code Review | 1-2 approvals | ✅ |
+| Gate          | Threshold       | Blocking |
+| ------------- | --------------- | -------- |
+| Linting       | 0 errors        | ✅       |
+| Type Check    | 0 errors        | ✅       |
+| Unit Tests    | 100% pass       | ✅       |
+| Coverage      | ≥ 80%           | ✅       |
+| Security Scan | 0 high/critical | ✅       |
+| Build         | Success         | ✅       |
+| Code Review   | 1-2 approvals   | ✅       |
 
 ---
 
@@ -160,6 +160,7 @@ All PRs must pass:
 ```
 
 **Types:**
+
 - `feat`: New feature
 - `fix`: Bug fix
 - `docs`: Documentation
@@ -171,6 +172,7 @@ All PRs must pass:
 - `ci`: CI/CD changes
 
 **Example:**
+
 ```bash
 feat(user-service): add password reset functionality
 
@@ -194,6 +196,7 @@ Closes ECOM-123
 ## 🎯 Best Practices
 
 ### ✅ Do's
+
 - Keep PRs small (< 500 lines)
 - Write clear commit messages
 - Update tests with code
@@ -202,6 +205,7 @@ Closes ECOM-123
 - Respond to feedback quickly
 
 ### ❌ Don'ts
+
 - Don't commit to protected branches
 - Don't force push to protected branches
 - Don't merge without approval
@@ -214,6 +218,7 @@ Closes ECOM-123
 ## 🚨 When Things Go Wrong
 
 ### Build Fails
+
 ```bash
 # Check CI logs
 # Fix the issue
@@ -224,6 +229,7 @@ git push
 ```
 
 ### Merge Conflicts
+
 ```bash
 # Update your branch
 git checkout feature/my-feature
@@ -239,6 +245,7 @@ git push --force-with-lease
 ```
 
 ### Need to Rollback
+
 ```bash
 # Production rollback
 git revert -m 1 <merge-commit-hash>
@@ -424,6 +431,7 @@ You're following the workflow correctly when:
 ## 🆘 Emergency Procedures
 
 ### P0 Incident (Production Down)
+
 1. Declare incident in #incidents
 2. Create hotfix branch from main
 3. Develop minimal fix
@@ -433,6 +441,7 @@ You're following the workflow correctly when:
 7. Post-mortem within 48 hours
 
 ### Security Vulnerability
+
 1. Create private security advisory
 2. Develop patch in private repo
 3. Test thoroughly

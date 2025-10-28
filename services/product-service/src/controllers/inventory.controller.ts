@@ -32,8 +32,8 @@ export class InventoryController {
   async updateInventory(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       // product_id and variant_id can come from either query or body
-      const product_id = req.query.product_id as string || req.body.product_id;
-      const variant_id = req.query.variant_id as string || req.body.variant_id;
+      const product_id = (req.query.product_id as string) || req.body.product_id;
+      const variant_id = (req.query.variant_id as string) || req.body.variant_id;
       const data = req.body;
       const userId = req.user?.id; // From auth middleware
 

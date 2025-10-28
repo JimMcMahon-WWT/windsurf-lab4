@@ -87,10 +87,7 @@ export class UserRepository {
   }
 
   async updatePassword(userId: string, passwordHash: string): Promise<void> {
-    await pool.query(
-      'UPDATE users SET password_hash = $1 WHERE id = $2',
-      [passwordHash, userId]
-    );
+    await pool.query('UPDATE users SET password_hash = $1 WHERE id = $2', [passwordHash, userId]);
   }
 
   // Refresh Token Methods
@@ -117,7 +114,11 @@ export class UserRepository {
     return result.rows[0] || null;
   }
 
-  async revokeRefreshToken(token: string, replacedByToken?: string, revokedByIp?: string): Promise<void> {
+  async revokeRefreshToken(
+    token: string,
+    replacedByToken?: string,
+    revokedByIp?: string
+  ): Promise<void> {
     await pool.query(
       `UPDATE refresh_tokens 
        SET revoked_at = CURRENT_TIMESTAMP, replaced_by_token = $1, revoked_by_ip = $2
@@ -139,10 +140,7 @@ export class UserRepository {
 
   // User Preferences Methods
   async getPreferences(userId: string): Promise<UserPreferences | null> {
-    const result = await pool.query(
-      'SELECT * FROM user_preferences WHERE user_id = $1',
-      [userId]
-    );
+    const result = await pool.query('SELECT * FROM user_preferences WHERE user_id = $1', [userId]);
     return result.rows[0] || null;
   }
 

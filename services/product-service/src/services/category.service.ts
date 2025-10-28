@@ -84,7 +84,9 @@ export class CategoryService {
   /**
    * Create a category
    */
-  async createCategory(data: Omit<Category, 'id' | 'created_at' | 'updated_at'>): Promise<Category> {
+  async createCategory(
+    data: Omit<Category, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<Category> {
     try {
       const category = await categoryRepository.create(data);
 
@@ -218,17 +220,18 @@ export class CategoryService {
     }
 
     const children = await categoryRepository.findByParentId(category.id);
-    const childResponses = children.length > 0
-      ? children.map((child) => ({
-          id: child.id,
-          name: child.name,
-          slug: child.slug,
-          description: child.description,
-          image_url: child.image_url,
-          parent: null,
-          children: undefined,
-        }))
-      : undefined;
+    const childResponses =
+      children.length > 0
+        ? children.map((child) => ({
+            id: child.id,
+            name: child.name,
+            slug: child.slug,
+            description: child.description,
+            image_url: child.image_url,
+            parent: null,
+            children: undefined,
+          }))
+        : undefined;
 
     return {
       id: category.id,

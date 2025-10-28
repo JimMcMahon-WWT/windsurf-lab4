@@ -56,19 +56,13 @@ export const setSession = async (
   await redisClient.setex(key, sessionTTL, JSON.stringify(data));
 };
 
-export const getSession = async (
-  userId: string,
-  sessionToken: string
-): Promise<any | null> => {
+export const getSession = async (userId: string, sessionToken: string): Promise<any | null> => {
   const key = `session:${userId}:${sessionToken}`;
   const data = await redisClient.get(key);
   return data ? JSON.parse(data) : null;
 };
 
-export const deleteSession = async (
-  userId: string,
-  sessionToken: string
-): Promise<void> => {
+export const deleteSession = async (userId: string, sessionToken: string): Promise<void> => {
   const key = `session:${userId}:${sessionToken}`;
   await redisClient.del(key);
 };
@@ -82,11 +76,7 @@ export const deleteAllUserSessions = async (userId: string): Promise<void> => {
 };
 
 // Cache helpers
-export const cacheSet = async (
-  key: string,
-  value: any,
-  ttl: number = 3600
-): Promise<void> => {
+export const cacheSet = async (key: string, value: any, ttl: number = 3600): Promise<void> => {
   await redisClient.setex(`cache:${key}`, ttl, JSON.stringify(value));
 };
 

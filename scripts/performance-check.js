@@ -31,10 +31,10 @@ function makeRequest(url, method = 'GET') {
   return new Promise((resolve, reject) => {
     const protocol = url.startsWith('https') ? https : http;
     const startTime = Date.now();
-    
+
     const req = protocol.request(url, { method }, (res) => {
       let data = '';
-      res.on('data', chunk => data += chunk);
+      res.on('data', (chunk) => (data += chunk));
       res.on('end', () => {
         const duration = Date.now() - startTime;
         resolve({
@@ -44,13 +44,13 @@ function makeRequest(url, method = 'GET') {
         });
       });
     });
-    
+
     req.on('error', reject);
     req.setTimeout(10000, () => {
       req.destroy();
       reject(new Error('Request timeout'));
     });
-    
+
     req.end();
   });
 }
@@ -64,49 +64,51 @@ async function runLoadTest(endpoint, durationSec, concurrency) {
     durations: [],
     errors: [],
   };
-  
-  const endTime = Date.now() + (durationSec * 1000);
+
+  const endTime = Date.now() + durationSec * 1000;
   const workers = [];
-  
+
   // Start concurrent workers
   for (let i = 0; i < concurrency; i++) {
-    workers.push((async () => {
-      while (Date.now() < endTime) {
-        try {
-          const result = await makeRequest(url, endpoint.method);
-          results.requests++;
-          results.durations.push(result.duration);
-          
-          if (result.success) {
-            results.successes++;
-          } else {
+    workers.push(
+      (async () => {
+        while (Date.now() < endTime) {
+          try {
+            const result = await makeRequest(url, endpoint.method);
+            results.requests++;
+            results.durations.push(result.duration);
+
+            if (result.success) {
+              results.successes++;
+            } else {
+              results.failures++;
+            }
+          } catch (error) {
             results.failures++;
+            results.errors.push(error.message);
           }
-        } catch (error) {
-          results.failures++;
-          results.errors.push(error.message);
         }
-      }
-    })());
+      })()
+    );
   }
-  
+
   await Promise.all(workers);
-  
+
   // Calculate statistics
   results.durations.sort((a, b) => a - b);
   const len = results.durations.length;
-  
+
   return {
     endpoint: endpoint.name,
     totalRequests: results.requests,
-    successRate: (results.successes / results.requests * 100).toFixed(2),
-    failureRate: (results.failures / results.requests * 100).toFixed(2),
+    successRate: ((results.successes / results.requests) * 100).toFixed(2),
+    failureRate: ((results.failures / results.requests) * 100).toFixed(2),
     rps: (results.requests / durationSec).toFixed(2),
     latency: {
       min: results.durations[0] || 0,
       max: results.durations[len - 1] || 0,
       mean: (results.durations.reduce((a, b) => a + b, 0) / len).toFixed(2),
-      p50: results.durations[Math.floor(len * 0.50)] || 0,
+      p50: results.durations[Math.floor(len * 0.5)] || 0,
       p95: results.durations[Math.floor(len * 0.95)] || 0,
       p99: results.durations[Math.floor(len * 0.99)] || 0,
     },
@@ -130,19 +132,21 @@ function compareWithBaseline(current, baseline) {
     log('No baseline found - this will become the new baseline', 'warning');
     return { pass: true, deviations: [] };
   }
-  
+
   const deviations = [];
-  
+
   for (const endpoint of current.endpoints) {
-    const baselineEndpoint = baseline.endpoints.find(e => e.endpoint === endpoint.endpoint);
+    const baselineEndpoint = baseline.endpoints.find((e) => e.endpoint === endpoint.endpoint);
     if (!baselineEndpoint) continue;
-    
+
     // Compare P95 latency
-    const p95Deviation = ((endpoint.latency.p95 - baselineEndpoint.latency.p95) / baselineEndpoint.latency.p95) * 100;
-    
+    const p95Deviation =
+      ((endpoint.latency.p95 - baselineEndpoint.latency.p95) / baselineEndpoint.latency.p95) * 100;
+
     // Compare success rate
-    const successRateDeviation = parseFloat(baselineEndpoint.successRate) - parseFloat(endpoint.successRate);
-    
+    const successRateDeviation =
+      parseFloat(baselineEndpoint.successRate) - parseFloat(endpoint.successRate);
+
     if (p95Deviation > THRESHOLD_DEVIATION) {
       deviations.push({
         endpoint: endpoint.endpoint,
@@ -152,7 +156,7 @@ function compareWithBaseline(current, baseline) {
         deviation: p95Deviation.toFixed(2),
       });
     }
-    
+
     if (successRateDeviation > 1) {
       deviations.push({
         endpoint: endpoint.endpoint,
@@ -163,7 +167,7 @@ function compareWithBaseline(current, baseline) {
       });
     }
   }
-  
+
   return {
     pass: deviations.length === 0,
     deviations,
@@ -176,7 +180,7 @@ async function runPerformanceCheck() {
   log(`Duration: ${DURATION}s per endpoint`);
   log(`Concurrency: ${CONCURRENCY}`);
   log(`Threshold: ${THRESHOLD_DEVIATION}% degradation\n`);
-  
+
   const results = {
     timestamp: new Date().toISOString(),
     target: TARGET_URL,
@@ -184,29 +188,29 @@ async function runPerformanceCheck() {
     concurrency: CONCURRENCY,
     endpoints: [],
   };
-  
+
   // Run load tests for each endpoint
   for (const endpoint of endpoints) {
     log(`Testing ${endpoint.name}...`);
     const result = await runLoadTest(endpoint, DURATION, CONCURRENCY);
     results.endpoints.push(result);
-    
+
     log(`  Requests: ${result.totalRequests}`);
     log(`  RPS: ${result.rps}`);
     log(`  Success Rate: ${result.successRate}%`);
     log(`  P95 Latency: ${result.latency.p95}ms`);
     log(`  P99 Latency: ${result.latency.p99}ms\n`);
   }
-  
+
   // Load and compare with baseline
   const baseline = loadBaseline();
   const comparison = compareWithBaseline(results, baseline);
-  
+
   // Print results
   console.log('='.repeat(60));
   console.log('Performance Check Results');
   console.log('='.repeat(60));
-  
+
   if (comparison.pass) {
     log('✅ All performance metrics within acceptable range', 'success');
   } else {
@@ -218,9 +222,9 @@ async function runPerformanceCheck() {
       log(`    Deviation: ${dev.deviation}%`, 'error');
     }
   }
-  
+
   console.log('='.repeat(60));
-  
+
   // Save results as new baseline if better or no baseline exists
   if (!baseline || comparison.pass) {
     try {
@@ -234,12 +238,12 @@ async function runPerformanceCheck() {
       log(`Warning: Could not save baseline: ${error.message}`, 'warning');
     }
   }
-  
+
   process.exit(comparison.pass ? 0 : 1);
 }
 
 // Run performance check
-runPerformanceCheck().catch(error => {
+runPerformanceCheck().catch((error) => {
   log(`Fatal error: ${error.message}`, 'error');
   process.exit(1);
 });

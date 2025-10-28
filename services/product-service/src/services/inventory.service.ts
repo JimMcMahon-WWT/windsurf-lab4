@@ -45,8 +45,10 @@ export class InventoryService {
 
       // Create inventory if it doesn't exist (for initial stock)
       if (!inventory) {
-        logger.info(`Creating initial inventory for ${productId ? 'product' : 'variant'}: ${productId || variantId}`);
-        
+        logger.info(
+          `Creating initial inventory for ${productId ? 'product' : 'variant'}: ${productId || variantId}`
+        );
+
         // Build inventory data - only include one of product_id or variant_id
         const inventoryData: any = {
           quantity: 0,
@@ -59,7 +61,7 @@ export class InventoryService {
           last_restocked_at: null,
           last_sold_at: null,
         };
-        
+
         // Set either product_id OR variant_id, not both
         if (productId) {
           inventoryData.product_id = productId;
@@ -68,7 +70,7 @@ export class InventoryService {
           inventoryData.product_id = null;
           inventoryData.variant_id = variantId;
         }
-        
+
         inventory = await inventoryRepository.create(inventoryData);
       }
 
