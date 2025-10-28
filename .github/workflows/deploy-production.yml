@@ -84,6 +84,7 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+        continue-on-error: true
 
   build-and-push-images:
     name: Build and Push Docker Images
@@ -510,6 +511,7 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+        continue-on-error: true
 
       - name: Notify Slack - Failure
         if: needs.post-deployment-verification.result == 'failure'
@@ -538,6 +540,7 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+        continue-on-error: true
 
   rollback:
     name: Rollback to Blue
@@ -598,3 +601,4 @@ jobs:
             }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+        continue-on-error: true
