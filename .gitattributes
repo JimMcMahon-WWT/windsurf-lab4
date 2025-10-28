@@ -1,0 +1,44 @@
+# Set default line ending behavior
+* text=auto eol=lf
+
+# Source code files - force LF (matches Linux deployment)
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+
+# Config files - force LF
+*.yml text eol=lf
+*.yaml text eol=lf
+*.toml text eol=lf
+*.conf text eol=lf
+.env* text eol=lf
+
+# Shell scripts - force LF
+*.sh text eol=lf
+
+# Windows scripts - force CRLF
+*.ps1 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Docker files - force LF
+Dockerfile* text eol=lf
+*.dockerfile text eol=lf
+
+# Binary files - never modify
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.pdf binary
+*.zip binary
+*.tar binary
+*.gz binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
