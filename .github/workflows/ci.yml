@@ -253,5 +253,6 @@ jobs:
         with:
           status: ${{ job.status }}
           text: 'Deployment to ${{ steps.env.outputs.environment }} completed'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
         if: always()
