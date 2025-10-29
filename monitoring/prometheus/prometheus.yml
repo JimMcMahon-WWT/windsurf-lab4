@@ -6,15 +6,15 @@ global:
     cluster: 'ecommerce-dev'
     environment: 'development'
 
-# Alertmanager configuration (optional - can be added later)
-# alerting:
-#   alertmanagers:
-#     - static_configs:
-#         - targets: ['alertmanager:9093']
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
 
-# Rule files for alerting (optional)
-# rule_files:
-#   - 'alerts/*.yml'
+# Rule files for alerting
+rule_files:
+  - 'alerts/*.yml'
 
 scrape_configs:
   # Prometheus self-monitoring
