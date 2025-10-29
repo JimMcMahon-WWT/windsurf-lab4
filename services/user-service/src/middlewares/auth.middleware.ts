@@ -10,7 +10,7 @@ export const authenticate = (req: Request, res: Response, next: NextFunction): v
     // Security Review Note (CWE-807, CWE-290):
     // This is input format validation, not a security bypass. We're checking that the
     // Authorization header exists and has the expected "Bearer <token>" format before
-    // attempting token extraction. The actual security decision happens on line 19 via
+    // attempting token extraction. The actual security decision happens on line 26 via
     // authUtils.verifyAccessToken() which cryptographically verifies the JWT signature.
     // No trust is placed in user-controlled input - this check merely rejects malformed
     // requests early to avoid unnecessary processing.

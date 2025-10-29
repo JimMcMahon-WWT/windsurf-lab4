@@ -112,7 +112,7 @@ export class WebhookController {
       // This is input structure validation, not a security bypass. We're checking that the
       // request body is an object before attempting to access its properties. This prevents
       // TypeErrors and rejects clearly invalid payloads early. The actual security decision
-      // happens on line 128 via paypalProvider.verifyWebhookSignature() which validates
+      // happens on line 138 via paypalProvider.verifyWebhookSignature() which validates
       // PayPal's webhook signature headers. No trust is placed in the payload content.
       if (!event || typeof event !== 'object') {
         logger.error('Invalid PayPal webhook payload structure');
@@ -124,7 +124,7 @@ export class WebhookController {
       // Security Review Note (CWE-807, CWE-290):
       // This is input field validation, not a security bypass. We're checking that the
       // event.id field exists and is a string before passing it to signature verification.
-      // The actual security decision happens on line 128 via verifyWebhookSignature() which
+      // The actual security decision happens on line 138 via verifyWebhookSignature() which
       // validates PayPal's cryptographic signature headers. This check merely ensures we
       // have required data for the verification process.
       if (!webhookId || typeof webhookId !== 'string') {
