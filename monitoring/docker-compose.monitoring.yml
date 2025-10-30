@@ -1,142 +1,22 @@
-version: '3.8'
+# ============================================================
+# ADVANCED MONITORING STACK
+#
+# This file contains ONLY the additional monitoring services
+# not already present in the main docker-compose.yml
+#
+# Services in main docker-compose.yml:
+#   - Prometheus, Grafana, cAdvisor
+#   - Postgres-exporter, Redis-exporter
+#   - Elasticsearch, Kibana
+#
+# New services in this file:
+#   - Jaeger (distributed tracing)
+#   - Logstash (log processing)
+#   - Filebeat (log shipping)
+#   - Alertmanager (alert routing)
+# ============================================================
 
 services:
-  # ============================================================
-  # METRICS COLLECTION - Prometheus & Exporters
-  # ============================================================
-
-  prometheus:
-    image: prom/prometheus:v2.47.0
-    container_name: ecommerce-prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--storage.tsdb.retention.time=30d'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
-      - '--web.enable-lifecycle'
-    volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-      - ./prometheus/alerts:/etc/prometheus/alerts
-      - prometheus-data:/prometheus
-    ports:
-      - '9090:9090'
-    networks:
-      - ecommerce-network
-      - monitoring-network
-    restart: unless-stopped
-    healthcheck:
-      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:9090/-/healthy']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # ============================================================
-  # VISUALIZATION - Grafana
-  # ============================================================
-
-  grafana:
-    image: grafana/grafana:10.1.5
-    container_name: ecommerce-grafana
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=admin
-      - GF_USERS_ALLOW_SIGN_UP=false
-      - GF_SERVER_ROOT_URL=http://localhost:3000
-      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
-    volumes:
-      - ./grafana/provisioning:/etc/grafana/provisioning
-      - ./grafana/dashboards:/var/lib/grafana/dashboards
-      - grafana-data:/var/lib/grafana
-    ports:
-      - '3000:3000'
-    networks:
-      - monitoring-network
-    depends_on:
-      - prometheus
-    restart: unless-stopped
-    healthcheck:
-      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:3000/api/health']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-
-  # ============================================================
-  # CONTAINER METRICS - cAdvisor
-  # ============================================================
-
-  cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.47.2
-    container_name: ecommerce-cadvisor
-    privileged: true
-    volumes:
-      - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /var/lib/docker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
-    ports:
-      - '8080:8080'
-    networks:
-      - monitoring-network
-    restart: unless-stopped
-    command:
-      - '--housekeeping_interval=10s'
-      - '--docker_only=true'
-
-  # ============================================================
-  # DATABASE METRICS - PostgreSQL Exporter
-  # ============================================================
-
-  postgres-exporter:
-    image: prometheuscommunity/postgres-exporter:v0.13.2
-    container_name: ecommerce-postgres-exporter
-    environment:
-      - DATA_SOURCE_NAME=postgresql://ecommerce_user:ecommerce_password@postgres:5432/ecommerce_db?sslmode=disable
-    ports:
-      - '9187:9187'
-    networks:
-      - ecommerce-network
-      - monitoring-network
-    restart: unless-stopped
-    depends_on:
-      - postgres
-
-  # ============================================================
-  # CACHE METRICS - Redis Exporter
-  # ============================================================
-
-  redis-exporter:
-    image: oliver006/redis_exporter:v1.55.0
-    container_name: ecommerce-redis-exporter
-    environment:
-      - REDIS_ADDR=redis:6379
-    ports:
-      - '9121:9121'
-    networks:
-      - ecommerce-network
-      - monitoring-network
-    restart: unless-stopped
-    depends_on:
-      - redis
-
-  # ============================================================
-  # HOST METRICS - Node Exporter
-  # ============================================================
-
-  node-exporter:
-    image: prom/node-exporter:v1.6.1
-    container_name: ecommerce-node-exporter
-    command:
-      - '--path.rootfs=/host'
-    volumes:
-      - /:/host:ro,rslave
-    ports:
-      - '9100:9100'
-    networks:
-      - monitoring-network
-    restart: unless-stopped
-
   # ============================================================
   # DISTRIBUTED TRACING - Jaeger
   # ============================================================
@@ -170,34 +50,9 @@ services:
       retries: 3
 
   # ============================================================
-  # CENTRALIZED LOGGING - ELK Stack
+  # LOG PROCESSING - Logstash
+  # NOTE: Elasticsearch and Kibana are in main docker-compose.yml
   # ============================================================
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.1
-    container_name: ecommerce-elasticsearch
-    environment:
-      - discovery.type=single-node
-      - xpack.security.enabled=false
-      - 'ES_JAVA_OPTS=-Xms512m -Xmx512m'
-      - bootstrap.memory_lock=true
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    volumes:
-      - elasticsearch-data:/usr/share/elasticsearch/data
-    ports:
-      - '9200:9200'
-      - '9300:9300'
-    networks:
-      - monitoring-network
-    restart: unless-stopped
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:9200/_cluster/health']
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   logstash:
     image: docker.elastic.co/logstash/logstash:8.11.1
@@ -213,31 +68,9 @@ services:
     networks:
       - ecommerce-network
       - monitoring-network
-    depends_on:
-      - elasticsearch
     restart: unless-stopped
     environment:
       - 'LS_JAVA_OPTS=-Xms256m -Xmx256m'
-
-  kibana:
-    image: docker.elastic.co/kibana/kibana:8.11.1
-    container_name: ecommerce-kibana
-    environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
-      - SERVER_NAME=kibana
-      - SERVER_HOST=0.0.0.0
-    ports:
-      - '5601:5601'
-    networks:
-      - monitoring-network
-    depends_on:
-      - elasticsearch
-    restart: unless-stopped
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:5601/api/status']
-      interval: 30s
-      timeout: 10s
-      retries: 5
 
   # ============================================================
   # LOG SHIPPER - Filebeat (Optional)
@@ -255,7 +88,6 @@ services:
     networks:
       - monitoring-network
     depends_on:
-      - elasticsearch
       - logstash
     restart: unless-stopped
     command: filebeat -e -strict.perms=false
@@ -274,7 +106,7 @@ services:
       - ./alertmanager:/etc/alertmanager
       - alertmanager-data:/alertmanager
     ports:
-      - '9093:9093'
+      - '9094:9093' # Changed host port to 9094 to avoid conflict with Kafka
     networks:
       - monitoring-network
     restart: unless-stopped
@@ -286,8 +118,5 @@ networks:
     driver: bridge
 
 volumes:
-  prometheus-data:
-  grafana-data:
-  elasticsearch-data:
   filebeat-data:
   alertmanager-data:

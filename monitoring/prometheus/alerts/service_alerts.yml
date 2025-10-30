@@ -37,17 +37,17 @@ groups:
     interval: 30s
     rules:
       - alert: HighCPUUsage
-        expr: (rate(container_cpu_usage_seconds_total[5m]) * 100) > 80
+        expr: (rate(container_cpu_usage_seconds_total{job!="cadvisor"}[5m]) * 100) > 500
         for: 10m
         labels:
           severity: warning
           category: resources
         annotations:
-          summary: 'High CPU usage on {{ $labels.name }}'
-          description: 'Container {{ $labels.name }} CPU usage is {{ $value }}%'
+          summary: 'High CPU usage on {{ $labels.job }}'
+          description: 'Container {{ $labels.job }} CPU usage is {{ $value }}% (>5 cores)'
 
       - alert: HighMemoryUsage
-        expr: (container_memory_usage_bytes / container_spec_memory_limit_bytes) * 100 > 90
+        expr: (container_spec_memory_limit_bytes > 0) and ((container_memory_usage_bytes / container_spec_memory_limit_bytes) * 100 > 90)
         for: 5m
         labels:
           severity: warning

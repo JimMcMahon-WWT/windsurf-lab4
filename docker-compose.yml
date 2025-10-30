@@ -27,7 +27,7 @@ services:
       - '6379:6379'
     volumes:
       - redis_data:/data
-    command: redis-server --appendonly yes
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 10s
@@ -83,6 +83,11 @@ services:
     volumes:
       - zookeeper_data:/var/lib/zookeeper/data
       - zookeeper_logs:/var/lib/zookeeper/log
+    healthcheck:
+      test: ['CMD', 'nc', '-z', 'localhost', '2181']
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Apache Kafka
   kafka:
@@ -399,24 +404,26 @@ services:
           memory: 128M
 
   # Node Exporter - Host Metrics
-  node-exporter:
-    image: prom/node-exporter:v1.7.0
-    container_name: ecommerce-node-exporter
-    command:
-      - '--path.rootfs=/host'
-    ports:
-      - '9100:9100'
-    volumes:
-      - /:/host:ro,rslave
-    restart: unless-stopped
-    deploy:
-      resources:
-        limits:
-          cpus: '0.2'
-          memory: 128M
-        reservations:
-          cpus: '0.1'
-          memory: 64M
+  # NOTE: Disabled on Windows - doesn't support root filesystem mounting
+  # On Linux/production, uncomment this service
+  # node-exporter:
+  #   image: prom/node-exporter:v1.7.0
+  #   container_name: ecommerce-node-exporter
+  #   command:
+  #     - '--path.rootfs=/host'
+  #   ports:
+  #     - '9100:9100'
+  #   volumes:
+  #     - /:/host:ro,rslave
+  #   restart: unless-stopped
+  #   deploy:
+  #     resources:
+  #       limits:
+  #         cpus: '0.2'
+  #         memory: 128M
+  #       reservations:
+  #         cpus: '0.1'
+  #         memory: 64M
 
   # Postgres Exporter - PostgreSQL Metrics
   postgres-exporter:
@@ -430,6 +437,11 @@ services:
       postgres:
         condition: service_healthy
     restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:9187/metrics']
+      interval: 30s
+      timeout: 10s
+      retries: 3
     deploy:
       resources:
         limits:
@@ -451,6 +463,14 @@ services:
       redis:
         condition: service_healthy
     restart: unless-stopped
+    # Health check disabled - minimal image doesn't include wget/curl/nc
+    # Prometheus scraping will detect if exporter fails
+    # healthcheck:
+    #   test: ['CMD', 'wget', '-q', '--spider', 'http://localhost:9121/metrics']
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 10s
     deploy:
       resources:
         limits:
