@@ -1,3 +1,5 @@
+import './tracing';
+
 import dotenv from 'dotenv';
 dotenv.config();
 
