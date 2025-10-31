@@ -1,16 +1,18 @@
-import dotenv from 'dotenv';
-dotenv.config();
+import './tracing';
 
+import cors from 'cors';
+import dotenv from 'dotenv';
 import express, { Application, Request, Response } from 'express';
 import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
-import cors from 'cors';
 
 import { testConnection } from './config/database.config';
 import { connectRedis } from './config/redis.config';
 import paymentRoutes from './routes/payment.routes';
 import { logger } from './utils/logger.utils';
 import { metricsMiddleware, getMetrics } from './utils/metrics.utils';
+
+dotenv.config();
 
 const app: Application = express();
 const PORT = process.env.PORT || 3004;
@@ -99,7 +101,7 @@ app.use((req: Request, res: Response) => {
 });
 
 // Error handler
-app.use((error: Error, _req: Request, res: Response, _next: any) => {
+app.use((error: Error, _req: Request, res: Response) => {
   logger.error('Unhandled error:', error);
 
   res.status(500).json({

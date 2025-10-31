@@ -1,3 +1,5 @@
+import './tracing';
+
 import 'dotenv/config';
 import cors from 'cors';
 import express, { Request, Response, NextFunction } from 'express';
@@ -59,7 +61,7 @@ app.use((req: Request, res: Response) => {
 });
 
 // Error handler
-app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+app.use((err: Error, req: Request, res: Response) => {
   logger.error('Unhandled error:', err);
   res.status(500).json({
     error: 'Internal server error',
