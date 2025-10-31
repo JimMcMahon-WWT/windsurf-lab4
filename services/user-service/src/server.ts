@@ -1,3 +1,6 @@
+// IMPORTANT: Initialize tracing FIRST, before any other imports
+import './tracing';
+
 import dotenv from 'dotenv';
 
 import app from './app';

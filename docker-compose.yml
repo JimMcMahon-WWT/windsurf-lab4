@@ -132,6 +132,11 @@ services:
       DB_NAME: ecommerce
       DB_USER: postgres
       DB_PASSWORD: postgres
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
       REDIS_HOST: redis
       REDIS_PORT: 6379
       JWT_SECRET: your-secret-key-change-in-production
