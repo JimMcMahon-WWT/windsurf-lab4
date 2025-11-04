@@ -1,14 +1,42 @@
-import { S3 } from 'aws-sdk';
+import {
+  DeleteObjectCommand,
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+  S3ClientConfig,
+} from '@aws-sdk/client-s3';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import sharp from 'sharp';
 import { v4 as uuidv4 } from 'uuid';
 
 import { logger } from '../utils/logger.utils';
 
-const s3 = new S3({
-  region: process.env.AWS_REGION || 'us-east-1',
-  accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-  secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-});
+const region = process.env.AWS_REGION || 'us-east-1';
+const credentials =
+  process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY
+    ? {
+        accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+        secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+      }
+    : undefined;
+
+const s3Endpoint = process.env.S3_ENDPOINT;
+const forcePathStyle = process.env.S3_FORCE_PATH_STYLE === 'true';
+
+const s3Config: S3ClientConfig = {
+  region,
+  credentials,
+};
+
+if (s3Endpoint) {
+  s3Config.endpoint = s3Endpoint;
+}
+
+if (forcePathStyle) {
+  s3Config.forcePathStyle = true;
+}
+
+const s3Client = new S3Client(s3Config);
 
 const bucketName = process.env.S3_BUCKET_NAME || 'ecommerce-product-images';
 const bucketUrl = process.env.S3_BUCKET_URL || `https://${bucketName}.s3.amazonaws.com`;
@@ -123,8 +151,8 @@ export class ImageService {
    */
   private async uploadToS3(buffer: Buffer, key: string, contentType: string): Promise<string> {
     try {
-      await s3
-        .putObject({
+      await s3Client.send(
+        new PutObjectCommand({
           Bucket: bucketName,
           Key: key,
           Body: buffer,
@@ -132,7 +160,7 @@ export class ImageService {
           ACL: 'public-read',
           CacheControl: 'max-age=31536000', // 1 year
         })
-        .promise();
+      );
 
       return key;
     } catch (error) {
@@ -157,7 +185,12 @@ export class ImageService {
       const sizes = ['original', 'thumbnail', 'small', 'medium', 'large'];
       const deletePromises = sizes.map((size) => {
         const sizeKey = baseKey.replace('_', `_${size}.`);
-        return s3.deleteObject({ Bucket: bucketName, Key: sizeKey }).promise();
+        return s3Client.send(
+          new DeleteObjectCommand({
+            Bucket: bucketName,
+            Key: sizeKey,
+          })
+        );
       });
 
       await Promise.all(deletePromises);
@@ -173,11 +206,12 @@ export class ImageService {
    */
   async getSignedUrl(key: string, expiresIn: number = 3600): Promise<string> {
     try {
-      const url = await s3.getSignedUrlPromise('getObject', {
+      const command = new GetObjectCommand({
         Bucket: bucketName,
         Key: key,
-        Expires: expiresIn,
       });
+
+      const url = await getSignedUrl(s3Client, command, { expiresIn });
 
       return url;
     } catch (error) {
